@@ -11,6 +11,7 @@ import { AdminLayout } from './layouts/AdminLayout';
 import { AdminLogin } from './pages/admin/AdminLogin';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminProducts } from './pages/admin/AdminProducts';
+import { AdminOrders } from './pages/admin/AdminOrders';
 import { CartProvider } from './context/CartContext';
 import { MyBagPage } from './pages/customer/MyBagPage';
 import { CheckoutPage } from './pages/customer/CheckoutPage';
@@ -48,25 +49,26 @@ export const App: React.FC = () => {
               <Route path="/contact" element={<ContactPage />} />
             </Route>
 
-          {/* Admin Login Portal */}
-          <Route path="/admin/login" element={<AdminLogin />} />
+            {/* Admin Login Portal */}
+            <Route path="/admin/login" element={<AdminLogin />} />
 
-          {/* Protected Admin Routes (Guarded by Supabase Auth + admin_users role verification) */}
-          <Route
-            path="/admin"
-            element={
-              <AdminGuard allowedRoles={['superadmin', 'admin', 'staff']}>
-                <AdminLayout />
-              </AdminGuard>
-            }
-          >
-            <Route index element={<AdminDashboard />} />
-            <Route path="products" element={<AdminProducts />} />
-          </Route>
+            {/* Protected Admin Routes (Guarded by Supabase Auth + admin_users role verification) */}
+            <Route
+              path="/admin"
+              element={
+                <AdminGuard allowedRoles={['superadmin', 'admin', 'staff']}>
+                  <AdminLayout />
+                </AdminGuard>
+              }
+            >
+              <Route index element={<AdminDashboard />} />
+              <Route path="products" element={<AdminProducts />} />
+              <Route path="orders" element={<AdminOrders />} />
+            </Route>
 
-          {/* Fallback to Storefront */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+            {/* Fallback to Storefront */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
         </CartProvider>
       </AuthProvider>
     </BrowserRouter>
