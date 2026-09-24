@@ -24,6 +24,7 @@ export const AdminLayout: React.FC = () => {
 
   const isProductsActive = location.pathname.startsWith('/admin/products');
   const isOrdersActive = location.pathname.startsWith('/admin/orders');
+  const isCustomersActive = location.pathname.startsWith('/admin/customers');
   const isDashboardActive = location.pathname === '/admin' || location.pathname === '/admin/';
 
   return (
@@ -100,9 +101,15 @@ export const AdminLayout: React.FC = () => {
             >
               Orders
             </Link>
-            <span style={styles.navTabDisabled} title="Upcoming phase">
+            <Link
+              to="/admin/customers"
+              style={{
+                ...styles.navTab,
+                ...(isCustomersActive ? styles.navTabActive : {}),
+              }}
+            >
               Customers
-            </span>
+            </Link>
             <span style={styles.navTabDisabled} title="Upcoming phase">
               Settings
             </span>

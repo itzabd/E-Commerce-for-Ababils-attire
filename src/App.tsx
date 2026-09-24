@@ -12,6 +12,7 @@ import { AdminLogin } from './pages/admin/AdminLogin';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminProducts } from './pages/admin/AdminProducts';
 import { AdminOrders } from './pages/admin/AdminOrders';
+import { AdminCustomers } from './pages/admin/AdminCustomers';
 import { CartProvider } from './context/CartContext';
 import { MyBagPage } from './pages/customer/MyBagPage';
 import { CheckoutPage } from './pages/customer/CheckoutPage';
@@ -64,6 +65,7 @@ export const App: React.FC = () => {
               <Route index element={<AdminDashboard />} />
               <Route path="products" element={<AdminProducts />} />
               <Route path="orders" element={<AdminOrders />} />
+              <Route path="customers" element={<AdminCustomers />} />
             </Route>
 
             {/* Fallback to Storefront */}
