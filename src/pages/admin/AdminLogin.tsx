@@ -61,7 +61,7 @@ export const AdminLogin: React.FC = () => {
         {/* Monogram Crest */}
         <div style={styles.crestWrapper}>
           <div style={styles.crest}>AB</div>
-          <span style={styles.atelierLabel}>ATELIER SUITE</span>
+          <span style={styles.atelierLabel}>ADMIN SUITE</span>
         </div>
 
         {/* Heading */}
@@ -153,7 +153,7 @@ export const AdminLogin: React.FC = () => {
                 Verifying Credentials...
               </span>
             ) : (
-              'Sign In to Atelier Suite'
+              'Sign In to Admin Suite'
             )}
           </button>
         </form>

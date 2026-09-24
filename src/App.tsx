@@ -13,6 +13,7 @@ import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminProducts } from './pages/admin/AdminProducts';
 import { AdminOrders } from './pages/admin/AdminOrders';
 import { AdminCustomers } from './pages/admin/AdminCustomers';
+import { AdminSettings } from './pages/admin/AdminSettings';
 import { CartProvider } from './context/CartContext';
 import { MyBagPage } from './pages/customer/MyBagPage';
 import { CheckoutPage } from './pages/customer/CheckoutPage';
@@ -66,6 +67,7 @@ export const App: React.FC = () => {
               <Route path="products" element={<AdminProducts />} />
               <Route path="orders" element={<AdminOrders />} />
               <Route path="customers" element={<AdminCustomers />} />
+              <Route path="settings" element={<AdminSettings />} />
             </Route>
 
             {/* Fallback to Storefront */}

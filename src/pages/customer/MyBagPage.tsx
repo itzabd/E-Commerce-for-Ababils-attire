@@ -42,6 +42,18 @@ export const MyBagPage: React.FC = () => {
     }
   };
 
+  // Close confirmation dialogs on Escape key
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setItemToRemove(null);
+        setConfirmClearOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
     <div style={styles.pageContainer}>
       {/* Top Notification Banner */}
@@ -119,7 +131,7 @@ export const MyBagPage: React.FC = () => {
             </div>
             <h2 style={styles.emptyTitle}>Your Bag is Empty</h2>
             <p style={styles.emptySubtitle}>
-              Explore our boutique collection of handcrafted girls’ heirloom frocks and delicious
+              Explore our boutique collection of handcrafted girls’ dresses and delicious
               homemade celebration cakes.
             </p>
             <div style={styles.emptyActionGroup}>
@@ -904,8 +916,10 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: '9999px',
   },
   stepperBtn: {
-    width: '36px',
-    height: '36px',
+    width: '40px',
+    height: '40px',
+    minWidth: '40px',
+    minHeight: '40px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -933,6 +947,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 600,
     cursor: 'pointer',
     padding: '6px 8px',
+    minHeight: '44px',
   },
   summarySidebar: {
     display: 'flex',
@@ -1085,7 +1100,7 @@ const styles: Record<string, React.CSSProperties> = {
     boxShadow: 'var(--shadow-xs, 0 1px 3px rgba(92,62,54,0.08))',
   },
   continueShoppingBtn: {
-    height: '40px',
+    height: '44px',
     borderRadius: '9999px',
     backgroundColor: '#ffffff',
     color: '#5c3e36',
@@ -1238,8 +1253,8 @@ const styles: Record<string, React.CSSProperties> = {
     marginTop: '6px',
   },
   modalCancelBtn: {
-    height: '38px',
-    padding: '0 16px',
+    height: '44px',
+    padding: '0 18px',
     borderRadius: '9999px',
     backgroundColor: '#f5f3ef',
     color: '#2d2421',
@@ -1247,10 +1262,13 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 600,
     border: 'none',
     cursor: 'pointer',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   modalConfirmBtn: {
-    height: '38px',
-    padding: '0 18px',
+    height: '44px',
+    padding: '0 20px',
     borderRadius: '9999px',
     backgroundColor: '#991b1b',
     color: '#ffffff',
@@ -1258,5 +1276,8 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 600,
     border: 'none',
     cursor: 'pointer',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 };

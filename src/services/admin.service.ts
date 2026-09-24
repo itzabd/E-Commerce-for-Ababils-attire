@@ -213,7 +213,7 @@ const INITIAL_DEMO_CUSTOMERS: CustomerProfileDetail[] = [
         items: [
           {
             id: 'item_0812_1',
-            product_name: 'Heirloom Linen Romper',
+            product_name: 'Handcrafted Linen Romper',
             quantity: 1,
             unit_price: 3850,
             subtotal: 3850,
@@ -308,7 +308,7 @@ const INITIAL_DEMO_CUSTOMERS: CustomerProfileDetail[] = [
     latest_order_advance_verified: false,
     latest_order_cash_due: 4100,
     customer_type: 'Active Inquiry',
-    tags: ['Active Inquiry', 'Bespoke Cakes', 'Dhanmondi'],
+    tags: ['Active Inquiry', 'Celebration Cakes', 'Dhanmondi'],
     purchased_categories: ['cakes'],
     financial_summary: {
       lifetime_spend: 4600,
@@ -380,8 +380,8 @@ const INITIAL_DEMO_CUSTOMERS: CustomerProfileDetail[] = [
     latest_order_items_summary: 'Christening Gown (0-3M) + Daisy Bento Cake',
     latest_order_advance_verified: true,
     latest_order_cash_due: 5250,
-    customer_type: 'Seasonal Patron',
-    tags: ['Seasonal Patron', 'Couture Dresses', 'Banani Patron'],
+    customer_type: 'Seasonal Customer',
+    tags: ['Seasonal Customer', 'Handmade Dresses', 'Banani Customer'],
     purchased_categories: ['dresses', 'cakes'],
     financial_summary: {
       lifetime_spend: 9950,
@@ -414,7 +414,7 @@ const INITIAL_DEMO_CUSTOMERS: CustomerProfileDetail[] = [
             unit_price: 3950,
             subtotal: 3950,
             selected_size: '0-3M',
-            customization_details: 'Atelier Keepsake Wooden Gift Chest with Ribbon',
+            customization_details: 'Signature Wooden Gift Box with Ribbon',
           },
           {
             id: 'item_1039_2',
@@ -460,7 +460,7 @@ const INITIAL_DEMO_CUSTOMERS: CustomerProfileDetail[] = [
         id: 'note_1039_1',
         customer_id: 'cust_demo_1039',
         category: 'child',
-        content: 'Daughter Maya now 2T; prefers light pastel rose and ivory tones for heirloom photography.',
+        content: 'Daughter Maya now 2T; prefers light pastel rose and ivory tones for milestone photography.',
         created_at: '2026-09-20T10:20:00Z',
         created_by: 'Sanjida Bethi',
       },
@@ -501,7 +501,7 @@ export const adminService = {
 
     if (adminError || !adminRecord) {
       await supabase.auth.signOut();
-      throw new Error('Access denied: Your account is not authorized as an Atelier Admin.');
+      throw new Error('Access denied: Your account is not authorized as an Admin.');
     }
 
     return { user: data.user, admin: adminRecord };
@@ -646,8 +646,8 @@ export const adminService = {
             categories.has('dresses') && categories.has('cakes')
               ? 'Dresses & Cakes'
               : categories.has('dresses')
-              ? 'Couture Dresses'
-              : 'Bespoke Cakes',
+              ? 'Handmade Dresses'
+              : 'Celebration Cakes',
             c.area,
           ].filter(Boolean),
           purchased_categories: Array.from(categories),

@@ -15,6 +15,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ordersService, type AdminOrderSummary } from '../../services/orders.service';
 import type { OrderStatus, TrxMatchingPreview } from '../../types';
+import { ManualOrderModal } from '../../components/admin/ManualOrderModal';
 
 type MatchingState =
   | 'idle'
@@ -33,6 +34,9 @@ export const AdminOrders: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all');
   const [categoryFilter, setCategoryFilter] = useState<'all' | 'dress' | 'cake' | 'bundle'>('all');
+
+  // Manual Order Modal State
+  const [showManualOrderModal, setShowManualOrderModal] = useState(false);
 
   // Selected Order for Detail Drawer
   const [selectedOrder, setSelectedOrder] = useState<AdminOrderSummary | null>(null);
@@ -72,6 +76,23 @@ export const AdminOrders: React.FC = () => {
   useEffect(() => {
     loadOrders();
   }, [loadOrders]);
+
+  // Handle escape key to close drawer or modals
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (slipModalOpen) {
+          setSlipModalOpen(false);
+        } else if (drawerOpen) {
+          setDrawerOpen(false);
+        }
+      }
+    };
+    if (drawerOpen || slipModalOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [drawerOpen, slipModalOpen]);
 
   // Show auto-dismissing toast
   const showToast = (msg: string) => {
@@ -125,7 +146,7 @@ export const AdminOrders: React.FC = () => {
       const res = await ordersService.matchBkashPayment(
         trxId,
         true,
-        `bKash advance payment verified by Sanjida Bethi against atelier statement.`
+        `bKash advance payment verified by Sanjida Bethi against bKash statement.`
       );
       if (res.success) {
         showToast(`Advance payment of ৳500 verified for ${invoice || trxId}.`);
@@ -281,13 +302,13 @@ export const AdminOrders: React.FC = () => {
             </span>
           </div>
           <p style={styles.pageSubtitle}>
-            {counts.total} orders placed across Atelier & Pâtisserie
+            {counts.total} orders placed across Dresses & Cakes
           </p>
         </div>
 
         <button
           type="button"
-          onClick={() => alert('Manual bespoke telephone orders feature will be enabled in upcoming phase.')}
+          onClick={() => setShowManualOrderModal(true)}
           style={styles.manualOrderBtn}
         >
           <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
@@ -428,7 +449,7 @@ export const AdminOrders: React.FC = () => {
                     </span>
                   </div>
                   <span style={styles.matchedProductPill}>
-                    {matchedData.items?.[0]?.product_name || 'Bespoke Order'}
+                    {matchedData.items?.[0]?.product_name || 'Custom Order'}
                   </span>
                 </div>
 
@@ -588,9 +609,9 @@ export const AdminOrders: React.FC = () => {
             style={styles.categorySelect}
           >
             <option value="all">All Products (Dresses & Cakes)</option>
-            <option value="dress">Heirloom Dresses Only</option>
+            <option value="dress">Dresses Only</option>
             <option value="cake">Celebration Cakes Only</option>
-            <option value="bundle">Bespoke Bundles</option>
+            <option value="bundle">Dress & Cake Bundles</option>
           </select>
 
           <div style={styles.scheduleFilterBox}>
@@ -613,7 +634,7 @@ export const AdminOrders: React.FC = () => {
             <span className="material-symbols-outlined spin" style={{ fontSize: '28px', color: '#5c3e36' }}>
               progress_activity
             </span>
-            <p style={{ margin: 0, fontSize: '13px', color: '#6f6764' }}>Loading atelier orders...</p>
+            <p style={{ margin: 0, fontSize: '13px', color: '#6f6764' }}>Loading orders...</p>
           </div>
         )}
 
@@ -1045,7 +1066,7 @@ export const AdminOrders: React.FC = () => {
               <div>
                 <h2 style={styles.slipBrandTitle}>Ababil’s Attire</h2>
                 <p style={styles.slipBrandSub}>Handmade Dresses & Homemade Cakes by Sanjida Bethi</p>
-                <p style={styles.slipAtelierDhaka}>Banani Atelier, Dhaka • +880 1712-345678</p>
+                <p style={styles.slipAtelierDhaka}>Banani Studio, Dhaka • +880 1712-345678</p>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <span style={styles.slipInvoiceCode}>{slipOrder.invoice_number}</span>
@@ -1151,6 +1172,16 @@ export const AdminOrders: React.FC = () => {
           </button>
         </div>
       )}
+
+      {/* Manual Order Creation Modal */}
+      <ManualOrderModal
+        isOpen={showManualOrderModal}
+        onClose={() => setShowManualOrderModal(false)}
+        onOrderCreated={(order) => {
+          showToast(`Manual order ${order.invoice_number} created successfully.`);
+          loadOrders();
+        }}
+      />
     </div>
   );
 };

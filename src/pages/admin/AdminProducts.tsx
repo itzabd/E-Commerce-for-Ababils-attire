@@ -66,6 +66,18 @@ export const AdminProducts: React.FC = () => {
     loadProducts();
   }, [loadProducts]);
 
+  // Handle escape key to close product form modal
+  useEffect(() => {
+    if (!isFormOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsFormOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFormOpen]);
+
   // Client-side sorting
   const sortedProducts = useMemo(() => {
     const list = [...products];
@@ -166,7 +178,7 @@ export const AdminProducts: React.FC = () => {
           <div style={styles.kicker}>
             <span>Catalog Archive</span>
             <span>•</span>
-            <span>Heirloom Couture &amp; Pâtisserie</span>
+            <span>Dresses &amp; Celebration Cakes</span>
           </div>
           <h1 style={styles.title}>Product Management</h1>
           <p style={styles.subtitle}>
@@ -309,7 +321,7 @@ export const AdminProducts: React.FC = () => {
           <p style={styles.emptyDesc}>
             {searchQuery || categoryFilter !== 'all' || statusFilter !== 'all'
               ? 'No products matched your active search and filter settings.'
-              : 'Your boutique catalog has no products yet. Add your first heirloom dress or celebration cake.'}
+              : 'Your boutique catalog has no products yet. Add your first dress or celebration cake.'}
           </p>
           <div style={styles.emptyActions}>
             <button

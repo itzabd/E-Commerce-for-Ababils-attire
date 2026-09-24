@@ -19,7 +19,7 @@ export const AdminDashboard: React.FC = () => {
       <div style={styles.banner}>
         <div style={styles.bannerText}>
           <span style={styles.badge}>ADMIN AUTHENTICATION VERIFIED</span>
-          <h1 style={styles.welcomeTitle}>Welcome, {admin?.full_name || 'Atelier Administrator'}</h1>
+          <h1 style={styles.welcomeTitle}>Welcome, {admin?.full_name || 'Administrator'}</h1>
           <p style={styles.welcomeSubtitle}>
             Administrative access confirmed for <strong>{user?.email}</strong> with active role{' '}
             <span style={styles.roleHighlight}>[{admin?.role?.toUpperCase()}]</span>.
@@ -83,7 +83,7 @@ export const AdminDashboard: React.FC = () => {
           <div>
             <h3 style={styles.readinessTitle}>Product Management Ready</h3>
             <p style={styles.readinessText}>
-              Bespoke dresses and celebration cakes catalog archive, photography uploader, inventory, and status controls are live.
+              Handmade dresses and celebration cakes catalog archive, photography uploader, inventory, and status controls are live.
             </p>
           </div>
           <Link

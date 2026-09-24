@@ -84,7 +84,7 @@ export const invoiceService = {
       special_instructions: order.special_instructions,
       store_info: {
         name: import.meta.env.VITE_STUDIO_NAME || "Ababil’s Attire by Sanjida Bethi",
-        tagline: 'Bespoke Heirloom Garments & Celebration Confections',
+        tagline: 'Handmade Dresses & Celebration Cakes',
         artisan: 'Sanjida Bethi',
         contact_phone: '+880 1712-345678',
         whatsapp: import.meta.env.VITE_STUDIO_WHATSAPP_NUMBER || '+8801712345678',

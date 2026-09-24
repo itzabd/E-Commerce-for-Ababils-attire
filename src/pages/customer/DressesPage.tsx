@@ -89,7 +89,7 @@ export const DressesPage: React.FC = () => {
         </div>
 
         <span style={styles.itemCountBadge}>
-          {products.length} Heirloom Pieces
+          {products.length} Handmade Pieces
         </span>
       </nav>
 
@@ -99,7 +99,7 @@ export const DressesPage: React.FC = () => {
       <section style={styles.editorialHeader}>
         <h1 style={styles.pageTitle}>Handmade Girls’ Dresses</h1>
         <p style={styles.pageDescription}>
-          Delicate heirloom dresses handcrafted with natural cotton, pure linen, and intricate
+          Delicate handmade dresses handcrafted with natural cotton, pure linen, and intricate
           hand-smocking for your little one’s special milestones.
         </p>
 
@@ -375,11 +375,19 @@ const styles: Record<string, React.CSSProperties> = {
   },
   clearSearchBtn: {
     position: 'absolute',
-    right: '12px',
+    right: '8px',
     top: '50%',
     transform: 'translateY(-50%)',
     color: '#988e8a',
     padding: '4px',
+    minWidth: '44px',
+    minHeight: '44px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+    border: 'none',
+    cursor: 'pointer',
   },
   filterRow: {
     display: 'flex',
@@ -391,19 +399,23 @@ const styles: Record<string, React.CSSProperties> = {
   },
   chipActive: {
     whiteSpace: 'nowrap',
-    height: '36px',
-    padding: '0 14px',
+    minHeight: '44px',
+    padding: '0 16px',
     borderRadius: '9999px',
     backgroundColor: '#5c3e36',
     color: '#ffffff',
     fontFamily: "var(--font-sans, 'Plus Jakarta Sans', sans-serif)",
     fontSize: '12px',
     fontWeight: 600,
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
   },
   chipInactive: {
     whiteSpace: 'nowrap',
-    height: '36px',
-    padding: '0 14px',
+    minHeight: '44px',
+    padding: '0 16px',
     borderRadius: '9999px',
     backgroundColor: '#ffffff',
     border: '1px solid var(--color-border-default, #dfd8ce)',
@@ -411,13 +423,17 @@ const styles: Record<string, React.CSSProperties> = {
     fontFamily: "var(--font-sans, 'Plus Jakarta Sans', sans-serif)",
     fontSize: '12px',
     fontWeight: 500,
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
   },
   sortDropdownContainer: {
     marginLeft: 'auto',
   },
   sortSelect: {
-    height: '36px',
-    padding: '0 12px',
+    minHeight: '44px',
+    padding: '0 14px',
     borderRadius: '9999px',
     backgroundColor: '#ffffff',
     border: '1px solid var(--color-border-default, #dfd8ce)',
@@ -427,6 +443,8 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 600,
     outline: 'none',
     cursor: 'pointer',
+    display: 'inline-flex',
+    alignItems: 'center',
   },
   productsGrid: {
     display: 'grid',

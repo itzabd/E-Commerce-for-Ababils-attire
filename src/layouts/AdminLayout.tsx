@@ -25,6 +25,7 @@ export const AdminLayout: React.FC = () => {
   const isProductsActive = location.pathname.startsWith('/admin/products');
   const isOrdersActive = location.pathname.startsWith('/admin/orders');
   const isCustomersActive = location.pathname.startsWith('/admin/customers');
+  const isSettingsActive = location.pathname.startsWith('/admin/settings');
   const isDashboardActive = location.pathname === '/admin' || location.pathname === '/admin/';
 
   return (
@@ -38,7 +39,7 @@ export const AdminLayout: React.FC = () => {
               <span style={styles.monogram}>AB</span>
               <div style={styles.titleStack}>
                 <span style={styles.brandTitle}>Ababil’s Attire</span>
-                <span style={styles.brandSubtitle}>ATELIER SUITE</span>
+                <span style={styles.brandSubtitle}>ADMIN SUITE</span>
               </div>
             </Link>
             <span style={styles.adminPill}>ADMIN</span>
@@ -64,7 +65,7 @@ export const AdminLayout: React.FC = () => {
               onClick={handleSignOut}
               disabled={isSigningOut}
               style={styles.signOutButton}
-              title="Sign out of Atelier Admin"
+              title="Sign out of Admin Suite"
             >
               {isSigningOut ? 'Signing out...' : 'Sign Out'}
             </button>
@@ -110,9 +111,15 @@ export const AdminLayout: React.FC = () => {
             >
               Customers
             </Link>
-            <span style={styles.navTabDisabled} title="Upcoming phase">
+            <Link
+              to="/admin/settings"
+              style={{
+                ...styles.navTab,
+                ...(isSettingsActive ? styles.navTabActive : {}),
+              }}
+            >
               Settings
-            </span>
+            </Link>
           </div>
         </nav>
       </header>
@@ -207,8 +214,11 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 500,
     color: '#6f6764',
     textDecoration: 'none',
-    padding: '6px 10px',
-    borderRadius: '6px',
+    padding: '0 12px',
+    minHeight: '44px',
+    display: 'inline-flex',
+    alignItems: 'center',
+    borderRadius: '8px',
     backgroundColor: '#f5f3ef',
     border: '1px solid #dfd8ce',
     transition: 'all 0.2s ease',
@@ -255,7 +265,10 @@ const styles: Record<string, React.CSSProperties> = {
     color: '#991b1b',
     border: '1px solid #fecaca',
     borderRadius: '8px',
-    padding: '6px 12px',
+    padding: '0 14px',
+    minHeight: '44px',
+    display: 'inline-flex',
+    alignItems: 'center',
     fontSize: '12px',
     fontWeight: 600,
     cursor: 'pointer',
@@ -275,7 +288,10 @@ const styles: Record<string, React.CSSProperties> = {
     overflowX: 'auto',
   },
   navTab: {
-    padding: '10px 4px',
+    padding: '12px 6px',
+    minHeight: '44px',
+    display: 'inline-flex',
+    alignItems: 'center',
     fontSize: '13px',
     fontWeight: 500,
     color: '#6f6764',

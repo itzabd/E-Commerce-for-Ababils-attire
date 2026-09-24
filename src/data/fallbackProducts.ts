@@ -66,10 +66,10 @@ export const FALLBACK_PRODUCTS: ProductWithDetails[] = [
   {
     id: '22222222-2222-4222-8222-222222222222',
     product_code: 'AA-DRS-002',
-    name: 'Noor Heirloom Tiered Dress',
+    name: 'Noor Tiered Dress',
     category: 'dress',
     description:
-      'Artisanal toddler dress in warm biscuit organic muslin with gathered tiered skirt and embroidered Peter Pan collar. Tailored with French seams and mother-of-pearl buttons.',
+      'Handmade toddler dress in warm biscuit organic muslin with gathered tiered skirt and embroidered Peter Pan collar. Tailored with French seams and mother-of-pearl buttons.',
     price: 3600,
     status: 'made_to_order',
     featured: true,
@@ -85,7 +85,7 @@ export const FALLBACK_PRODUCTS: ProductWithDetails[] = [
         product_id: '22222222-2222-4222-8222-222222222222',
         image_url:
           'https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?auto=format&fit=crop&w=900&q=80',
-        alt_text: 'Noor Heirloom Tiered Dress in Organic Muslin',
+        alt_text: 'Noor Tiered Dress in Organic Muslin',
         sort_order: 0,
         created_at: new Date().toISOString(),
       },

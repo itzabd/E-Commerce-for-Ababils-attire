@@ -165,7 +165,7 @@ export const CheckoutPage: React.FC = () => {
         cake_message: item.customMessage || undefined,
         customization_details:
           item.category === 'dress'
-            ? item.fabricDetails || 'Handmade Couture Garment'
+            ? item.fabricDetails || 'Handmade Dress'
             : `Flavor: ${item.selectedFlavor || 'Custom'}, Inscription: ${item.customMessage || 'None'}`,
       }));
 
@@ -242,7 +242,7 @@ export const CheckoutPage: React.FC = () => {
             <h1 style={styles.emptyTitle}>Your Shopping Bag is Empty</h1>
             <p style={styles.emptyDesc}>
               You do not have any items in your bag to checkout. Please explore our handcrafted dresses
-              and artisan cakes first.
+              and homemade cakes first.
             </p>
             <div style={styles.emptyBtnRow}>
               <Link to="/bag" style={styles.primaryBtn}>
@@ -471,14 +471,14 @@ export const CheckoutPage: React.FC = () => {
                   <option value="Dhaka Suburbs (Gazipur, Savar, Narayanganj) - ৳ 350">
                     Dhaka Suburbs (Gazipur, Savar, Narayanganj) - ৳ 350
                   </option>
-                  <option value="Chittagong (Heirloom Dress Only) - ৳ 150">
-                    Chittagong (Heirloom Dress Only) - ৳ 150
+                  <option value="Chittagong (Dress Only) - ৳ 150">
+                    Chittagong (Dress Only) - ৳ 150
                   </option>
-                  <option value="Sylhet (Heirloom Dress Only) - ৳ 150">
-                    Sylhet (Heirloom Dress Only) - ৳ 150
+                  <option value="Sylhet (Dress Only) - ৳ 150">
+                    Sylhet (Dress Only) - ৳ 150
                   </option>
-                  <option value="Other Divisions (Heirloom Dress Only) - ৳ 150">
-                    Other Divisions (Heirloom Dress Only) - ৳ 150
+                  <option value="Other Divisions (Dress Only) - ৳ 150">
+                    Other Divisions (Dress Only) - ৳ 150
                   </option>
                 </select>
               </div>
@@ -593,7 +593,7 @@ export const CheckoutPage: React.FC = () => {
                     {item.category === 'dress' && (
                       <>
                         <p style={styles.reviewItemMeta}>
-                          {item.fabricDetails || 'Heirloom Handcrafted Cotton'}
+                          {item.fabricDetails || 'Handcrafted Cotton'}
                         </p>
                         <div style={styles.reviewChipsRow}>
                           <span style={styles.reviewChip}>Size: {item.selectedSize}</span>
@@ -858,7 +858,7 @@ export const CheckoutPage: React.FC = () => {
                 ring_volume
               </span>
               <p style={styles.guaranteeText}>
-                <strong>Atelier Guarantee:</strong> After you submit, Sanjida will call to verify your advance
+                <strong>Direct Guarantee:</strong> After you submit, Sanjida will call to verify your advance
                 payment and confirm cake delivery details.
               </p>
             </div>

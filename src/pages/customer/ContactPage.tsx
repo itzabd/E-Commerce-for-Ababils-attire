@@ -1,6 +1,6 @@
 /**
  * Ababil’s Attire by Sanjida Bethi
- * Contact & Bespoke Orders Page (Mirrors Stitch specifications)
+ * Contact & Custom Orders Page (Mirrors Stitch specifications)
  */
 
 import React, { useState } from 'react';
@@ -24,11 +24,11 @@ export const ContactPage: React.FC = () => {
     <div style={styles.container}>
       {/* Header */}
       <section style={styles.headerSection}>
-        <span style={styles.eyebrow}>BESPOKE INQUIRIES & STUDIO CONCIERGE</span>
+        <span style={styles.eyebrow}>CONTACT &amp; CUSTOM INQUIRIES</span>
         <h1 style={styles.title}>Let’s Plan Your Celebration</h1>
         <p style={styles.subtitle}>
           Have a question about dress measurements or want to design a custom celebration cake?
-          Sanjida Bethi and our atelier team are delighted to assist you.
+          Sanjida Bethi and our team are delighted to assist you.
         </p>
       </section>
 
@@ -55,7 +55,7 @@ export const ContactPage: React.FC = () => {
               rel="noopener noreferrer"
               style={styles.whatsAppBtn}
             >
-              Open WhatsApp Chat 💬
+              Message Sanjida on WhatsApp 💬
             </a>
           </div>
 
@@ -66,7 +66,7 @@ export const ContactPage: React.FC = () => {
                 location_on
               </span>
               <div>
-                <h4 style={styles.detailLabel}>Dhaka Atelier</h4>
+                <h4 style={styles.detailLabel}>Dhaka Studio</h4>
                 <p style={styles.detailValue}>Road 11, Block D, Banani, Dhaka, Bangladesh</p>
               </div>
             </div>
@@ -109,7 +109,7 @@ export const ContactPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Right: Bespoke Inquiry Form */}
+        {/* Right: Custom Inquiry Form */}
         <div style={styles.formCol}>
           <div style={styles.formCard}>
             <h3 style={styles.formTitle}>Send a Message</h3>
@@ -122,7 +122,7 @@ export const ContactPage: React.FC = () => {
                 <span className="material-symbols-outlined" style={{ fontSize: '36px', color: '#065f46' }}>
                   task_alt
                 </span>
-                <h4 style={styles.successTitle}>Inquiry Sent Gracefully!</h4>
+                <h4 style={styles.successTitle}>Inquiry Sent!</h4>
                 <p style={styles.successText}>
                   Thank you, {formData.name || 'valued customer'}. Sanjida will review your inquiry
                   and respond via WhatsApp/Phone shortly.
@@ -203,7 +203,7 @@ export const ContactPage: React.FC = () => {
                 </div>
 
                 <button type="submit" style={styles.submitBtn}>
-                  Send Atelier Inquiry
+                  Send Message
                 </button>
               </form>
             )}
@@ -412,7 +412,8 @@ const styles: Record<string, React.CSSProperties> = {
     color: '#2d2421',
   },
   input: {
-    height: '42px',
+    height: '44px',
+    minHeight: '44px',
     borderRadius: '8px',
     border: '1px solid var(--color-border-default, #dfd8ce)',
     padding: '0 12px',
@@ -421,7 +422,8 @@ const styles: Record<string, React.CSSProperties> = {
     outline: 'none',
   },
   select: {
-    height: '42px',
+    height: '44px',
+    minHeight: '44px',
     borderRadius: '8px',
     border: '1px solid var(--color-border-default, #dfd8ce)',
     padding: '0 10px',
@@ -477,7 +479,9 @@ const styles: Record<string, React.CSSProperties> = {
   },
   newInquiryBtn: {
     marginTop: '12px',
-    padding: '10px 20px',
+    padding: '0 20px',
+    height: '44px',
+    minHeight: '44px',
     borderRadius: '9999px',
     backgroundColor: '#f5f3ef',
     color: '#5c3e36',
@@ -486,5 +490,8 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '12px',
     fontWeight: 600,
     cursor: 'pointer',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 };

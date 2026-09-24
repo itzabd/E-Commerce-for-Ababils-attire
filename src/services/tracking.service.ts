@@ -79,7 +79,7 @@ export const trackingService = {
               {
                 status: 'Order Placed',
                 created_at: conf.created_at,
-                note: 'Order received in Dhaka Atelier.',
+                note: 'Order received at Ababil’s Attire.',
               },
               {
                 status: 'Confirmed',
@@ -135,7 +135,7 @@ export const trackingService = {
           {
             status: 'Order Placed',
             created_at: '2026-09-24T14:30:00Z',
-            note: 'Order submitted with bKash advance transaction. Awaiting atelier matching.',
+            note: 'Order submitted with bKash advance transaction. Awaiting store verification.',
           },
           {
             status: 'Confirmed',

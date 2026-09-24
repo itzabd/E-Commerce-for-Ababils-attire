@@ -147,6 +147,18 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
     setFormError(null);
   }, [productToEdit, initialCategory, isOpen]);
 
+  // Handle escape key to close modal
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   // Toggle dress sizes
@@ -402,9 +414,9 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
         {/* Modal Top Bar */}
         <div style={styles.modalHeader}>
           <div>
-            <span style={styles.headerKicker}>Atelier Catalog Editor</span>
+            <span style={styles.headerKicker}>Catalog Editor</span>
             <h2 style={styles.modalTitle}>
-              {isEditing ? `Edit: ${productToEdit?.name}` : 'Add New Artisan Product'}
+              {isEditing ? `Edit: ${productToEdit?.name}` : 'Add New Product'}
             </h2>
           </div>
           <button type="button" onClick={onClose} style={styles.closeBtn} title="Close window">

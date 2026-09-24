@@ -209,3 +209,130 @@ export interface InvoiceDocumentData {
     bkash_number: string;
   };
 }
+
+/** Delivery Time Window Slot */
+export interface DeliveryTimeSlot {
+  id: string;
+  name: string;
+  start_time: string;
+  end_time: string;
+}
+
+/** Store Configuration Settings */
+export interface StoreSettings {
+  id?: string;
+  // Store Information
+  store_name: string;
+  business_email: string;
+  contact_phone: string;
+  whatsapp_number: string;
+  workshop_address: string;
+  store_description: string;
+  studio_hours: string;
+  instagram_handle: string;
+  facebook_url: string;
+
+  // bKash & Payment Settings
+  bkash_number: string;
+  bkash_type: 'personal' | 'merchant';
+  minimum_advance_amount: number;
+  payment_instructions: string;
+  remaining_balance_policy: string;
+  require_trx_id: boolean;
+  require_sender_last4: boolean;
+  require_reference_name: boolean;
+
+  // Delivery & Courier Settings
+  delivery_inside_dhaka: number;
+  delivery_outside_dhaka: number;
+  delivery_cake_van: number;
+  cake_delivery_restriction: string;
+  available_delivery_days: string[];
+  delivery_time_slots: DeliveryTimeSlot[];
+  pickup_enabled: boolean;
+  pickup_address_note: string;
+
+  // Order Rules & Lead Times
+  invoice_prefix: string;
+  default_order_status: OrderStatus;
+  cake_minimum_notice: string;
+  cake_minimum_notice_hours: number;
+  dress_lead_time: string;
+  dress_lead_time_days: number;
+  cancellation_policy: string;
+
+  // Product Defaults & Sizing
+  preconfigured_sizes: string[];
+  preconfigured_cake_weights: string[];
+  product_categories: string[];
+  default_product_status: string;
+
+  created_at?: string;
+  updated_at?: string;
+}
+
+/** Manual Order Item Specification */
+export interface ManualOrderItemInput {
+  product_id?: string;
+  product_name: string;
+  category: 'dress' | 'cake';
+  quantity: number;
+  unit_price: number;
+  subtotal: number;
+  selected_size?: string;
+  cake_weight?: string;
+  cake_flavor?: string;
+  cake_message?: string;
+  special_instructions?: string;
+}
+
+/** Manual Order Payload for Staff / Admin Order Placement */
+export interface CreateManualOrderPayload {
+  customer: {
+    id?: string;
+    name: string;
+    phone: string;
+    alt_phone?: string;
+    email?: string;
+    address: string;
+    area: string;
+    notes?: string;
+  };
+  order: {
+    delivery_date: string;
+    delivery_time?: string;
+    delivery_address: string;
+    delivery_charge: number;
+    subtotal: number;
+    total_amount: number;
+    advance_amount: number;
+    special_instructions?: string;
+    advance_verified?: boolean;
+  };
+  items: ManualOrderItemInput[];
+  payment?: {
+    method?: 'bkash' | 'cash_on_delivery' | 'manual_adjustment';
+    amount: number;
+    trx_id?: string;
+    sender_last4?: string;
+    reference_name?: string;
+    status?: 'pending_match' | 'matched';
+  };
+}
+
+/** Manual Order Creation Result */
+export interface ManualOrderResult {
+  success: boolean;
+  order_id: string;
+  invoice_number: string;
+  customer_id?: string;
+  customer_name: string;
+  total_amount: number;
+  advance_amount: number;
+  cash_due: number;
+  status: OrderStatus;
+  advance_status: AdvanceStatus;
+  delivery_date: string;
+  created_at: string;
+}
+

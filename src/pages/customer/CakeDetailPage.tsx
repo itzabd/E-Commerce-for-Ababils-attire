@@ -30,6 +30,17 @@ export const CakeDetailPage: React.FC = () => {
 
   const { addItem } = useCart();
 
+  // Close fullscreen modal on Escape
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setImageModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   useEffect(() => {
     let isMounted = true;
 
@@ -321,7 +332,7 @@ export const CakeDetailPage: React.FC = () => {
 
           {/* Choose Size & Servings Radio Cards */}
           <div style={styles.optionsSection}>
-            <label style={styles.optionsLabel}>Choose Size & Servings:</label>
+            <label style={styles.optionsLabel}>Choose Your Cake:</label>
             <div style={styles.weightsGrid}>
               {weights.map((w) => {
                 const isSelected = selectedWeight?.weight === w.weight;
@@ -408,7 +419,7 @@ export const CakeDetailPage: React.FC = () => {
               <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
                 cake
               </span>
-              <span>Order Cake • ৳ {activePrice.toLocaleString()}</span>
+              <span>Add to Bag • ৳ {activePrice.toLocaleString()}</span>
             </button>
 
             <a
@@ -424,7 +435,7 @@ export const CakeDetailPage: React.FC = () => {
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                 chat
               </span>
-              <span>Ask Sanjida About Custom Design</span>
+              <span>Message Sanjida</span>
             </a>
           </div>
 
@@ -789,16 +800,21 @@ const styles: Record<string, React.CSSProperties> = {
     gap: '8px',
   },
   flavorChip: {
-    padding: '8px 14px',
+    minHeight: '44px',
+    padding: '0 16px',
     borderRadius: '9999px',
     fontFamily: "var(--font-sans, 'Plus Jakarta Sans', sans-serif)",
     fontSize: '12px',
     fontWeight: 500,
     cursor: 'pointer',
     transition: 'all 0.15s ease',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   messageInput: {
-    height: '42px',
+    height: '44px',
+    minHeight: '44px',
     borderRadius: '8px',
     border: '1px solid var(--color-border-default, #dfd8ce)',
     backgroundColor: '#ffffff',
@@ -897,6 +913,11 @@ const styles: Record<string, React.CSSProperties> = {
     backgroundColor: 'transparent',
     border: 'none',
     cursor: 'pointer',
+    minWidth: '44px',
+    minHeight: '44px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   fullscreenImage: {
     maxWidth: '90vw',

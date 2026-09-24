@@ -4,23 +4,18 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { productsService } from '../../services/products.service';
 import type { ProductWithDetails } from '../../types';
 import { DressCard } from '../../components/customer/DressCard';
 import { CakeCard } from '../../components/customer/CakeCard';
 
 export const HomePage: React.FC = () => {
+  const navigate = useNavigate();
   const [featuredDresses, setFeaturedDresses] = useState<ProductWithDetails[]>([]);
   const [featuredCakes, setFeaturedCakes] = useState<ProductWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [trackingNumber, setTrackingNumber] = useState('');
-  const [trackingResult, setTrackingResult] = useState<null | {
-    orderNumber: string;
-    status: string;
-    itemSummary: string;
-    dispatchNote: string;
-  }>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -54,14 +49,9 @@ export const HomePage: React.FC = () => {
 
   const handleTrackOrder = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!trackingNumber.trim()) return;
-
-    setTrackingResult({
-      orderNumber: trackingNumber.trim().toUpperCase(),
-      status: 'In Atelier Craft',
-      itemSummary: 'Heirloom Handcrafted Frock & Celebration Cake',
-      dispatchNote: 'Estimated Studio Dispatch: Express Courier via Chilled Delivery Van',
-    });
+    const clean = trackingNumber.trim().toUpperCase();
+    if (!clean) return;
+    navigate(`/track-order?invoice=${encodeURIComponent(clean)}`);
   };
 
   return (
@@ -74,7 +64,7 @@ export const HomePage: React.FC = () => {
         <div style={styles.heroImageWrapper}>
           <img
             src="https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=1200&q=80"
-            alt="Handmade baby heirloom dress and celebration cake in sunlit artisan studio"
+            alt="Handmade baby dress and celebration cake in sunlit studio"
             style={styles.heroImage}
           />
           <div style={styles.heroImageGradient} />
@@ -260,7 +250,7 @@ export const HomePage: React.FC = () => {
             </div>
             <h3 style={styles.pillarTitle}>Handmade with Love</h3>
             <p style={styles.pillarDesc}>
-              Every stitch, gather, and ruffle is carefully cut and sewn by hand in our Dhaka atelier.
+              Every stitch, gather, and ruffle is carefully cut and sewn by hand in our Dhaka studio.
             </p>
           </div>
 
@@ -339,20 +329,6 @@ export const HomePage: React.FC = () => {
               </span>
             </button>
           </form>
-
-          {trackingResult && (
-            <div style={styles.trackResultCard}>
-              <div style={styles.resultHeader}>
-                <span style={styles.resultOrderNum}>Order #{trackingResult.orderNumber}</span>
-                <span style={styles.resultStatusBadge}>{trackingResult.status}</span>
-              </div>
-              <p style={styles.resultSummary}>{trackingResult.itemSummary}</p>
-              <div style={styles.resultDispatch}>
-                <span style={styles.pulseDot} />
-                <span>{trackingResult.dispatchNote}</span>
-              </div>
-            </div>
-          )}
         </div>
       </section>
 

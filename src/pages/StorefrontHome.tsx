@@ -43,11 +43,11 @@ export const StorefrontHome: React.FC = () => {
       {/* Hero Exhibition Banner */}
       <section style={styles.heroSection}>
         <div style={styles.heroInner}>
-          <span style={styles.heirloomTag}>ATELIER CURATED HEIRLOOM</span>
-          <h1 style={styles.heroHeading}>Bespoke Heirloom Dresses & Celebration Cakes</h1>
+          <span style={styles.heirloomTag}>STUDIO CURATED COLLECTION</span>
+          <h1 style={styles.heroHeading}>Handmade Dresses & Celebration Cakes</h1>
           <p style={styles.heroDescription}>
-            Every handmade stitch and pastry glaze is framed with calculated restraint.
-            Dhaka’s premier artisan atelier for milestone celebration confections and bespoke smocked dresses.
+            Every handmade stitch and fresh cake is crafted with care.
+            Dhaka’s premier studio for milestone celebration cakes and hand-smocked dresses.
           </p>
 
           <div style={styles.guestNoticeCard}>

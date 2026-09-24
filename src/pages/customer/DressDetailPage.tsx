@@ -21,6 +21,18 @@ export const DressDetailPage: React.FC = () => {
 
   const { addItem } = useCart();
 
+  // Close modals on Escape key press
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowSizeGuide(false);
+        setImageModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   useEffect(() => {
     let isMounted = true;
 
@@ -355,7 +367,7 @@ export const DressDetailPage: React.FC = () => {
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                 chat
               </span>
-              <span>Ask Sanjida About Custom Sizing</span>
+              <span>Message Sanjida</span>
             </a>
           </div>
 
@@ -397,18 +409,19 @@ export const DressDetailPage: React.FC = () => {
         <div style={styles.modalBackdrop} onClick={() => setShowSizeGuide(false)}>
           <div style={styles.modalCard} onClick={(e) => e.stopPropagation()}>
             <div style={styles.modalHeader}>
-              <h3 style={styles.modalTitle}>Girls' Heirloom Size Guide</h3>
+              <h3 style={styles.modalTitle}>Girls' Size Guide</h3>
               <button
                 type="button"
                 onClick={() => setShowSizeGuide(false)}
                 style={styles.modalCloseBtn}
+                aria-label="Close size guide"
               >
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
 
             <p style={styles.modalSubtitle}>
-              Measurements in inches. Handcrafted garments have a relaxed heirloom silhouette for ease and growing room.
+              Measurements in inches. Handcrafted garments have a relaxed silhouette for ease and growing room.
             </p>
 
             <table style={styles.sizeTable}>
@@ -752,20 +765,28 @@ const styles: Record<string, React.CSSProperties> = {
     backgroundColor: 'transparent',
     border: 'none',
     cursor: 'pointer',
+    minHeight: '44px',
+    display: 'inline-flex',
+    alignItems: 'center',
+    padding: '0 4px',
   },
   sizeChipsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(6, 1fr)',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(52px, 1fr))',
     gap: '8px',
   },
   sizeChip: {
-    height: '42px',
+    minHeight: '44px',
+    minWidth: '44px',
     borderRadius: '8px',
     fontFamily: "var(--font-sans, 'Plus Jakarta Sans', sans-serif)",
     fontSize: '13px',
     fontWeight: 600,
     cursor: 'pointer',
     transition: 'all 0.15s ease',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   actionButtonGroup: {
     display: 'flex',
@@ -874,6 +895,11 @@ const styles: Record<string, React.CSSProperties> = {
     backgroundColor: 'transparent',
     border: 'none',
     cursor: 'pointer',
+    minWidth: '44px',
+    minHeight: '44px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   modalSubtitle: {
     fontSize: '12px',
@@ -915,15 +941,18 @@ const styles: Record<string, React.CSSProperties> = {
     marginTop: '6px',
   },
   modalConfirmBtn: {
-    height: '38px',
+    height: '44px',
     padding: '0 24px',
     borderRadius: '9999px',
     backgroundColor: '#5c3e36',
     color: '#ffffff',
     fontWeight: 600,
-    fontSize: '12px',
+    fontSize: '13px',
     border: 'none',
     cursor: 'pointer',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   fullscreenBackdrop: {
     position: 'fixed',
@@ -943,6 +972,11 @@ const styles: Record<string, React.CSSProperties> = {
     backgroundColor: 'transparent',
     border: 'none',
     cursor: 'pointer',
+    minWidth: '44px',
+    minHeight: '44px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   fullscreenImage: {
     maxWidth: '90vw',

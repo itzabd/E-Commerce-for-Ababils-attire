@@ -119,7 +119,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               setUser(null);
               setSession(null);
               setAdmin(null);
-              setError('Access denied: You do not have active Atelier Admin privileges.');
+              setError('Access denied: You do not have active Admin privileges.');
             }
           }
         } else {
@@ -170,7 +170,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser(null);
             setSession(null);
             setAdmin(null);
-            setError('Unauthorized: Your account does not possess Atelier Admin credentials.');
+            setError('Unauthorized: Your account does not possess Admin credentials.');
           }
           setIsLoading(false);
         }
@@ -226,7 +226,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (!adminRecord) {
           await supabase.auth.signOut();
-          const msg = 'Access denied: Your account is not authorized as an Atelier Admin.';
+          const msg = 'Access denied: Your account is not authorized as an Admin.';
           setUser(null);
           setSession(null);
           setAdmin(null);

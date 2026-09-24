@@ -56,7 +56,7 @@ export const TrackOrderPage: React.FC = () => {
       }
     } catch {
       setResult(null);
-      setErrorMsg('Network error connecting to atelier database. Please verify your connection or try again.');
+      setErrorMsg('Network error connecting to order database. Please verify your connection or try again.');
     } finally {
       setLoading(false);
     }
@@ -185,7 +185,7 @@ export const TrackOrderPage: React.FC = () => {
         };
       case 'returned':
         return {
-          label: 'Returned to Atelier',
+          label: 'Returned to Studio',
           bg: '#fff7ed',
           color: '#9a3412',
           border: '#fed7aa',
@@ -226,24 +226,24 @@ export const TrackOrderPage: React.FC = () => {
         return 'Your order is currently with our dedicated delivery rider on van dispatch. Please keep your phone reachable for smooth doorstep handover.';
       case 'in_production':
       case 'processing':
-        return 'Sanjida Bethi and our atelier team are handcrafting your smocked stitches and preparing your celebration cake fresh in our Banani kitchen.';
+        return 'Sanjida Bethi and our team are handcrafting your handmade dress and preparing your celebration cake fresh in our Banani kitchen.';
       case 'advance_verified':
       case 'confirmed':
-        return 'bKash advance payment of ৳500 has been verified. Your bespoke creations are scheduled for atelier production.';
+        return 'bKash advance payment has been verified. Your items are scheduled for studio production.';
       case 'cancelled':
         return 'This order has been cancelled. If this was unexpected or you require assistance with advance refunds, please reach Sanjida on WhatsApp.';
       case 'returned':
-        return 'The delivery courier could not complete handover and the package has returned safely to our Banani atelier. Please contact us to arrange redelivery.';
+        return 'The delivery courier could not complete handover and the package has returned safely to our Banani studio. Please contact us to arrange redelivery.';
       case 'unable_to_reach':
         return 'Our courier was unable to connect with you at your delivery address or contact number. Please message Sanjida immediately to reschedule.';
       case 'review_required':
       default:
-        return 'Your order details and bKash advance information have been received. Sanjida Bethi is reviewing your order specifications at our Dhaka atelier.';
+        return 'Your order details and bKash advance information have been received. Sanjida Bethi is reviewing your order specifications at our Dhaka studio.';
     }
   };
 
   const formatDate = (isoString?: string) => {
-    if (!isoString) return 'Today at Atelier';
+    if (!isoString) return 'Today';
     try {
       const d = new Date(isoString);
       return d.toLocaleDateString('en-US', {
@@ -292,7 +292,7 @@ export const TrackOrderPage: React.FC = () => {
             <div>
               <h1 style={styles.searchTitle}>Track Your Order</h1>
               <p style={styles.searchSubtitle}>
-                Enter your invoice number to view live atelier tailoring progress and delivery logistics.
+                Enter your invoice number to view live tailoring and baking progress and delivery logistics.
               </p>
             </div>
           </div>
@@ -402,8 +402,8 @@ export const TrackOrderPage: React.FC = () => {
         {loading && (
           <div style={styles.loadingCard}>
             <div style={styles.spinner} />
-            <p style={styles.loadingText}>Retrieving atelier records for {inputInvoice}...</p>
-            <span style={styles.loadingSubtext}>Connecting to Banani Atelier database</span>
+            <p style={styles.loadingText}>Retrieving order records for {inputInvoice}...</p>
+            <span style={styles.loadingSubtext}>Connecting to order database</span>
           </div>
         )}
 
@@ -495,7 +495,7 @@ export const TrackOrderPage: React.FC = () => {
                   <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#5c3e36' }}>
                     storefront
                   </span>
-                  <strong style={styles.noticeHeading}>Atelier Update</strong>
+                  <strong style={styles.noticeHeading}>Order Update</strong>
                 </div>
                 <p style={styles.noticeText}>{getStatusNotice(currentStatus)}</p>
               </div>
@@ -562,14 +562,14 @@ export const TrackOrderPage: React.FC = () => {
                       {stepProgress.exceptionType === 'cancelled'
                         ? 'Order Processing Cancelled'
                         : stepProgress.exceptionType === 'returned'
-                        ? 'Package Returned to Dhaka Atelier'
+                        ? 'Package Returned to Dhaka Studio'
                         : 'Delivery Courier Could Not Reach You'}
                     </h4>
                     <p style={styles.exceptionAlertBody}>
                       {stepProgress.exceptionType === 'cancelled'
                         ? 'This order has been voided. Any pending refunds are handled directly by Sanjida Bethi.'
                         : stepProgress.exceptionType === 'returned'
-                        ? 'Our van returned the parcel to Banani atelier. Contact us to schedule redelivery.'
+                        ? 'Our van returned the parcel to Banani studio. Contact us to schedule redelivery.'
                         : 'Please verify your phone number and delivery location with our concierge on WhatsApp.'}
                     </p>
                   </div>
@@ -582,7 +582,7 @@ export const TrackOrderPage: React.FC = () => {
                   {
                     stepNum: 1,
                     title: 'Order Placed',
-                    desc: 'Order received in Dhaka Atelier with bKash advance info.',
+                    desc: 'Order received at Ababil’s Attire with bKash advance info.',
                     icon: 'assignment_turned_in',
                     time: formatDate(result.created_at),
                   },
@@ -600,7 +600,7 @@ export const TrackOrderPage: React.FC = () => {
                     icon: 'cut',
                     time:
                       stepProgress.activeStep === 3
-                        ? 'Active in Atelier'
+                        ? 'Active in Studio'
                         : stepProgress.completed.includes(2)
                         ? 'Completed'
                         : 'Scheduled next',
@@ -746,7 +746,7 @@ export const TrackOrderPage: React.FC = () => {
                   <span style={styles.detailHeading}>Handling & Packaging</span>
                 </div>
                 <p style={styles.detailMainText}>Chilled Van Transit</p>
-                <p style={styles.detailSubText}>Signature heirloom ribbon box</p>
+                <p style={styles.detailSubText}>Signature ribbon box</p>
               </div>
             </div>
 
@@ -938,7 +938,7 @@ export const TrackOrderPage: React.FC = () => {
             </div>
             <h3 style={styles.initialTitle}>Check Live Order Progress</h3>
             <p style={styles.initialText}>
-              Keep track of every step of your bespoke order — from hand-smocked tailoring and cake baking to direct courier dispatch.
+              Keep track of every step of your order — from hand tailoring and cake baking to direct courier dispatch.
             </p>
             <div style={styles.featurePointsList}>
               <div style={styles.featurePointItem}>
@@ -951,7 +951,7 @@ export const TrackOrderPage: React.FC = () => {
                 <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#065f46' }}>
                   check_circle
                 </span>
-                <span>Real-time atelier progress updates</span>
+                <span>Real-time studio progress updates</span>
               </div>
               <div style={styles.featurePointItem}>
                 <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#065f46' }}>

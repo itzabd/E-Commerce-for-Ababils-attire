@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "test": "node --experimental-strip-types tests/admin_auth.test.ts && node --experimental-strip-types tests/product_management.test.ts && node --experimental-strip-types tests/customer_catalog.test.ts && node --experimental-strip-types tests/unified_cart.test.ts && node --experimental-strip-types tests/checkout_payment.test.ts && node --experimental-strip-types tests/customer_tracking.test.ts && node --experimental-strip-types tests/admin_order_management.test.ts && node --experimental-strip-types tests/admin_customer_management.test.ts",
+    "test": "node --experimental-strip-types tests/admin_auth.test.ts && node --experimental-strip-types tests/product_management.test.ts && node --experimental-strip-types tests/customer_catalog.test.ts && node --experimental-strip-types tests/unified_cart.test.ts && node --experimental-strip-types tests/checkout_payment.test.ts && node --experimental-strip-types tests/customer_tracking.test.ts && node --experimental-strip-types tests/admin_order_management.test.ts && node --experimental-strip-types tests/admin_customer_management.test.ts && node --experimental-strip-types tests/admin_settings_manual_order.test.ts",
     "preview": "vite preview"
   },
   "dependencies": {

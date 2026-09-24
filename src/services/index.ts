@@ -10,3 +10,4 @@ export * from './tracking.service';
 export * from './storage.service';
 export * from './invoice.service';
 export * from './admin.service';
+export * from './settings.service';

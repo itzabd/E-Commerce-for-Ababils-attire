@@ -142,7 +142,7 @@ export const OrderConfirmedPage: React.FC = () => {
             <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
               storefront
             </span>
-            <span>Atelier Home</span>
+            <span>Home</span>
           </Link>
 
           <div style={styles.headerBrand}>
@@ -221,7 +221,7 @@ export const OrderConfirmedPage: React.FC = () => {
           <div style={styles.invoiceBox}>
             <div style={styles.invoiceHeaderRow}>
               <span style={styles.invoiceLabel}>Invoice Number</span>
-              <span style={styles.invoiceTime}>Today at Dhaka Atelier</span>
+              <span style={styles.invoiceTime}>Today at Dhaka Studio</span>
             </div>
 
             <div style={styles.invoiceDisplayRow}>
@@ -252,7 +252,7 @@ export const OrderConfirmedPage: React.FC = () => {
         <section style={styles.cardSection}>
           <div style={styles.cardHeader}>
             <h2 style={styles.cardTitle}>Order Status Tracker</h2>
-            <span style={styles.liveBadge}>Live Atelier Flow</span>
+            <span style={styles.liveBadge}>Live Order Status</span>
           </div>
 
           <ol style={styles.timelineList}>
@@ -268,7 +268,7 @@ export const OrderConfirmedPage: React.FC = () => {
                   <span style={styles.timelineStepTitle}>Order Placed</span>
                   <span style={styles.timelineStatusDone}>Done</span>
                 </div>
-                <p style={styles.timelineStepDesc}>Order received in Dhaka Atelier.</p>
+                <p style={styles.timelineStepDesc}>Order received at Ababil’s Attire.</p>
               </div>
             </li>
 
@@ -775,17 +775,18 @@ const styles: Record<string, React.CSSProperties> = {
     letterSpacing: '0.04em',
   },
   copyBtn: {
-    padding: '6px 12px',
+    padding: '8px 14px',
     borderRadius: '9999px',
     backgroundColor: '#5c3e36',
     color: '#ffffff',
-    fontSize: '11px',
+    fontSize: '12px',
     fontWeight: 600,
     border: 'none',
     cursor: 'pointer',
-    display: 'flex',
+    display: 'inline-flex',
     alignItems: 'center',
-    gap: '4px',
+    gap: '6px',
+    minHeight: '44px',
   },
   invoiceHelpText: {
     display: 'flex',

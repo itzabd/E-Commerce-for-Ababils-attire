@@ -25,7 +25,7 @@ export const AdminGuard: React.FC<AdminGuardProps> = ({ children, allowedRoles }
       <div style={styles.loadingContainer}>
         <div style={styles.loadingCard}>
           <div style={styles.monogram}>AB</div>
-          <h2 style={styles.loadingTitle}>Ababil’s Attire Atelier</h2>
+          <h2 style={styles.loadingTitle}>Ababil’s Attire</h2>
           <div style={styles.spinner} />
           <p style={styles.loadingSubtext}>Verifying administrative authorization...</p>
         </div>

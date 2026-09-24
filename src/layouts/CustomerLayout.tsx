@@ -15,6 +15,17 @@ export const CustomerLayout: React.FC = () => {
 
   const closeDrawer = () => setDrawerOpen(false);
 
+  // Close navigation drawer with Escape key
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && drawerOpen) {
+        closeDrawer();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [drawerOpen]);
+
   return (
     <div style={styles.pageContainer}>
       {/* ================================================================= */}
@@ -27,6 +38,7 @@ export const CustomerLayout: React.FC = () => {
             <button
               type="button"
               aria-label="Open Navigation Drawer"
+              aria-expanded={drawerOpen}
               onClick={() => setDrawerOpen(true)}
               style={styles.menuButton}
             >
@@ -36,7 +48,7 @@ export const CustomerLayout: React.FC = () => {
             </button>
 
             {/* Desktop Navigation Links */}
-            <nav style={styles.desktopNav} className="customer-desktop-nav">
+            <nav style={styles.desktopNav} className="customer-desktop-nav" aria-label="Main Navigation">
               <NavLink
                 to="/"
                 end
@@ -66,7 +78,7 @@ export const CustomerLayout: React.FC = () => {
                 to="/contact"
                 style={({ isActive }) => (isActive ? styles.desktopNavLinkActive : styles.desktopNavLink)}
               >
-                Bespoke & Contact
+                Custom Orders & Contact
               </NavLink>
             </nav>
           </div>
@@ -161,7 +173,7 @@ export const CustomerLayout: React.FC = () => {
             <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
               storefront
             </span>
-            <span>Atelier Home</span>
+            <span>Home</span>
           </NavLink>
 
           <NavLink
@@ -230,7 +242,7 @@ export const CustomerLayout: React.FC = () => {
             <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
               edit_calendar
             </span>
-            <span>Bespoke Orders & Contact</span>
+            <span>Custom Orders & Contact</span>
           </NavLink>
 
           <NavLink
@@ -249,7 +261,7 @@ export const CustomerLayout: React.FC = () => {
               <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
                 admin_panel_settings
               </span>
-              <span>Admin Management Suite</span>
+              <span>Admin Suite</span>
             </Link>
           )}
         </nav>
@@ -257,7 +269,7 @@ export const CustomerLayout: React.FC = () => {
         {/* Drawer Footer Quote */}
         <div style={styles.drawerFooter}>
           <p style={styles.drawerQuote}>"Stitched with love, baked with care."</p>
-          <p style={styles.drawerDhaka}>Banani Atelier • Dhaka, Bangladesh</p>
+          <p style={styles.drawerDhaka}>Banani Studio • Dhaka, Bangladesh</p>
         </div>
       </aside>
 
@@ -289,8 +301,8 @@ export const CustomerLayout: React.FC = () => {
               target="_blank"
               rel="noopener noreferrer"
               style={styles.conciergeIconBtn}
-              aria-label="WhatsApp Concierge"
-              title="WhatsApp Concierge"
+              aria-label="WhatsApp"
+              title="WhatsApp"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                 chat
@@ -301,7 +313,7 @@ export const CustomerLayout: React.FC = () => {
               target="_blank"
               rel="noopener noreferrer"
               style={styles.conciergeIconBtn}
-              aria-label="Instagram Atelier"
+              aria-label="Instagram"
               title="Instagram"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
@@ -472,6 +484,11 @@ const styles: Record<string, React.CSSProperties> = {
     color: '#5c3e36',
     padding: '6px',
     borderRadius: '6px',
+    minWidth: '44px',
+    minHeight: '44px',
+    cursor: 'pointer',
+    backgroundColor: 'transparent',
+    border: 'none',
   },
   desktopNav: {
     display: 'flex',
@@ -555,6 +572,8 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '6px',
     borderRadius: '6px',
     textDecoration: 'none',
+    minWidth: '44px',
+    minHeight: '44px',
   },
   bagButton: {
     position: 'relative',
@@ -563,6 +582,8 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'center',
     color: '#5c3e36',
     padding: '6px',
+    minWidth: '44px',
+    minHeight: '44px',
   },
   bagBadge: {
     position: 'absolute',
@@ -633,6 +654,14 @@ const styles: Record<string, React.CSSProperties> = {
     color: '#5c3e36',
     padding: '4px',
     borderRadius: '9999px',
+    minWidth: '44px',
+    minHeight: '44px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+    border: 'none',
+    cursor: 'pointer',
   },
   drawerNav: {
     flex: 1,
@@ -753,8 +782,8 @@ const styles: Record<string, React.CSSProperties> = {
     gap: '14px',
   },
   conciergeIconBtn: {
-    width: '40px',
-    height: '40px',
+    width: '44px',
+    height: '44px',
     borderRadius: '9999px',
     backgroundColor: '#ffffff',
     border: '1px solid var(--color-border-default, #dfd8ce)',
@@ -812,6 +841,7 @@ const styles: Record<string, React.CSSProperties> = {
     textDecoration: 'none',
     padding: '4px',
     minWidth: '60px',
+    minHeight: '44px',
   },
   bottomNavItemActive: {
     display: 'flex',
@@ -822,6 +852,7 @@ const styles: Record<string, React.CSSProperties> = {
     textDecoration: 'none',
     padding: '4px',
     minWidth: '60px',
+    minHeight: '44px',
     fontWeight: 600,
   },
   bottomNavLabel: {

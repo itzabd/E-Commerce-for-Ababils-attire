@@ -8,12 +8,15 @@ import type {
   CreateGuestOrderPayload,
   OrderConfirmationResult,
   OrderStatus,
+  AdvanceStatus,
   OrderRow,
   CustomerRow,
   OrderItemRow,
   PaymentRow,
   OrderStatusHistoryRow,
   TrxMatchingPreview,
+  CreateManualOrderPayload,
+  ManualOrderResult,
 } from '../types';
 
 export interface AdminOrderSummary extends OrderRow {
@@ -398,6 +401,208 @@ export const ordersService = {
   },
 
   /**
+   * Admin: Create a manual order on behalf of a customer.
+   * Uses the create_manual_order Supabase RPC (authenticated, admin-only).
+   * Falls back to local storage and in-memory order when Supabase is offline/unconfigured.
+   */
+  async createManualOrder(payload: CreateManualOrderPayload): Promise<ManualOrderResult> {
+    // 1. Validation
+    if (!payload.customer.name || !payload.customer.name.trim()) {
+      throw new Error('Customer full name is required');
+    }
+    if (!payload.customer.phone || !payload.customer.phone.trim()) {
+      throw new Error('Customer phone number is required');
+    }
+    if (!payload.order.delivery_address || !payload.order.delivery_address.trim()) {
+      throw new Error('Delivery address is required');
+    }
+    if (!payload.order.delivery_date) {
+      throw new Error('Delivery date is required');
+    }
+    if (!payload.items || payload.items.length === 0) {
+      throw new Error('At least one item is required to place a manual order');
+    }
+    for (const item of payload.items) {
+      if (!item.product_name) {
+        throw new Error('Item name is required');
+      }
+      if (item.quantity <= 0) {
+        throw new Error(`Quantity for ${item.product_name} must be greater than zero`);
+      }
+      if (item.category === 'dress' && !item.selected_size) {
+        throw new Error(`Size is required for dress item: ${item.product_name}`);
+      }
+      if (item.category === 'cake' && !item.cake_weight) {
+        throw new Error(`Weight is required for cake item: ${item.product_name}`);
+      }
+    }
+
+    const subtotal = payload.items.reduce(
+      (sum, item) => sum + (item.subtotal || item.unit_price * item.quantity),
+      0
+    );
+    const deliveryCharge = Number(payload.order.delivery_charge || 0);
+    const totalAmount = subtotal + deliveryCharge;
+    const advanceAmount = Number(payload.order.advance_amount || 0);
+
+    if (advanceAmount > totalAmount) {
+      throw new Error(
+        `Advance amount (৳ ${advanceAmount}) cannot exceed total order amount (৳ ${totalAmount})`
+      );
+    }
+
+    if (advanceAmount > 0 && payload.payment && payload.payment.method === 'bkash') {
+      if (!payload.payment.trx_id || !payload.payment.trx_id.trim()) {
+        throw new Error('bKash Transaction ID (TrxID) is required when an advance has been received via bKash');
+      }
+      if (!payload.payment.sender_last4 || payload.payment.sender_last4.trim().length < 4) {
+        throw new Error('Last 4 digits of sender phone are required for bKash advance');
+      }
+    }
+
+    // 2. Supabase RPC if configured
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await (supabase.rpc as any)('create_manual_order', {
+          p_customer: payload.customer,
+          p_order: {
+            ...payload.order,
+            subtotal,
+            total_amount: totalAmount,
+            delivery_charge: deliveryCharge,
+            advance_amount: advanceAmount,
+          },
+          p_items: payload.items.map((it) => ({
+            product_id: it.product_id,
+            product_name: it.product_name,
+            product_name_snapshot: it.product_name,
+            quantity: it.quantity,
+            unit_price: it.unit_price,
+            subtotal: it.subtotal || it.unit_price * it.quantity,
+            selected_size: it.selected_size,
+            cake_weight: it.cake_weight,
+            cake_flavor: it.cake_flavor,
+            cake_message: it.cake_message,
+            special_instructions: it.special_instructions,
+          })),
+          p_payment: payload.payment
+            ? {
+                method: payload.payment.method || 'bkash',
+                amount: advanceAmount,
+                trx_id: payload.payment.trx_id?.trim().toUpperCase(),
+                sender_last4: payload.payment.sender_last4?.trim(),
+                reference_name: payload.payment.reference_name?.trim(),
+              }
+            : null,
+        });
+
+        if (!error && data && data.success) {
+          return data as unknown as ManualOrderResult;
+        }
+        if (error) {
+          console.warn('create_manual_order RPC error:', error);
+          throw error;
+        }
+      } catch (err: any) {
+        console.warn('Supabase create_manual_order failed, falling back to local storage:', err);
+      }
+    }
+
+    // 3. Fallback / Local simulation
+    const invoiceNumber = generateInvoiceNumberFallback();
+    const orderId = 'ord_manual_' + Math.random().toString(36).substring(2, 9);
+    const customerId = payload.customer.id || 'cust_' + Math.random().toString(36).substring(2, 9);
+    const cashDue = Math.max(0, totalAmount - advanceAmount);
+    const isAdvanceVerified = Boolean(payload.order.advance_verified && advanceAmount > 0);
+    const initialStatus: OrderStatus = isAdvanceVerified ? 'advance_verified' : 'review_required';
+    const advanceStatus: AdvanceStatus = isAdvanceVerified ? 'verified' : 'pending';
+
+    const orderResult: ManualOrderResult = {
+      success: true,
+      order_id: orderId,
+      invoice_number: invoiceNumber,
+      customer_id: customerId,
+      customer_name: payload.customer.name,
+      total_amount: totalAmount,
+      advance_amount: advanceAmount,
+      cash_due: cashDue,
+      status: initialStatus,
+      advance_status: advanceStatus,
+      delivery_date: payload.order.delivery_date,
+      created_at: new Date().toISOString(),
+    };
+
+    // Construct local order entry and save to localStorage
+    try {
+      const stored = localStorage.getItem('ababils_guest_orders_v1');
+      const orderList = stored ? JSON.parse(stored) : {};
+
+      orderList[invoiceNumber] = {
+        confirmation: {
+          success: true,
+          order_id: orderId,
+          invoice_number: invoiceNumber,
+          customer_name: payload.customer.name,
+          subtotal,
+          delivery_charge: deliveryCharge,
+          total_amount: totalAmount,
+          advance_amount: advanceAmount,
+          advance_status: advanceStatus,
+          cash_due: cashDue,
+          delivery_date: payload.order.delivery_date,
+          status: initialStatus,
+          created_at: orderResult.created_at,
+        },
+        payload: {
+          customer: {
+            ...payload.customer,
+            id: customerId,
+          },
+          order: {
+            delivery_date: payload.order.delivery_date,
+            delivery_time: payload.order.delivery_time || 'Morning 10:00 AM - 1:00 PM',
+            delivery_address: payload.order.delivery_address,
+            special_instructions: payload.order.special_instructions,
+            subtotal,
+            delivery_charge: deliveryCharge,
+            total_amount: totalAmount,
+            advance_amount: advanceAmount,
+          },
+          items: payload.items.map((it) => ({
+            product_id: it.product_id,
+            product_name_snapshot: it.product_name,
+            quantity: it.quantity,
+            unit_price: it.unit_price,
+            subtotal: it.subtotal || it.unit_price * it.quantity,
+            selected_size: it.selected_size,
+            cake_weight: it.cake_weight,
+            cake_flavor: it.cake_flavor,
+            cake_message: it.cake_message,
+            customization_details: it.special_instructions,
+          })),
+          payment: payload.payment
+            ? {
+                trx_id: payload.payment.trx_id?.trim().toUpperCase(),
+                sender_last4: payload.payment.sender_last4?.trim(),
+                reference_name: payload.payment.reference_name?.trim(),
+              }
+            : {
+                trx_id: 'MANUAL_PENDING',
+                sender_last4: '0000',
+                reference_name: 'Studio Telephone',
+              },
+        },
+      };
+
+      localStorage.setItem('ababils_guest_orders_v1', JSON.stringify(orderList));
+    } catch (e) {
+      console.warn('Could not cache manual order to localStorage:', e);
+    }
+
+    return orderResult;
+  },
+
+  /**
    * Admin: Confirm or Flag mismatch for bKash advance payment
    */
   async matchBkashPayment(
@@ -638,7 +843,7 @@ function getDemoOrders(): AdminOrderSummary[] {
           order_id: 'ord_demo_1042',
           status: 'in_production',
           changed_by: null,
-          note: 'Order moved to Processing stage. Pattern cut and linen queued in Atelier.',
+          note: 'Order moved to Processing stage. Pattern cut and fabric queued in studio.',
           created_at: '2026-09-25T09:30:00Z',
         },
       ],
@@ -684,7 +889,7 @@ function getDemoOrders(): AdminOrderSummary[] {
           cake_weight: null,
           cake_flavor: null,
           cake_message: null,
-          customization_details: 'Atelier Keepsake Wooden Gift Chest with Ribbon',
+          customization_details: 'Signature Wooden Gift Box with Ribbon',
           created_at: '2026-09-20T10:15:00Z',
         },
         {

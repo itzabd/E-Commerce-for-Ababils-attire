@@ -27,10 +27,14 @@ import {
   type CustomerProfileDetail,
   type AdminCustomerNote,
 } from '../../services/admin.service';
+import { ManualOrderModal } from '../../components/admin/ManualOrderModal';
 
 export const AdminCustomers: React.FC = () => {
   const navigate = useNavigate();
   const drawerRef = useRef<HTMLElement | null>(null);
+
+  // Manual Order Target Customer State
+  const [orderCustomerTarget, setOrderCustomerTarget] = useState<CustomerDirectoryEntry | null>(null);
 
   // Directory Data State
   const [customers, setCustomers] = useState<CustomerDirectoryEntry[]>([]);
@@ -143,6 +147,23 @@ export const AdminCustomers: React.FC = () => {
     }
   }, [selectedCustomerId, loadProfile]);
 
+  // Handle escape key to close modals
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (showArchiveConfirm) {
+          setShowArchiveConfirm(false);
+        } else if (isEditingInfo) {
+          setIsEditingInfo(false);
+        }
+      }
+    };
+    if (showArchiveConfirm || isEditingInfo) {
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [showArchiveConfirm, isEditingInfo]);
+
   // Handle Customer Selection and Smooth Scroll to Profile
   const handleSelectCustomer = (id: string, scroll: boolean = true) => {
     setSelectedCustomerId(id);
@@ -177,7 +198,7 @@ export const AdminCustomers: React.FC = () => {
       clean = '880' + clean;
     }
     const greeting = encodeURIComponent(
-      `Assalamu Alaikum ${customerName || 'Ma’am'}, this is Sanjida Bethi from Ababil’s Attire atelier regarding your bespoke order.`
+      `Assalamu Alaikum ${customerName || 'Ma’am'}, this is Sanjida Bethi from Ababil’s Attire regarding your order.`
     );
     return `https://wa.me/${clean}?text=${greeting}`;
   };
@@ -215,7 +236,7 @@ export const AdminCustomers: React.FC = () => {
       });
       setNewNoteContent('');
       setIsAddingNote(false);
-      showToast('Admin note added to atelier records.');
+      showToast('Admin note saved.');
       loadProfile(selectedCustomerId);
     } catch {
       showToast('Failed to add note.');
@@ -284,7 +305,7 @@ export const AdminCustomers: React.FC = () => {
           <button
             style={styles.manualOrderButton}
             onClick={() => setShowManualOrderModal(true)}
-            title="Create manual bespoke order"
+            title="Create manual order"
           >
             <span style={styles.plusIcon}>+</span>
             <span>Manual Order</span>
@@ -392,7 +413,7 @@ export const AdminCustomers: React.FC = () => {
           {loading ? (
             <div style={styles.loadingCard}>
               <div style={styles.spinner} />
-              <p style={styles.loadingText}>Loading Atelier client records...</p>
+              <p style={styles.loadingText}>Loading customer directory...</p>
             </div>
           ) : sortedCustomers.length === 0 ? (
             <div style={styles.emptyCard}>
@@ -438,7 +459,7 @@ export const AdminCustomers: React.FC = () => {
                     <div style={styles.cardHeaderArea}>
                       <div style={styles.cardNameRow}>
                         <h3 style={styles.cardName}>{cust.name}</h3>
-                        <span style={styles.verifiedIcon} title="Verified Atelier Customer">
+                        <span style={styles.verifiedIcon} title="Verified Customer">
                           ✓
                         </span>
                       </div>
@@ -461,12 +482,12 @@ export const AdminCustomers: React.FC = () => {
                       ) : cust.purchased_categories.includes('dresses') ? (
                         <span style={{ ...styles.cardTag, ...styles.tagDress }}>
                           <span style={styles.tagIcon}>👗</span>
-                          Couture Dresses
+                          Handmade Dresses
                         </span>
                       ) : (
                         <span style={{ ...styles.cardTag, ...styles.tagCake }}>
                           <span style={styles.tagIcon}>🎂</span>
-                          Bespoke Cakes
+                          Celebration Cakes
                         </span>
                       )}
                     </div>
@@ -499,7 +520,10 @@ export const AdminCustomers: React.FC = () => {
                       </a>
 
                       <button
-                        onClick={() => setShowManualOrderModal(true)}
+                        onClick={() => {
+                          setOrderCustomerTarget(cust);
+                          setShowManualOrderModal(true);
+                        }}
                         style={styles.actionOrderBtn}
                         title="Draft Order for this Customer"
                       >
@@ -632,7 +656,13 @@ export const AdminCustomers: React.FC = () => {
                     <span>✎</span>
                     <span>Edit Customer Info</span>
                   </button>
-                  <button onClick={() => setShowManualOrderModal(true)} style={styles.profileOrderBtn}>
+                  <button
+                    onClick={() => {
+                      setOrderCustomerTarget(profileDetail || null);
+                      setShowManualOrderModal(true);
+                    }}
+                    style={styles.profileOrderBtn}
+                  >
                     <span>+</span>
                     <span>+ Manual Order</span>
                   </button>
@@ -672,14 +702,14 @@ export const AdminCustomers: React.FC = () => {
                   <div style={styles.notesHeader}>
                     <div style={styles.notesTitleWrap}>
                       <span style={styles.notesIcon}>📖</span>
-                      <h4 style={styles.notesHeading}>Notes for Sanjida & Atelier Team</h4>
+                      <h4 style={styles.notesHeading}>Notes for Sanjida & Team</h4>
                     </div>
                     <span style={styles.notesLockNotice}>🔒 Admin-Only</span>
                   </div>
 
                   {profileDetail.admin_notes.length === 0 ? (
                     <p style={styles.noNotesText}>
-                      No atelier operational notes recorded yet. Add preferences like sizing or dietary notes below.
+                      No operational notes recorded yet. Add preferences like sizing or dietary notes below.
                     </p>
                   ) : (
                     <ul style={styles.notesList}>
@@ -701,7 +731,7 @@ export const AdminCustomers: React.FC = () => {
                                     <option value="child">Child Sizing / Preferences</option>
                                     <option value="cake_dietary">Cake Flavor & Dietary</option>
                                     <option value="delivery">Delivery Protocol</option>
-                                    <option value="general">General Atelier Note</option>
+                                    <option value="general">General Note</option>
                                   </select>
                                 </div>
                                 <textarea
@@ -788,7 +818,7 @@ export const AdminCustomers: React.FC = () => {
                           <option value="child">Child Sizing / Preferences</option>
                           <option value="cake_dietary">Cake Flavor & Dietary</option>
                           <option value="delivery">Delivery Protocol</option>
-                          <option value="general">General Atelier Note</option>
+                          <option value="general">General Note</option>
                         </select>
                       </div>
                       <textarea
@@ -819,7 +849,7 @@ export const AdminCustomers: React.FC = () => {
                     <div style={styles.notesFooter}>
                       <button onClick={() => setIsAddingNote(true)} style={styles.addNotePillBtn}>
                         <span>+</span>
-                        <span>Add Atelier Note</span>
+                        <span>Add Note</span>
                       </button>
                     </div>
                   )}
@@ -1010,50 +1040,19 @@ export const AdminCustomers: React.FC = () => {
           </div>
         )}
 
-        {/* Manual Order Creation Modal / Notice */}
-        {showManualOrderModal && (
-          <div style={styles.modalOverlay}>
-            <div style={styles.modalContainer}>
-              <div style={styles.modalHeader}>
-                <h3 style={styles.modalTitle}>Manual Order Creation</h3>
-                <button onClick={() => setShowManualOrderModal(false)} style={styles.modalCloseBtn}>
-                  ✕
-                </button>
-              </div>
-              <div style={styles.modalBody}>
-                <p style={styles.modalNoticeText}>
-                  Manual custom order creation and direct telephone order generation for{' '}
-                  <strong>{profileDetail?.name || 'clients'}</strong> is scheduled for Phase 10.
-                </p>
-                <p style={styles.modalNoticeSubtext}>
-                  In the meantime, you can directly contact the customer via WhatsApp or Phone Call, or review their
-                  active dockets in Admin Orders.
-                </p>
-                {profileDetail && (
-                  <div style={styles.manualActionRow}>
-                    <a
-                      href={getWhatsAppLink(profileDetail.phone, profileDetail.name)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={styles.modalWaBtn}
-                    >
-                      WhatsApp {profileDetail.name}
-                    </a>
-                    <button
-                      onClick={() => {
-                        setShowManualOrderModal(false);
-                        navigate('/admin/orders');
-                      }}
-                      style={styles.modalOrdersBtn}
-                    >
-                      Go to Admin Orders
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Manual Order Creation Modal */}
+        <ManualOrderModal
+          isOpen={showManualOrderModal}
+          onClose={() => {
+            setShowManualOrderModal(false);
+            setOrderCustomerTarget(null);
+          }}
+          initialCustomer={orderCustomerTarget || profileDetail || null}
+          onOrderCreated={(order) => {
+            showToast(`Manual order ${order.invoice_number} created successfully.`);
+            loadDirectory();
+          }}
+        />
 
         {/* Archive Confirmation Modal */}
         {showArchiveConfirm && (
@@ -1070,7 +1069,7 @@ export const AdminCustomers: React.FC = () => {
                   Are you sure you want to archive <strong>{profileDetail?.name}</strong>?
                 </p>
                 <p style={styles.modalNoticeSubtext}>
-                  Archived customers are retained in the Atelier database for historical accounting and lifetime
+                  Archived customers are retained in the customer database for historical accounting and lifetime
                   records, but will be hidden from the active priority queue.
                 </p>
                 <div style={styles.modalFooter}>

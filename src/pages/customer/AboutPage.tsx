@@ -11,10 +11,10 @@ export const AboutPage: React.FC = () => {
     <div style={styles.container}>
       {/* Editorial Header */}
       <section style={styles.headerSection}>
-        <span style={styles.eyebrow}>THE ATELIER STORY</span>
-        <h1 style={styles.title}>Bespoke Craftsmanship, Stitched & Baked with Love</h1>
+        <span style={styles.eyebrow}>OUR STORY</span>
+        <h1 style={styles.title}>Handmade Dresses &amp; Cakes, Stitched &amp; Baked with Love</h1>
         <p style={styles.subtitle}>
-          Ababil’s Attire was born from a desire to bring timeless heirloom simplicity to children's
+          Ababil’s Attire was born from a desire to bring timeless simplicity to children's
           milestones and family celebrations in Dhaka.
         </p>
       </section>
@@ -31,7 +31,7 @@ export const AboutPage: React.FC = () => {
 
         <div style={styles.storyTextContent}>
           <span style={styles.founderTag}>SANJIDA BETHI • FOUNDER & ARTISAN</span>
-          <h2 style={styles.storyHeading}>A Passion for Heirloom Detail</h2>
+          <h2 style={styles.storyHeading}>A Passion for Handcrafted Detail</h2>
           <p style={styles.storyParagraph}>
             Growing up with an appreciation for vintage textiles and classical French pastry arts,
             Sanjida Bethi established Ababil’s Attire to unite two heartfelt arts: hand-smocked dresses
@@ -48,14 +48,14 @@ export const AboutPage: React.FC = () => {
 
       {/* Dual Disciplines Exhibition */}
       <section style={styles.disciplinesSection}>
-        {/* Discipline 1: Heirloom Tailoring */}
+        {/* Discipline 1: Handmade Tailoring */}
         <div style={styles.disciplineCard}>
           <div style={styles.disciplineIconWrapper}>
             <span className="material-symbols-outlined" style={{ fontSize: '24px', color: '#5c3e36' }}>
               checkroom
             </span>
           </div>
-          <h3 style={styles.disciplineTitle}>Heirloom Children's Dresses</h3>
+          <h3 style={styles.disciplineTitle}>Handmade Children's Dresses</h3>
           <p style={styles.disciplineText}>
             We exclusively craft garments using breathable natural fibres: European flax linen,
             organic cotton muslin, and mulberry silk organza. Every pleat and smocking gather is
@@ -111,7 +111,7 @@ export const AboutPage: React.FC = () => {
 
           <div style={styles.valueItem}>
             <span style={styles.valueNumber}>03</span>
-            <h4 style={styles.valueHeading}>Personalized Atelier Care</h4>
+            <h4 style={styles.valueHeading}>Personalized Studio Care</h4>
             <p style={styles.valueText}>
               Every order is coordinated directly with Sanjida to make your family milestone special.
             </p>
@@ -126,7 +126,7 @@ export const AboutPage: React.FC = () => {
           Reach out to discuss custom sizing or request a signature celebration cake.
         </p>
         <Link to="/contact" style={styles.ctaButton}>
-          Inquire with Sanjida Bethi
+          Message Sanjida
         </Link>
       </section>
     </div>
