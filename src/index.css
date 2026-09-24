@@ -152,6 +152,9 @@ input, select, textarea {
   .customer-bottom-nav {
     display: none !important;
   }
+  .mobile-checkout-sticky {
+    display: none !important;
+  }
 }
 
 @media (max-width: 767px) {
@@ -159,6 +162,7 @@ input, select, textarea {
     display: none !important;
   }
 }
+
 
 
 

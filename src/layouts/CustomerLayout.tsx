@@ -6,10 +6,12 @@
 import React, { useState } from 'react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useCart } from '../hooks/useCart';
 
 export const CustomerLayout: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { isAdmin } = useAuth();
+  const { itemCount } = useCart();
 
   const closeDrawer = () => setDrawerOpen(false);
 
@@ -105,19 +107,17 @@ export const CustomerLayout: React.FC = () => {
               </span>
             </Link>
 
-            <button
-              type="button"
-              aria-label="Shopping Bag"
+            <Link
+              to="/bag"
+              aria-label={`Shopping Bag (${itemCount} items)`}
+              title="My Bag"
               style={styles.bagButton}
-              onClick={() => {
-                alert('Shopping bag drawer will connect to bKash checkout in the next phase.');
-              }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
                 shopping_bag
               </span>
-              <span style={styles.bagBadge}>0</span>
-            </button>
+              {itemCount > 0 && <span style={styles.bagBadge}>{itemCount}</span>}
+            </Link>
           </div>
         </div>
       </header>
@@ -188,6 +188,31 @@ export const CustomerLayout: React.FC = () => {
               cake
             </span>
             <span>Fresh Cakes</span>
+          </NavLink>
+
+          <NavLink
+            to="/bag"
+            onClick={closeDrawer}
+            style={({ isActive }) => (isActive ? styles.drawerLinkActive : styles.drawerLink)}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+              shopping_bag
+            </span>
+            <span style={{ flex: 1 }}>My Bag</span>
+            {itemCount > 0 && (
+              <span
+                style={{
+                  backgroundColor: '#5c3e36',
+                  color: '#ffffff',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  padding: '2px 8px',
+                  borderRadius: '9999px',
+                }}
+              >
+                {itemCount}
+              </span>
+            )}
           </NavLink>
 
           <NavLink
@@ -370,6 +395,40 @@ export const CustomerLayout: React.FC = () => {
             cake
           </span>
           <span style={styles.bottomNavLabel}>Cakes</span>
+        </NavLink>
+
+        <NavLink
+          to="/bag"
+          style={({ isActive }) => (isActive ? styles.bottomNavItemActive : styles.bottomNavItem)}
+        >
+          <div style={{ position: 'relative', display: 'inline-flex' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+              shopping_bag
+            </span>
+            {itemCount > 0 && (
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '-4px',
+                  right: '-8px',
+                  backgroundColor: '#5c3e36',
+                  color: '#ffffff',
+                  fontSize: '9px',
+                  fontWeight: 700,
+                  minWidth: '15px',
+                  height: '15px',
+                  borderRadius: '9999px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '0 3px',
+                }}
+              >
+                {itemCount}
+              </span>
+            )}
+          </div>
+          <span style={styles.bottomNavLabel}>My Bag</span>
         </NavLink>
 
         <NavLink

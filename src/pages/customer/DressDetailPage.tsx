@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { productsService } from '../../services/products.service';
 import type { ProductWithDetails } from '../../types';
+import { useCart } from '../../hooks/useCart';
 
 export const DressDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,6 +18,8 @@ export const DressDetailPage: React.FC = () => {
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [imageModalOpen, setImageModalOpen] = useState(false);
+
+  const { addItem } = useCart();
 
   useEffect(() => {
     let isMounted = true;
@@ -48,10 +51,38 @@ export const DressDetailPage: React.FC = () => {
 
   const handleAddToBag = () => {
     if (!product) return;
+    if (product.status === 'out_of_stock' || product.stock_quantity === 0) {
+      alert('This dress is currently out of stock.');
+      return;
+    }
+    if (!selectedSize) {
+      alert('Please select a size first.');
+      return;
+    }
+
+    const firstImage =
+      product.images && product.images.length > 0
+        ? product.images[0].image_url
+        : 'https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=1200&q=80';
+
+    addItem({
+      category: 'dress',
+      productId: product.id,
+      productCode: product.product_code,
+      name: product.name,
+      unitPrice: product.price,
+      imageUrl: firstImage,
+      stockQuantity: product.stock_quantity ?? 10,
+      selectedSize: selectedSize,
+      fabricDetails: product.dress_details?.fabric_details || undefined,
+      leadTimeDays: product.lead_time_days ?? undefined,
+      quantity: 1,
+    });
+
     setToastMessage(`Added "${product.name}" (${selectedSize}) to your bag!`);
     setTimeout(() => {
       setToastMessage(null);
-    }, 3500);
+    }, 4000);
   };
 
   if (loading) {
@@ -106,10 +137,25 @@ export const DressDetailPage: React.FC = () => {
       {/* Toast Notification */}
       {toastMessage && (
         <div style={styles.toast}>
-          <span className="material-symbols-outlined" style={{ color: '#065f46', fontSize: '20px' }}>
-            check_circle
-          </span>
-          <span style={styles.toastText}>{toastMessage}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="material-symbols-outlined" style={{ color: '#065f46', fontSize: '20px' }}>
+              check_circle
+            </span>
+            <span style={styles.toastText}>{toastMessage}</span>
+          </div>
+          <Link
+            to="/bag"
+            style={{
+              fontSize: '12px',
+              fontWeight: 600,
+              color: '#5c3e36',
+              textDecoration: 'underline',
+              marginLeft: '12px',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            View Bag →
+          </Link>
         </div>
       )}
 

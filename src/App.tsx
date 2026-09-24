@@ -11,6 +11,8 @@ import { AdminLayout } from './layouts/AdminLayout';
 import { AdminLogin } from './pages/admin/AdminLogin';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminProducts } from './pages/admin/AdminProducts';
+import { CartProvider } from './context/CartContext';
+import { MyBagPage } from './pages/customer/MyBagPage';
 import { CustomerLayout } from './layouts/CustomerLayout';
 import { HomePage } from './pages/customer/HomePage';
 import { DressesPage } from './pages/customer/DressesPage';
@@ -24,17 +26,20 @@ export const App: React.FC = () => {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
-          {/* Public Customer Routes (100% Guest-accessible without login) */}
-          <Route element={<CustomerLayout />}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/dresses" element={<DressesPage />} />
-            <Route path="/dresses/:id" element={<DressDetailPage />} />
-            <Route path="/cakes" element={<CakesPage />} />
-            <Route path="/cakes/:id" element={<CakeDetailPage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-          </Route>
+        <CartProvider>
+          <Routes>
+            {/* Public Customer Routes (100% Guest-accessible without login) */}
+            <Route element={<CustomerLayout />}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/dresses" element={<DressesPage />} />
+              <Route path="/dresses/:id" element={<DressDetailPage />} />
+              <Route path="/cakes" element={<CakesPage />} />
+              <Route path="/cakes/:id" element={<CakeDetailPage />} />
+              <Route path="/bag" element={<MyBagPage />} />
+              <Route path="/cart" element={<Navigate to="/bag" replace />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+            </Route>
 
           {/* Admin Login Portal */}
           <Route path="/admin/login" element={<AdminLogin />} />
@@ -55,6 +60,7 @@ export const App: React.FC = () => {
           {/* Fallback to Storefront */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </CartProvider>
       </AuthProvider>
     </BrowserRouter>
   );

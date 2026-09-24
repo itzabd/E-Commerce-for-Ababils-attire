@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { productsService } from '../../services/products.service';
 import type { ProductWithDetails } from '../../types';
+import { useCart } from '../../hooks/useCart';
 
 interface CakeWeightOption {
   weight: string;
@@ -26,6 +27,8 @@ export const CakeDetailPage: React.FC = () => {
   const [customMessage, setCustomMessage] = useState<string>('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [imageModalOpen, setImageModalOpen] = useState(false);
+
+  const { addItem } = useCart();
 
   useEffect(() => {
     let isMounted = true;
@@ -71,13 +74,38 @@ export const CakeDetailPage: React.FC = () => {
 
   const handleOrderCake = () => {
     if (!product || !selectedWeight) return;
-    const msg = `Ready to order "${product.name}" (${selectedWeight.weight}${
+    if (product.status === 'out_of_stock' || product.stock_quantity === 0) {
+      alert('This artisan cake is currently unavailable.');
+      return;
+    }
+
+    const firstImage =
+      product.images && product.images.length > 0
+        ? product.images[0].image_url
+        : 'https://images.unsplash.com/photo-1535141192574-5d4897c13136?auto=format&fit=crop&w=1200&q=80';
+
+    addItem({
+      category: 'cake',
+      productId: product.id,
+      productCode: product.product_code,
+      name: product.name,
+      unitPrice: selectedWeight.price,
+      imageUrl: firstImage,
+      stockQuantity: product.stock_quantity ?? 10,
+      selectedWeight: selectedWeight.weight,
+      selectedFlavor: selectedFlavor || 'Madagascar Vanilla Bean & Berries',
+      customMessage: customMessage.trim() || undefined,
+      minimumNoticeHours: product.minimum_notice_hours ?? 48,
+      quantity: 1,
+    });
+
+    const msg = `Added "${product.name}" (${selectedWeight.weight}${
       selectedFlavor ? ` • ${selectedFlavor}` : ''
-    })!`;
+    }) to your bag!`;
     setToastMessage(msg);
     setTimeout(() => {
       setToastMessage(null);
-    }, 3500);
+    }, 4000);
   };
 
   if (loading) {
@@ -137,10 +165,25 @@ export const CakeDetailPage: React.FC = () => {
       {/* Toast Notification */}
       {toastMessage && (
         <div style={styles.toast}>
-          <span className="material-symbols-outlined" style={{ color: '#065f46', fontSize: '20px' }}>
-            check_circle
-          </span>
-          <span style={styles.toastText}>{toastMessage}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="material-symbols-outlined" style={{ color: '#065f46', fontSize: '20px' }}>
+              check_circle
+            </span>
+            <span style={styles.toastText}>{toastMessage}</span>
+          </div>
+          <Link
+            to="/bag"
+            style={{
+              fontSize: '12px',
+              fontWeight: 600,
+              color: '#5c3e36',
+              textDecoration: 'underline',
+              marginLeft: '12px',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            View Bag →
+          </Link>
         </div>
       )}
 
