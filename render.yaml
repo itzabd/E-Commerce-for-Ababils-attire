@@ -1,0 +1,31 @@
+﻿services:
+  - type: web
+    name: ababils-attire
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    pullRequestPreviewsEnabled: false
+    envVars:
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false
+      - key: VITE_STUDIO_NAME
+        value: "Ababil's Attire by Sanjida Bethi"
+      - key: VITE_STUDIO_BKASH_NUMBER
+        value: "01712-345678"
+      - key: VITE_STUDIO_WHATSAPP_NUMBER
+        value: "+8801712345678"
+      - key: VITE_STUDIO_ADDRESS
+        value: "House 14, Road 7, Sector 3, Uttara, Dhaka - 1230"
+      - key: VITE_DEFAULT_ADVANCE_AMOUNT
+        value: "500"
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
