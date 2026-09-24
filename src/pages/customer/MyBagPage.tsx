@@ -31,10 +31,8 @@ export const MyBagPage: React.FC = () => {
   const [itemToRemove, setItemToRemove] = useState<CartItem | null>(null);
 
   const handleProceedToCheckout = () => {
-    // Next phase will build the checkout & bKash advance flow
-    alert(
-      `Proceeding to checkout with ${itemCount} items (Total: ৳ ${estimatedTotal.toLocaleString()}). Checkout and bKash payment will be activated in the next phase!`
-    );
+    if (items.length === 0) return;
+    navigate('/checkout');
   };
 
   const handleConfirmRemove = () => {

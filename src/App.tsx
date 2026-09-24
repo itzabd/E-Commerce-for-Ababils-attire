@@ -13,6 +13,8 @@ import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminProducts } from './pages/admin/AdminProducts';
 import { CartProvider } from './context/CartContext';
 import { MyBagPage } from './pages/customer/MyBagPage';
+import { CheckoutPage } from './pages/customer/CheckoutPage';
+import { OrderConfirmedPage } from './pages/customer/OrderConfirmedPage';
 import { CustomerLayout } from './layouts/CustomerLayout';
 import { HomePage } from './pages/customer/HomePage';
 import { DressesPage } from './pages/customer/DressesPage';
@@ -37,6 +39,8 @@ export const App: React.FC = () => {
               <Route path="/cakes/:id" element={<CakeDetailPage />} />
               <Route path="/bag" element={<MyBagPage />} />
               <Route path="/cart" element={<Navigate to="/bag" replace />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/order-confirmed/:invoiceNumber" element={<OrderConfirmedPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
             </Route>
