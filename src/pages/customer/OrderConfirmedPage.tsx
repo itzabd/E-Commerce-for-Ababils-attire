@@ -524,13 +524,7 @@ export const OrderConfirmedPage: React.FC = () => {
         {/* 6. PRIMARY ACTION BUTTONS */}
         <div style={styles.actionButtonGroup}>
           <Link
-            to="/#track-order-section"
-            onClick={() => {
-              setTimeout(() => {
-                const el = document.getElementById('track-order-section');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-              }, 100);
-            }}
+            to={cleanInvoice ? `/track-order?invoice=${encodeURIComponent(cleanInvoice)}` : '/track-order'}
             style={styles.trackOrderBtn}
           >
             <span>Track My Order</span>

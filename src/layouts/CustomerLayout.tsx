@@ -93,14 +93,10 @@ export const CustomerLayout: React.FC = () => {
             )}
 
             <Link
-              to="/#track-order-section"
+              to="/track-order"
               style={styles.iconAction}
               aria-label="Track Order"
               title="Track Order"
-              onClick={() => {
-                const el = document.getElementById('track-order-section');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-              }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
                 local_shipping
@@ -237,23 +233,16 @@ export const CustomerLayout: React.FC = () => {
             <span>Bespoke Orders & Contact</span>
           </NavLink>
 
-          <a
-            href="/#track-order-section"
-            onClick={(e) => {
-              closeDrawer();
-              const el = document.getElementById('track-order-section');
-              if (el) {
-                e.preventDefault();
-                el.scrollIntoView({ behavior: 'smooth' });
-              }
-            }}
-            style={styles.drawerLink}
+          <NavLink
+            to="/track-order"
+            onClick={closeDrawer}
+            style={({ isActive }) => (isActive ? styles.drawerLinkActive : styles.drawerLink)}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
               local_shipping
             </span>
             <span>Track Order</span>
-          </a>
+          </NavLink>
 
           {isAdmin && (
             <Link to="/admin" onClick={closeDrawer} style={styles.drawerAdminLink}>
@@ -339,9 +328,9 @@ export const CustomerLayout: React.FC = () => {
             <Link to="/cakes" style={styles.footerLink}>
               Cake Ordering Guide
             </Link>
-            <a href="/#track-order-section" style={styles.footerLink}>
-              Shipping & Delivery
-            </a>
+            <Link to="/track-order" style={styles.footerLink}>
+              Track Your Order
+            </Link>
             <Link to="/contact" style={styles.footerLink}>
               Custom Orders
             </Link>

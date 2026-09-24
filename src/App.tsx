@@ -23,6 +23,7 @@ import { DressDetailPage } from './pages/customer/DressDetailPage';
 import { CakeDetailPage } from './pages/customer/CakeDetailPage';
 import { AboutPage } from './pages/customer/AboutPage';
 import { ContactPage } from './pages/customer/ContactPage';
+import { TrackOrderPage } from './pages/customer/TrackOrderPage';
 
 export const App: React.FC = () => {
   return (
@@ -41,6 +42,8 @@ export const App: React.FC = () => {
               <Route path="/cart" element={<Navigate to="/bag" replace />} />
               <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/order-confirmed/:invoiceNumber" element={<OrderConfirmedPage />} />
+              <Route path="/track-order" element={<TrackOrderPage />} />
+              <Route path="/track-order/:invoiceNumber" element={<TrackOrderPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
             </Route>
