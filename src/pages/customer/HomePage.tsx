@@ -9,6 +9,7 @@ import { productsService } from '../../services/products.service';
 import type { ProductWithDetails } from '../../types';
 import { DressCard } from '../../components/customer/DressCard';
 import { CakeCard } from '../../components/customer/CakeCard';
+import { CustomerReviewsSection } from '../../components/customer/CustomerReviewsSection';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -294,6 +295,11 @@ export const HomePage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* ================================================================= */}
+      {/* 6.5. CUSTOMER REVIEWS & REAL SCREENSHOTS                         */}
+      {/* ================================================================= */}
+      <CustomerReviewsSection />
 
       {/* ================================================================= */}
       {/* 7. TRACK YOUR ORDER (Live Lookup Section)                         */}

@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS store_settings (
     contact_phone TEXT NOT NULL DEFAULT '+880 1712-345678',
     whatsapp_number TEXT NOT NULL DEFAULT '+880 1712-345678',
     workshop_address TEXT NOT NULL DEFAULT 'House 14, Road 7, Sector 3, Uttara, Dhaka - 1230',
-    store_description TEXT NOT NULL DEFAULT 'Handmade dresses and fresh celebration cakes handcrafted with heirloom care in Dhaka.',
+    store_description TEXT NOT NULL DEFAULT 'Handmade dresses and fresh celebration cakes handcrafted with loving care in Dhaka.',
     studio_hours TEXT NOT NULL DEFAULT 'Sunday – Friday: 10:00 AM – 8:00 PM (Saturday Studio Closed / Delivery Only)',
     instagram_handle TEXT NOT NULL DEFAULT 'ababils.attire',
     facebook_url TEXT NOT NULL DEFAULT 'facebook.com/ababilsattire',
@@ -51,9 +51,9 @@ CREATE TABLE IF NOT EXISTS store_settings (
     cancellation_policy TEXT NOT NULL DEFAULT 'Advance non-refundable once cake baking or fabric cutting commences.',
     
     -- Product Defaults
-    preconfigured_sizes JSONB NOT NULL DEFAULT '["0-3M", "3-6M", "6-12M", "12-18M", "2-3Y", "3-4Y", "4-5Y", "Bespoke Custom"]'::jsonb,
+    preconfigured_sizes JSONB NOT NULL DEFAULT '["0-3M", "3-6M", "6-12M", "12-18M", "2-3Y", "3-4Y", "4-5Y", "Custom Sizing"]'::jsonb,
     preconfigured_cake_weights JSONB NOT NULL DEFAULT '["0.5 lb Bento", "1.0 lb", "1.5 lb", "2.0 lb", "3.0 lb Tiered"]'::jsonb,
-    product_categories JSONB NOT NULL DEFAULT '["Handmade Dresses", "Celebration Cakes", "Bespoke Keepsakes"]'::jsonb,
+    product_categories JSONB NOT NULL DEFAULT '["Handmade Dresses", "Celebration Cakes", "Custom Keepsakes"]'::jsonb,
     default_product_status TEXT NOT NULL DEFAULT 'draft',
     
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),

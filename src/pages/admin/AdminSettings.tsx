@@ -17,6 +17,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { settingsService } from '../../services/settings.service';
+import { reviewsService, type CustomerReview } from '../../services/reviews.service';
 import type { StoreSettings } from '../../types';
 
 export const AdminSettings: React.FC = () => {
@@ -32,6 +33,53 @@ export const AdminSettings: React.FC = () => {
 
   // Active section scroll indicator
   const [activeSection, setActiveSection] = useState<string>('store-info');
+
+  // Customer Reviews State (Screenshots from Facebook / WhatsApp)
+  const [reviews, setReviews] = useState<CustomerReview[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [showAddReviewModal, setShowAddReviewModal] = useState(false);
+  const [reviewForm, setReviewForm] = useState({
+    customer_name: '',
+    customer_area: '',
+    platform: 'whatsapp' as 'whatsapp' | 'facebook' | 'instagram',
+    screenshot_url: '',
+    caption: '',
+    product_name: '',
+    rating: 5,
+    is_featured: true,
+  });
+
+  // Preset screenshot recommendations for quick one-click preview testing
+  const PRESET_SCREENSHOTS = [
+    {
+      label: 'Baby Smocked Dress (WhatsApp)',
+      url: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=900&q=80',
+      product: 'Aurelia Floral Smocked Dress',
+      platform: 'whatsapp' as const,
+      quote: '“Everyone praised Inaya’s dress at the dawat! Fabric was so soft and gentle!”',
+    },
+    {
+      label: 'Vintage Lambeth Cake (Facebook)',
+      url: 'https://images.unsplash.com/photo-1535141192574-5d4897c13136?auto=format&fit=crop&w=900&q=80',
+      product: 'Vintage Lambeth Celebration Cake',
+      platform: 'facebook' as const,
+      quote: '“Cake was heavenly, arrived safely in chilled van right on time!”',
+    },
+    {
+      label: 'Eyelet Romper (WhatsApp)',
+      url: 'https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=900&q=80',
+      product: 'Zoya Dusty Rose Eyelet Romper',
+      platform: 'whatsapp' as const,
+      quote: '“Mother-of-pearl buttons and neat French seams. Perfect 1st birthday shoot!”',
+    },
+    {
+      label: 'Daisy Bento Cake Bundle (Facebook)',
+      url: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=900&q=80',
+      product: 'Pastel Daisy Bento Cake & Romper Bundle',
+      platform: 'facebook' as const,
+      quote: '“Personal phone call from Sanjida to confirm measurements. Best boutique in Dhaka!”',
+    },
+  ];
 
   // New size / weight addition inputs
   const [newSizeInput, setNewSizeInput] = useState('');
@@ -68,8 +116,22 @@ export const AdminSettings: React.FC = () => {
     }
   };
 
+  // Load Customer Screenshot Reviews
+  const loadReviews = async () => {
+    setReviewsLoading(true);
+    try {
+      const data = await reviewsService.getReviews();
+      setReviews(data);
+    } catch (err) {
+      console.error('Failed to load reviews:', err);
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
+
   useEffect(() => {
     loadSettings();
+    loadReviews();
   }, []);
 
   // Compute Unsaved Changes
@@ -183,6 +245,58 @@ export const AdminSettings: React.FC = () => {
       ...form,
       preconfigured_cake_weights: form.preconfigured_cake_weights.filter((w) => w !== weightToRemove),
     });
+  };
+
+  // Add Customer Screenshot Review
+  const handleAddReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewForm.customer_name.trim() || !reviewForm.screenshot_url.trim() || !reviewForm.caption.trim()) {
+      showToast('Please fill in customer name, screenshot image URL, and customer feedback quote.');
+      return;
+    }
+
+    try {
+      await reviewsService.addReview({
+        customer_name: reviewForm.customer_name.trim(),
+        customer_area: reviewForm.customer_area.trim() || 'Dhaka, Bangladesh',
+        platform: reviewForm.platform,
+        screenshot_url: reviewForm.screenshot_url.trim(),
+        caption: reviewForm.caption.trim(),
+        product_name: reviewForm.product_name.trim() || 'Boutique Creation',
+        rating: Number(reviewForm.rating) || 5,
+        date: 'Just now',
+        is_featured: reviewForm.is_featured,
+      });
+      showToast('Customer screenshot review published successfully to storefront!');
+      setShowAddReviewModal(false);
+      setReviewForm({
+        customer_name: '',
+        customer_area: '',
+        platform: 'whatsapp',
+        screenshot_url: '',
+        caption: '',
+        product_name: '',
+        rating: 5,
+        is_featured: true,
+      });
+      await loadReviews();
+    } catch (err: any) {
+      showToast(err.message || 'Failed to save review.');
+    }
+  };
+
+  // Delete Customer Screenshot Review
+  const handleDeleteReview = async (id: string, name: string) => {
+    if (window.confirm(`Delete review screenshot from "${name}"? This will remove it from the public storefront.`)) {
+      try {
+        await reviewsService.deleteReview(id);
+        showToast('Review screenshot deleted.');
+        await loadReviews();
+      } catch (err: any) {
+        console.error('Delete review error:', err);
+        showToast('Failed to delete review.');
+      }
+    }
   };
 
   // Handle Password Update
@@ -348,6 +462,19 @@ export const AdminSettings: React.FC = () => {
               tune
             </span>
             <span>Product Defaults</span>
+          </a>
+          <a
+            href="#section-reviews"
+            onClick={() => setActiveSection('reviews')}
+            style={{
+              ...styles.tabLink,
+              ...(activeSection === 'reviews' ? styles.tabLinkActive : {}),
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>
+              rate_review
+            </span>
+            <span>Customer Reviews</span>
           </a>
           <a
             href="#section-account"
@@ -1048,6 +1175,138 @@ export const AdminSettings: React.FC = () => {
         </section>
 
         {/* =================================================================== */}
+        {/* SECTION 7: CUSTOMER REVIEWS & SCREENSHOTS (SOCIAL PROOF)           */}
+        {/* =================================================================== */}
+        <section id="section-reviews" style={styles.sectionCard}>
+          <div style={styles.sectionCardHeader}>
+            <div style={styles.sectionHeaderLeft}>
+              <span className="material-symbols-outlined" style={styles.sectionIcon}>
+                rate_review
+              </span>
+              <div>
+                <h2 style={styles.sectionCardTitle}>Customer Reviews & Screenshots</h2>
+                <span style={styles.publicProfileTag}>
+                  Social proof screenshots from WhatsApp & Facebook displayed on the storefront
+                </span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowAddReviewModal(true)}
+              style={styles.addReviewBtn}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                add_photo_alternate
+              </span>
+              <span>Add Screenshot Review</span>
+            </button>
+          </div>
+
+          <div style={styles.sectionBody}>
+            {reviewsLoading ? (
+              <div style={{ textAlign: 'center', padding: '30px', color: '#827470' }}>
+                <span className="material-symbols-outlined spin" style={{ fontSize: '24px' }}>
+                  progress_activity
+                </span>
+                <p style={{ marginTop: '8px', fontSize: '13px' }}>Loading screenshot reviews...</p>
+              </div>
+            ) : reviews.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '30px', border: '1px dashed #d1cac4', borderRadius: '8px' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '32px', color: '#bfae9e' }}>
+                  chat_bubble
+                </span>
+                <p style={{ marginTop: '6px', fontSize: '14px', color: '#5c3e36', fontWeight: 600 }}>
+                  No customer reviews yet
+                </p>
+                <p style={{ fontSize: '12px', color: '#827470', marginBottom: '14px' }}>
+                  Add real message screenshots from happy customers on WhatsApp and Facebook.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowAddReviewModal(true)}
+                  style={styles.addReviewBtn}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                    add
+                  </span>
+                  <span>Add First Review Screenshot</span>
+                </button>
+              </div>
+            ) : (
+              <div style={styles.reviewGrid}>
+                {reviews.map((rev) => (
+                  <div key={rev.id} style={styles.reviewCard}>
+                    <div style={styles.reviewImgWrap}>
+                      <img
+                        src={rev.screenshot_url}
+                        alt={`Screenshot review from ${rev.customer_name}`}
+                        style={styles.reviewImg}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src =
+                            'https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=600&q=80';
+                        }}
+                      />
+                      <div style={styles.platformBadgeOverlay}>
+                        <span
+                          style={{
+                            ...styles.platformPill,
+                            backgroundColor: rev.platform === 'whatsapp' ? '#25d366' : '#1877f2',
+                            color: '#ffffff',
+                          }}
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>
+                            {rev.platform === 'whatsapp' ? 'chat' : 'public'}
+                          </span>
+                          <span style={{ textTransform: 'capitalize' }}>{rev.platform}</span>
+                        </span>
+                      </div>
+                    </div>
+
+                    <div style={styles.reviewCardContent}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div>
+                          <h4 style={styles.reviewCustomerName}>{rev.customer_name}</h4>
+                          <p style={styles.reviewCustomerArea}>{rev.customer_area || 'Dhaka, Bangladesh'}</p>
+                        </div>
+                        <div style={{ display: 'flex', gap: '2px', color: '#d97706', fontSize: '13px' }}>
+                          {'★'.repeat(rev.rating || 5)}
+                        </div>
+                      </div>
+
+                      {rev.product_name && (
+                        <div style={styles.reviewProductPill}>
+                          <span className="material-symbols-outlined" style={{ fontSize: '13px', color: '#5c3e36' }}>
+                            shopping_bag
+                          </span>
+                          <span>{rev.product_name}</span>
+                        </div>
+                      )}
+
+                      <p style={styles.reviewQuoteText}>{rev.caption}</p>
+
+                      <div style={styles.reviewCardFooter}>
+                        <span style={styles.reviewDateText}>{rev.date}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteReview(rev.id, rev.customer_name)}
+                          style={styles.deleteReviewBtn}
+                          title="Delete review screenshot"
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>
+                            delete
+                          </span>
+                          <span>Remove</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* =================================================================== */}
         {/* SECTION 6: ADMIN ACCOUNT & SECURITY                                 */}
         {/* =================================================================== */}
         <section id="section-account" style={styles.sectionCard}>
@@ -1219,6 +1478,177 @@ export const AdminSettings: React.FC = () => {
                   style={styles.modalSubmitBtn}
                 >
                   {passwordLoading ? 'Updating Password...' : 'Update Password'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* =================================================================== */}
+      {/* MODAL: ADD CUSTOMER SCREENSHOT REVIEW                               */}
+      {/* =================================================================== */}
+      {showAddReviewModal && (
+        <div style={styles.modalOverlay}>
+          <div style={{ ...styles.modalBox, maxWidth: '580px', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div style={styles.modalHeader}>
+              <div>
+                <h3 style={styles.modalTitle}>Add Customer Review Screenshot</h3>
+                <p style={{ fontSize: '11px', color: '#827470', margin: '2px 0 0 0' }}>
+                  Upload or link authentic customer praise from WhatsApp or Facebook.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAddReviewModal(false)}
+                style={styles.modalCloseBtn}
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleAddReview} style={styles.modalForm}>
+              {/* Presets Toolbar */}
+              <div style={{ backgroundColor: '#faf7f3', padding: '10px 12px', borderRadius: '6px', border: '1px solid #ebd8ce' }}>
+                <span style={{ fontSize: '11px', fontWeight: 700, color: '#5c3e36', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Quick Preset Recommendations:
+                </span>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px' }}>
+                  {PRESET_SCREENSHOTS.map((preset, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        setReviewForm((prev) => ({
+                          ...prev,
+                          screenshot_url: preset.url,
+                          product_name: preset.product,
+                          platform: preset.platform,
+                          caption: preset.quote,
+                        }));
+                      }}
+                      style={{
+                        fontSize: '11px',
+                        padding: '4px 8px',
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #d9cbbf',
+                        borderRadius: '4px',
+                        color: '#432821',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div style={styles.formGrid2}>
+                <div style={styles.modalFieldGroup}>
+                  <label style={styles.label}>Customer Name *</label>
+                  <input
+                    type="text"
+                    value={reviewForm.customer_name}
+                    onChange={(e) => setReviewForm({ ...reviewForm, customer_name: e.target.value })}
+                    placeholder="e.g. Dr. Nusrat Jahan"
+                    required
+                    style={styles.input}
+                  />
+                </div>
+
+                <div style={styles.modalFieldGroup}>
+                  <label style={styles.label}>Customer Area / City</label>
+                  <input
+                    type="text"
+                    value={reviewForm.customer_area}
+                    onChange={(e) => setReviewForm({ ...reviewForm, customer_area: e.target.value })}
+                    placeholder="e.g. Gulshan 2, Dhaka"
+                    style={styles.input}
+                  />
+                </div>
+              </div>
+
+              <div style={styles.formGrid2}>
+                <div style={styles.modalFieldGroup}>
+                  <label style={styles.label}>Platform *</label>
+                  <select
+                    value={reviewForm.platform}
+                    onChange={(e) =>
+                      setReviewForm({
+                        ...reviewForm,
+                        platform: e.target.value as 'whatsapp' | 'facebook' | 'instagram',
+                      })
+                    }
+                    style={styles.select}
+                  >
+                    <option value="whatsapp">WhatsApp Message</option>
+                    <option value="facebook">Facebook Review / Inbox</option>
+                    <option value="instagram">Instagram DM</option>
+                  </select>
+                </div>
+
+                <div style={styles.modalFieldGroup}>
+                  <label style={styles.label}>Product Referenced</label>
+                  <input
+                    type="text"
+                    value={reviewForm.product_name}
+                    onChange={(e) => setReviewForm({ ...reviewForm, product_name: e.target.value })}
+                    placeholder="e.g. Aurelia Floral Smocked Dress"
+                    style={styles.input}
+                  />
+                </div>
+              </div>
+
+              <div style={styles.modalFieldGroup}>
+                <label style={styles.label}>Screenshot Image URL *</label>
+                <input
+                  type="url"
+                  value={reviewForm.screenshot_url}
+                  onChange={(e) => setReviewForm({ ...reviewForm, screenshot_url: e.target.value })}
+                  placeholder="https://... screenshot image url"
+                  required
+                  style={styles.input}
+                />
+                {reviewForm.screenshot_url && (
+                  <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <img
+                      src={reviewForm.screenshot_url}
+                      alt="Preview"
+                      style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #d4c3bf' }}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                    <span style={{ fontSize: '11px', color: '#065f46' }}>✓ Screenshot preview linked</span>
+                  </div>
+                )}
+              </div>
+
+              <div style={styles.modalFieldGroup}>
+                <label style={styles.label}>Customer Feedback Quote / Message Excerpt *</label>
+                <textarea
+                  value={reviewForm.caption}
+                  onChange={(e) => setReviewForm({ ...reviewForm, caption: e.target.value })}
+                  placeholder="“Everyone at the dawat was asking where we made Inaya’s dress! Fabric was so gentle...”"
+                  rows={3}
+                  required
+                  style={{ ...styles.input, resize: 'vertical' }}
+                />
+              </div>
+
+              <div style={styles.modalFooter}>
+                <button
+                  type="button"
+                  onClick={() => setShowAddReviewModal(false)}
+                  style={styles.modalCancelBtn}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  style={styles.modalSubmitBtn}
+                >
+                  Publish to Storefront
                 </button>
               </div>
             </form>
@@ -2111,5 +2541,122 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '12px',
     fontWeight: '700',
     cursor: 'pointer',
+  },
+  addReviewBtn: {
+    backgroundColor: '#432821',
+    color: '#ffffff',
+    border: 'none',
+    padding: '8px 14px',
+    borderRadius: '4px',
+    fontSize: '12px',
+    fontWeight: '700',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '6px',
+    cursor: 'pointer',
+    letterSpacing: '0.3px',
+  },
+  reviewGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+    gap: '16px',
+  },
+  reviewCard: {
+    backgroundColor: '#fbf9f5',
+    border: '1px solid #eae8e4',
+    borderRadius: '8px',
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
+    boxShadow: '0 1px 4px rgba(0,0,0,0.03)',
+  },
+  reviewImgWrap: {
+    position: 'relative',
+    height: '140px',
+    backgroundColor: '#ece8e1',
+    overflow: 'hidden',
+  },
+  reviewImg: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+  },
+  platformBadgeOverlay: {
+    position: 'absolute',
+    top: '8px',
+    left: '8px',
+  },
+  platformPill: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '4px',
+    padding: '3px 8px',
+    borderRadius: '9999px',
+    fontSize: '10px',
+    fontWeight: '700',
+    boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+  },
+  reviewCardContent: {
+    padding: '14px',
+    display: 'flex',
+    flexDirection: 'column',
+    flex: 1,
+  },
+  reviewCustomerName: {
+    fontSize: '13px',
+    fontWeight: '700',
+    color: '#432821',
+    margin: 0,
+  },
+  reviewCustomerArea: {
+    fontSize: '11px',
+    color: '#827470',
+    margin: '1px 0 0 0',
+  },
+  reviewProductPill: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '4px',
+    fontSize: '11px',
+    fontWeight: '600',
+    color: '#5c3e36',
+    backgroundColor: '#f5ede9',
+    padding: '3px 8px',
+    borderRadius: '4px',
+    margin: '8px 0',
+    width: 'fit-content',
+  },
+  reviewQuoteText: {
+    fontSize: '12px',
+    color: '#504441',
+    fontStyle: 'italic',
+    lineHeight: 1.4,
+    margin: '4px 0 12px 0',
+    flex: 1,
+  },
+  reviewCardFooter: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderTop: '1px solid #ece8e1',
+    paddingTop: '10px',
+    marginTop: 'auto',
+  },
+  reviewDateText: {
+    fontSize: '10px',
+    color: '#827470',
+  },
+  deleteReviewBtn: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '4px',
+    background: 'none',
+    border: 'none',
+    color: '#ba1a1a',
+    fontSize: '11px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    padding: '2px 4px',
+    borderRadius: '3px',
   },
 };

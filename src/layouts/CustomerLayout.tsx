@@ -3,20 +3,61 @@
  * Customer Storefront Layout (Mirrors Stitch project 1646646279704595948)
  */
 
-import React, { useState } from 'react';
-import { Link, NavLink, Outlet } from 'react-router-dom';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useCart } from '../hooks/useCart';
+import { CartAddedNotification } from '../components/customer/CartAddedNotification';
 
 export const CustomerLayout: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [secretToast, setSecretToast] = useState<string | null>(null);
   const { isAdmin } = useAuth();
-  const { itemCount } = useCart();
+  const { itemCount, isBagBouncing } = useCart();
+  const navigate = useNavigate();
+
+  const secretTapCountRef = useRef(0);
+  const secretTapTimerRef = useRef<any>(null);
 
   const closeDrawer = () => setDrawerOpen(false);
 
+  // Secret Admin Login Trigger
+  const triggerSecretAdminLogin = useCallback(() => {
+    setSecretToast('Entering Ababil Studio Management Suite...');
+    setTimeout(() => {
+      navigate('/admin/login');
+      setSecretToast(null);
+    }, 600);
+  }, [navigate]);
+
+  const handleSecretTap = () => {
+    secretTapCountRef.current += 1;
+    if (secretTapTimerRef.current) clearTimeout(secretTapTimerRef.current);
+
+    if (secretTapCountRef.current >= 3) {
+      secretTapCountRef.current = 0;
+      triggerSecretAdminLogin();
+    } else {
+      secretTapTimerRef.current = setTimeout(() => {
+        secretTapCountRef.current = 0;
+      }, 1500);
+    }
+  };
+
+  // Keyboard shortcut listener for secret admin login (Ctrl+Shift+A or Cmd+Shift+A)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'a') {
+        e.preventDefault();
+        triggerSecretAdminLogin();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [triggerSecretAdminLogin]);
+
   // Close navigation drawer with Escape key
-  React.useEffect(() => {
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && drawerOpen) {
         closeDrawer();
@@ -28,12 +69,44 @@ export const CustomerLayout: React.FC = () => {
 
   return (
     <div style={styles.pageContainer}>
+      {/* Floating Add to Cart Notification */}
+      <CartAddedNotification />
+
+      {/* Secret Admin Transition Toast */}
+      {secretToast && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '84px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            backgroundColor: '#301310',
+            color: '#ffffff',
+            padding: '10px 18px',
+            borderRadius: '8px',
+            fontSize: '13px',
+            fontWeight: 500,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
+            zIndex: 9999,
+            letterSpacing: '0.02em',
+          }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#f3c4be' }}>
+            vpn_key
+          </span>
+          <span>{secretToast}</span>
+        </div>
+      )}
+
       {/* ================================================================= */}
       {/* 1. STICKY BOUTIQUE HEADER (TopAppBar Anchor Component)            */}
       {/* ================================================================= */}
       <header style={styles.header}>
         <div style={styles.headerInner}>
-          {/* Left: Mobile Drawer Toggle */}
+          {/* Left: Mobile Drawer Toggle & Desktop Nav */}
           <div style={styles.leftGroup}>
             <button
               type="button"
@@ -41,6 +114,7 @@ export const CustomerLayout: React.FC = () => {
               aria-expanded={drawerOpen}
               onClick={() => setDrawerOpen(true)}
               style={styles.menuButton}
+              className="customer-mobile-menu-btn"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>
                 menu
@@ -83,12 +157,18 @@ export const CustomerLayout: React.FC = () => {
             </nav>
           </div>
 
-          {/* Center: Brand Identity */}
+          {/* Center: Brand Identity (Mathematically centered across viewports) */}
           <div style={styles.brandCenter}>
             <Link to="/" style={styles.brandLink}>
               <span style={styles.brandTitle}>Ababil’s Attire</span>
             </Link>
-            <span style={styles.brandSubtitle}>
+            <span
+              style={styles.brandSubtitle}
+              onClick={handleSecretTap}
+              title="Ababil’s Attire by Sanjida Bethi"
+              role="button"
+              tabIndex={-1}
+            >
               Handmade Dresses & Homemade Cakes by Sanjida Bethi
             </span>
           </div>
@@ -120,6 +200,7 @@ export const CustomerLayout: React.FC = () => {
               aria-label={`Shopping Bag (${itemCount} items)`}
               title="My Bag"
               style={styles.bagButton}
+              className={isBagBouncing ? 'bag-bounce-active' : ''}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
                 shopping_bag
@@ -266,10 +347,36 @@ export const CustomerLayout: React.FC = () => {
           )}
         </nav>
 
-        {/* Drawer Footer Quote */}
+        {/* Drawer Footer Quote & Discreet Studio Access */}
         <div style={styles.drawerFooter}>
           <p style={styles.drawerQuote}>"Stitched with love, baked with care."</p>
-          <p style={styles.drawerDhaka}>Banani Studio • Dhaka, Bangladesh</p>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+            <p style={styles.drawerDhaka}>Banani Studio • Dhaka, Bangladesh</p>
+            <button
+              type="button"
+              onClick={() => {
+                closeDrawer();
+                triggerSecretAdminLogin();
+              }}
+              title="Atelier Security"
+              aria-label="Studio Lock"
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#bfae9e',
+                cursor: 'pointer',
+                padding: '2px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                opacity: 0.45,
+                transition: 'opacity 0.2s ease',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>
+                lock
+              </span>
+            </button>
+          </div>
         </div>
       </aside>
 
@@ -332,7 +439,7 @@ export const CustomerLayout: React.FC = () => {
             </a>
           </div>
 
-          {/* Quick Footer Links */}
+          {/* Quick Footer Links (Confidential boutique storefront — no overt admin link) */}
           <div style={styles.footerLinksGrid}>
             <Link to="/dresses" style={styles.footerLink}>
               Dresses Collection
@@ -349,14 +456,22 @@ export const CustomerLayout: React.FC = () => {
             <Link to="/about" style={styles.footerLink}>
               Our Story
             </Link>
-            <Link to="/admin/login" style={styles.footerLink}>
-              Studio Login
-            </Link>
+            <span
+              onClick={handleSecretTap}
+              style={{ ...styles.footerLink, cursor: 'default', userSelect: 'none' }}
+              title="Dhaka Studio Atelier"
+            >
+              Dhaka Atelier
+            </span>
           </div>
 
-          {/* Copyright */}
+          {/* Copyright (Triple-tap to enter Studio Admin) */}
           <div style={styles.copyrightRow}>
-            <p style={styles.copyrightText}>
+            <p
+              style={{ ...styles.copyrightText, cursor: 'default', userSelect: 'none' }}
+              onClick={handleSecretTap}
+              title="Ababil’s Attire by Sanjida Bethi (Triple-tap for Atelier admin)"
+            >
               © 2026 Ababil’s Attire by Sanjida Bethi. All Rights Reserved. Handmade Dresses & Homemade Cakes • Banani, Dhaka.
             </p>
           </div>
@@ -401,6 +516,7 @@ export const CustomerLayout: React.FC = () => {
         <NavLink
           to="/bag"
           style={({ isActive }) => (isActive ? styles.bottomNavItemActive : styles.bottomNavItem)}
+          className={isBagBouncing ? 'bag-bounce-active' : ''}
         >
           <div style={{ position: 'relative', display: 'inline-flex' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
@@ -468,14 +584,15 @@ const styles: Record<string, React.CSSProperties> = {
     maxWidth: '1200px',
     margin: '0 auto',
     padding: '0 16px',
-    display: 'flex',
+    display: 'grid',
+    gridTemplateColumns: '1fr auto 1fr',
     alignItems: 'center',
-    justifyContent: 'space-between',
   },
   leftGroup: {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
+    justifySelf: 'start',
   },
   menuButton: {
     display: 'flex',
@@ -521,6 +638,7 @@ const styles: Record<string, React.CSSProperties> = {
     flexDirection: 'column',
     alignItems: 'center',
     textAlign: 'center',
+    justifySelf: 'center',
   },
   brandLink: {
     textDecoration: 'none',
@@ -541,11 +659,14 @@ const styles: Record<string, React.CSSProperties> = {
     color: '#8c5e51',
     textTransform: 'uppercase',
     marginTop: '1px',
+    cursor: 'default',
+    userSelect: 'none',
   },
   rightGroup: {
     display: 'flex',
     alignItems: 'center',
     gap: '6px',
+    justifySelf: 'end',
   },
   adminBadgeLink: {
     display: 'inline-flex',

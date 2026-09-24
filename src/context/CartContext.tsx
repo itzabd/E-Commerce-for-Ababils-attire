@@ -1,10 +1,10 @@
 /**
  * Ababil’s Attire by Sanjida Bethi
- * Unified Shopping Bag / Cart Context with LocalStorage Persistence
+ * Unified Shopping Bag / Cart Context with LocalStorage Persistence & Interactive Animations
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
-import type { CartItem } from '../types/cart.types';
+import type { CartItem, AddedItemNotification } from '../types/cart.types';
 import { CartContext } from './cartContextInstance';
 
 const CART_STORAGE_KEY = 'ababils_bag_v1';
@@ -47,6 +47,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const [lastRemovedItem, setLastRemovedItem] = useState<{ item: CartItem; index: number } | null>(null);
+  const [lastAddedItem, setLastAddedItem] = useState<AddedItemNotification | null>(null);
+  const [isBagBouncing, setIsBagBouncing] = useState(false);
 
   // Sync items to localStorage
   useEffect(() => {
@@ -66,8 +68,21 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [specialNote]);
 
+  // Auto-dismiss added item toast after 4 seconds
+  useEffect(() => {
+    if (!lastAddedItem) return;
+    const timer = setTimeout(() => {
+      setLastAddedItem(null);
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, [lastAddedItem]);
+
   const setSpecialNote = (note: string) => {
     setSpecialNoteState(note);
+  };
+
+  const dismissNotification = () => {
+    setLastAddedItem(null);
   };
 
   const addItem = (itemInput: Omit<CartItem, 'id'>) => {
@@ -96,6 +111,22 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return [...prevItems, newItem];
       }
     });
+
+    // Trigger visual animation and notification
+    const notificationPayload: CartItem = {
+      ...itemInput,
+      id: lineId,
+      quantity: itemInput.quantity || 1,
+    };
+    setLastAddedItem({
+      item: notificationPayload,
+      timestamp: Date.now(),
+    });
+
+    setIsBagBouncing(true);
+    setTimeout(() => {
+      setIsBagBouncing(false);
+    }, 750);
   };
 
   const removeItem = (id: string) => {
@@ -205,6 +236,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         clearCart,
         undoRemove,
         lastRemovedItem,
+        lastAddedItem,
+        dismissNotification,
+        isBagBouncing,
       }}
     >
       {children}

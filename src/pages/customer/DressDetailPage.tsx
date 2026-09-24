@@ -16,7 +16,6 @@ export const DressDetailPage: React.FC = () => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string>('12M');
   const [showSizeGuide, setShowSizeGuide] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [imageModalOpen, setImageModalOpen] = useState(false);
 
   const { addItem } = useCart();
@@ -90,11 +89,6 @@ export const DressDetailPage: React.FC = () => {
       leadTimeDays: product.lead_time_days ?? undefined,
       quantity: 1,
     });
-
-    setToastMessage(`Added "${product.name}" (${selectedSize}) to your bag!`);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 4000);
   };
 
   if (loading) {
@@ -146,31 +140,6 @@ export const DressDetailPage: React.FC = () => {
 
   return (
     <div style={styles.pageWrapper}>
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div style={styles.toast}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="material-symbols-outlined" style={{ color: '#065f46', fontSize: '20px' }}>
-              check_circle
-            </span>
-            <span style={styles.toastText}>{toastMessage}</span>
-          </div>
-          <Link
-            to="/bag"
-            style={{
-              fontSize: '12px',
-              fontWeight: 600,
-              color: '#5c3e36',
-              textDecoration: 'underline',
-              marginLeft: '12px',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            View Bag →
-          </Link>
-        </div>
-      )}
-
       {/* Breadcrumb Navigation */}
       <nav aria-label="Breadcrumb" style={styles.breadcrumb}>
         <Link to="/" style={styles.crumbLink}>

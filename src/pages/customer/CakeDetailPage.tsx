@@ -25,7 +25,6 @@ export const CakeDetailPage: React.FC = () => {
   const [selectedWeight, setSelectedWeight] = useState<CakeWeightOption | null>(null);
   const [selectedFlavor, setSelectedFlavor] = useState<string>('');
   const [customMessage, setCustomMessage] = useState<string>('');
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [imageModalOpen, setImageModalOpen] = useState(false);
 
   const { addItem } = useCart();
@@ -109,14 +108,6 @@ export const CakeDetailPage: React.FC = () => {
       minimumNoticeHours: product.minimum_notice_hours ?? 48,
       quantity: 1,
     });
-
-    const msg = `Added "${product.name}" (${selectedWeight.weight}${
-      selectedFlavor ? ` • ${selectedFlavor}` : ''
-    }) to your bag!`;
-    setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 4000);
   };
 
   if (loading) {
@@ -173,31 +164,6 @@ export const CakeDetailPage: React.FC = () => {
 
   return (
     <div style={styles.pageWrapper}>
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div style={styles.toast}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="material-symbols-outlined" style={{ color: '#065f46', fontSize: '20px' }}>
-              check_circle
-            </span>
-            <span style={styles.toastText}>{toastMessage}</span>
-          </div>
-          <Link
-            to="/bag"
-            style={{
-              fontSize: '12px',
-              fontWeight: 600,
-              color: '#5c3e36',
-              textDecoration: 'underline',
-              marginLeft: '12px',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            View Bag →
-          </Link>
-        </div>
-      )}
-
       {/* Breadcrumb Navigation */}
       <nav aria-label="Breadcrumb" style={styles.breadcrumb}>
         <Link to="/" style={styles.crumbLink}>

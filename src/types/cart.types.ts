@@ -28,6 +28,11 @@ export interface CartItem {
   minimumNoticeHours?: number;
 }
 
+export interface AddedItemNotification {
+  item: CartItem;
+  timestamp: number;
+}
+
 export interface CartContextType {
   items: CartItem[];
   itemCount: number;
@@ -45,4 +50,7 @@ export interface CartContextType {
   clearCart: () => void;
   undoRemove: () => void;
   lastRemovedItem: { item: CartItem; index: number } | null;
+  lastAddedItem: AddedItemNotification | null;
+  dismissNotification: () => void;
+  isBagBouncing: boolean;
 }

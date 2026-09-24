@@ -119,6 +119,30 @@ input, select, textarea {
   }
 }
 
+@keyframes bagPulseBounce {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.4) rotate(-12deg); }
+  50% { transform: scale(1.15) rotate(10deg); }
+  75% { transform: scale(1.25) rotate(-4deg); }
+  100% { transform: scale(1); }
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -18px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+.bag-bounce-active {
+  animation: bagPulseBounce 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
   font-weight: normal;
@@ -149,6 +173,9 @@ input, select, textarea {
 }
 
 @media (min-width: 768px) {
+  .customer-mobile-menu-btn {
+    display: none !important;
+  }
   .customer-bottom-nav {
     display: none !important;
   }
