@@ -13,10 +13,11 @@
  * - Unsaved changes detection, sticky bottom save bar, and rollback/discard controls
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { settingsService } from '../../services/settings.service';
+import { storageService } from '../../services/storage.service';
 import { reviewsService, type CustomerReview } from '../../services/reviews.service';
 import type { StoreSettings } from '../../types';
 
@@ -94,11 +95,44 @@ export const AdminSettings: React.FC = () => {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordLoading, setPasswordLoading] = useState(false);
 
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement | null>(null);
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => {
       setToastMessage(null);
     }, 3800);
+  };
+
+  // Handle Logo Upload from Local Device
+  const handleLogoFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingLogo(true);
+    try {
+      const uploadedUrl = await storageService.uploadLogoImage(file);
+      setForm((prev) => (prev ? { ...prev, logo_url: uploadedUrl } : prev));
+      // Save immediately so it applies across the whole website right now!
+      await settingsService.updateSettings({ logo_url: uploadedUrl });
+      showToast('Brand logo uploaded and applied immediately across the storefront!');
+    } catch (err: any) {
+      console.error('Logo upload error:', err);
+      showToast(err.message || 'Failed to upload logo image.');
+    } finally {
+      setIsUploadingLogo(false);
+      if (e.target) e.target.value = '';
+    }
+  };
+
+  // Revert back to default AB Monogram Crest
+  const handleRemoveLogo = async () => {
+    if (window.confirm('Remove custom logo and revert to the signature "AB" monogram crest?')) {
+      setForm((prev) => (prev ? { ...prev, logo_url: null } : prev));
+      await settingsService.updateSettings({ logo_url: null });
+      showToast('Custom logo removed. Default signature crest restored.');
+    }
   };
 
   // Load Settings from service
@@ -512,15 +546,78 @@ export const AdminSettings: React.FC = () => {
             {/* Brand Crest & Logo Card */}
             <div style={styles.crestCard}>
               <div style={styles.crestBox}>
-                <span style={styles.crestMonogram}>AB</span>
+                {form.logo_url ? (
+                  <img
+                    src={form.logo_url}
+                    alt="Brand Logo Preview"
+                    style={{
+                      maxWidth: '90%',
+                      maxHeight: '90%',
+                      objectFit: 'contain',
+                    }}
+                  />
+                ) : (
+                  <span style={styles.crestMonogram}>AB</span>
+                )}
               </div>
-              <div style={{ flex: 1 }}>
-                <h3 style={styles.crestTitle}>Brand Crest &amp; Logo</h3>
+              <div style={{ flex: 1, minWidth: '220px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '4px' }}>
+                  <h3 style={styles.crestTitle}>Website Brand Crest &amp; Logo</h3>
+                  {form.logo_url ? (
+                    <span style={styles.crestActiveBadge}>Custom Logo Active</span>
+                  ) : (
+                    <span style={{ ...styles.crestActiveBadge, backgroundColor: '#f5f3ef', color: '#6f6764', border: '1px solid #dfd8ce' }}>
+                      Default Monogram Active
+                    </span>
+                  )}
+                </div>
                 <p style={styles.crestDesc}>
-                  Used on client digital invoices, WhatsApp order confirmations, and packaging tags.
+                  Propagates across customer storefront header, admin suite navigation, digital order invoices, and WhatsApp confirmations.
                 </p>
+
+                {/* Upload Action Row */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '12px', flexWrap: 'wrap' }}>
+                  <input
+                    type="file"
+                    ref={logoInputRef}
+                    accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                    onChange={handleLogoFileChange}
+                    style={{ display: 'none' }}
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => logoInputRef.current?.click()}
+                    disabled={isUploadingLogo}
+                    style={styles.uploadLogoBtn}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                      {isUploadingLogo ? 'hourglass_top' : 'cloud_upload'}
+                    </span>
+                    <span>{isUploadingLogo ? 'Uploading Logo...' : form.logo_url ? 'Upload New Logo' : 'Upload Website Logo'}</span>
+                  </button>
+
+                  {form.logo_url && (
+                    <button
+                      type="button"
+                      onClick={handleRemoveLogo}
+                      style={styles.removeLogoBtn}
+                      title="Revert to default signature AB monogram"
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                        restart_alt
+                      </span>
+                      <span>Reset to Monogram</span>
+                    </button>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: '11px', color: '#827470' }}>
+                    Formats: PNG, JPG, WEBP, or SVG (max 5 MB). Transparent background recommended.
+                  </span>
+                </div>
               </div>
-              <span style={styles.crestActiveBadge}>Active Crest</span>
             </div>
 
             {/* Store Name & Business Email */}
@@ -1898,6 +1995,35 @@ const styles: Record<string, React.CSSProperties> = {
     backgroundColor: '#d1fae5',
     padding: '4px 8px',
     borderRadius: '4px',
+  },
+  uploadLogoBtn: {
+    backgroundColor: '#432821',
+    color: '#ffffff',
+    border: 'none',
+    borderRadius: '6px',
+    padding: '8px 14px',
+    fontSize: '12px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '6px',
+    boxShadow: '0 1px 3px rgba(67, 40, 33, 0.15)',
+    transition: 'all 0.15s ease',
+  },
+  removeLogoBtn: {
+    backgroundColor: '#ffffff',
+    color: '#827470',
+    border: '1px solid #d4c3bf',
+    borderRadius: '6px',
+    padding: '8px 12px',
+    fontSize: '12px',
+    fontWeight: '500',
+    cursor: 'pointer',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '6px',
+    transition: 'all 0.15s ease',
   },
   formGrid2: {
     display: 'grid',

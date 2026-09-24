@@ -8,6 +8,7 @@ import { Link, useParams } from 'react-router-dom';
 import { productsService } from '../../services/products.service';
 import type { ProductWithDetails } from '../../types';
 import { useCart } from '../../hooks/useCart';
+import { getStudioWhatsAppUrl } from '../../lib/studio';
 
 export const DressDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -326,9 +327,9 @@ export const DressDetailPage: React.FC = () => {
             </button>
 
             <a
-              href={`https://wa.me/?text=Hi%20Sanjida,%20I'm%20interested%20in%20the%20${encodeURIComponent(
-                product.name
-              )}%20in%20size%20${selectedSize}.`}
+              href={getStudioWhatsAppUrl(
+                `Assalamu Alaikum Sanjida Apu, I'm interested in ordering the ${product.name} (Size: ${selectedSize}). Could you share more details?`
+              )}
               target="_blank"
               rel="noopener noreferrer"
               style={styles.whatsappInquireBtn}

@@ -205,7 +205,7 @@ BEGIN
         v_cust_id,
         'Ayesha Rahman',
         '01711223344',
-        'ayesha.rahman@example.com',
+        'ayesha.rahman21@gmail.com',
         'House 42, Road 11, Block D, Banani',
         'Banani',
         'Deliver between 2 PM - 4 PM. Please ring bell twice.'

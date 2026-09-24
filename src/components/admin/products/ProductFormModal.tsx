@@ -80,8 +80,8 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
     'Keep chilled in refrigerator between 4°C – 8°C. Bring to room temperature 30 minutes before cutting.'
   );
 
-  // Images State
-  const [images, setImages] = useState<Array<{ id: string; image_url: string; sort_order: number }>>([]);
+  // Images State (supports both saved cloud images and staged local files)
+  const [images, setImages] = useState<Array<{ id: string; image_url: string; sort_order: number; file?: File }>>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgressText, setUploadProgressText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -221,14 +221,14 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
           ...newRows.map((r) => ({ id: r.id, image_url: r.image_url, sort_order: r.sort_order })),
         ]);
       } else {
-        // For new products, upload to storage and stage the resulting URLs
+        // For new products, keep the File objects and create previews
         for (let i = 0; i < fileList.length; i++) {
           const file = fileList[i];
           const sortOrder = images.length + i;
           const previewUrl = URL.createObjectURL(file);
           setImages((prev) => [
             ...prev,
-            { id: `temp-${Date.now()}-${i}`, image_url: previewUrl, sort_order: sortOrder },
+            { id: `temp-${Date.now()}-${i}`, image_url: previewUrl, sort_order: sortOrder, file },
           ]);
         }
       }
@@ -378,6 +378,8 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
               storage_instructions: storageInstructions.trim() || undefined,
             };
 
+      let finalProductId = productToEdit?.id;
+
       if (isEditing && productToEdit) {
         // Safe update: does NOT delete unrelated products or images
         await productsService.updateProduct(
@@ -388,13 +390,27 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
         );
       } else {
         // Create new product
-        await productsService.createProduct(
+        finalProductId = await productsService.createProduct(
           {
             ...productPayload,
             product_code: trimmedCode,
             category: activeCategory,
           },
           detailsPayload
+        );
+      }
+
+      // Upload and register any staged image files with the product
+      const pendingFiles = images.filter((img) => img.file).map((img) => img.file!);
+      if (finalProductId && pendingFiles.length > 0) {
+        setUploadProgressText(`Saving ${pendingFiles.length} photo(s) to cloud...`);
+        const startingOrder = images.filter((img) => !img.file).length;
+        await storageService.uploadMultipleImages(
+          finalProductId,
+          trimmedCode,
+          activeCategory,
+          pendingFiles,
+          startingOrder
         );
       }
 
@@ -1337,38 +1353,64 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: '12px',
+    flexWrap: 'wrap',
   },
   cancelBtn: {
-    padding: '8px 18px',
-    borderRadius: '9999px',
+    padding: '10px 20px',
+    borderRadius: '8px',
     border: '1px solid #dfd8ce',
     backgroundColor: '#ffffff',
     fontSize: '13px',
     fontWeight: 600,
     color: '#6f6764',
+    cursor: 'pointer',
+    whiteSpace: 'nowrap',
+    minHeight: '42px',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    lineHeight: 1.2,
+    transition: 'all 0.15s ease',
   },
   submitBtnGroup: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
+    gap: '10px',
+    flexWrap: 'wrap',
   },
   draftBtn: {
-    padding: '8px 18px',
-    borderRadius: '9999px',
+    padding: '10px 22px',
+    borderRadius: '8px',
     border: '1px solid #dfd8ce',
     backgroundColor: '#f5f3ef',
     fontSize: '13px',
     fontWeight: 600,
     color: '#5c3e36',
+    cursor: 'pointer',
+    whiteSpace: 'nowrap',
+    minHeight: '42px',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    lineHeight: 1.2,
+    transition: 'all 0.15s ease',
   },
   publishBtn: {
-    padding: '8px 24px',
-    borderRadius: '9999px',
+    padding: '10px 24px',
+    borderRadius: '8px',
     border: 'none',
     backgroundColor: '#5c3e36',
     fontSize: '13px',
     fontWeight: 600,
     color: '#ffffff',
-    boxShadow: 'var(--shadow-sm, 0 2px 6px rgba(92, 62, 54, 0.08))',
+    cursor: 'pointer',
+    whiteSpace: 'nowrap',
+    minHeight: '42px',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    lineHeight: 1.2,
+    boxShadow: 'var(--shadow-sm, 0 2px 6px rgba(92, 62, 54, 0.12))',
+    transition: 'all 0.15s ease',
   },
 };

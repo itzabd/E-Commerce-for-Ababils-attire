@@ -8,6 +8,7 @@ import { Link, useParams } from 'react-router-dom';
 import { productsService } from '../../services/products.service';
 import type { ProductWithDetails } from '../../types';
 import { useCart } from '../../hooks/useCart';
+import { getStudioWhatsAppUrl } from '../../lib/studio';
 
 interface CakeWeightOption {
   weight: string;
@@ -389,11 +390,11 @@ export const CakeDetailPage: React.FC = () => {
             </button>
 
             <a
-              href={`https://wa.me/?text=Hi%20Sanjida,%20I'd%20like%20to%20order%20the%20${encodeURIComponent(
-                product.name
-              )}%20(${selectedWeight?.weight || '1.0 lb'}${
-                selectedFlavor ? ` • ${selectedFlavor}` : ''
-              }).`}
+              href={getStudioWhatsAppUrl(
+                `Assalamu Alaikum Sanjida Apu, I would like to order the ${product.name} (${selectedWeight?.weight || '1.0 lb'}${
+                  selectedFlavor ? ` • ${selectedFlavor}` : ''
+                }). Could you confirm date availability?`
+              )}
               target="_blank"
               rel="noopener noreferrer"
               style={styles.whatsappInquireBtn}

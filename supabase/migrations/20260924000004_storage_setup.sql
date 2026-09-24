@@ -21,12 +21,14 @@ SET public = TRUE,
 -- 2. Storage RLS Policies for product-images bucket
 
 -- Allow public read access to all product images
+DROP POLICY IF EXISTS "Public can view product images" ON storage.objects;
 CREATE POLICY "Public can view product images"
     ON storage.objects
     FOR SELECT
     USING (bucket_id = 'product-images');
 
 -- Allow authenticated admins to upload images to dresses/ and cakes/
+DROP POLICY IF EXISTS "Admins can upload product images" ON storage.objects;
 CREATE POLICY "Admins can upload product images"
     ON storage.objects
     FOR INSERT
@@ -43,6 +45,7 @@ CREATE POLICY "Admins can upload product images"
     );
 
 -- Allow authenticated admins to update product images
+DROP POLICY IF EXISTS "Admins can update product images" ON storage.objects;
 CREATE POLICY "Admins can update product images"
     ON storage.objects
     FOR UPDATE
@@ -59,6 +62,7 @@ CREATE POLICY "Admins can update product images"
     );
 
 -- Allow authenticated admins to delete product images
+DROP POLICY IF EXISTS "Admins can delete product images" ON storage.objects;
 CREATE POLICY "Admins can delete product images"
     ON storage.objects
     FOR DELETE

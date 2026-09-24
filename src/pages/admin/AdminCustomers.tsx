@@ -372,7 +372,7 @@ export const AdminCustomers: React.FC = () => {
                 ...(filter === 'repeat_customers' ? styles.filterChipActive : {}),
               }}
             >
-              VIP Regulars ({metrics.repeat_customers_count || 9})
+              VIP Regulars ({metrics.repeat_customers_count})
             </button>
           </div>
 
@@ -564,16 +564,20 @@ export const AdminCustomers: React.FC = () => {
                           <p style={styles.snapshotItems}>{cust.latest_order_items_summary}</p>
                         )}
                         <div style={styles.snapshotFinancials}>
-                          <span>
+                          <span style={{ whiteSpace: 'nowrap' }}>
                             Total: <strong style={styles.strongCocoa}>৳ {cust.latest_order_total?.toLocaleString()}</strong>
                           </span>
+                          <span style={styles.finSeparator}>•</span>
                           {cust.latest_order_advance_verified ? (
-                            <span style={styles.verifiedGreen}>৳ 500 bKash verified</span>
+                            <span style={{ ...styles.verifiedGreen, whiteSpace: 'nowrap' }}>৳ 500 bKash verified</span>
                           ) : (
-                            <span style={styles.pendingAdvance}>bKash pending match</span>
+                            <span style={{ ...styles.pendingAdvance, whiteSpace: 'nowrap' }}>bKash pending match</span>
                           )}
                           {cust.latest_order_cash_due !== undefined && (
-                            <span>৳ {cust.latest_order_cash_due.toLocaleString()} COD due</span>
+                            <>
+                              <span style={styles.finSeparator}>•</span>
+                              <span style={{ whiteSpace: 'nowrap' }}>৳ {cust.latest_order_cash_due.toLocaleString()} COD due</span>
+                            </>
                           )}
                         </div>
                       </div>
@@ -1536,11 +1540,17 @@ const styles: Record<string, React.CSSProperties> = {
   snapshotFinancials: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: '4px 8px',
     fontSize: '11px',
     color: '#827470',
-    paddingTop: '2px',
+    paddingTop: '6px',
+    marginTop: '2px',
     borderTop: '1px dashed #e4e2de',
+  },
+  finSeparator: {
+    color: '#d4c3bf',
+    fontSize: '10px',
   },
   strongCocoa: {
     color: '#432821',
@@ -2072,37 +2082,52 @@ const styles: Record<string, React.CSSProperties> = {
   },
   docketItemLine: {
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
+    gap: '12px',
     fontSize: '12px',
+    lineHeight: 1.4,
   },
   docketItemTitle: {
     color: '#1b1c1a',
+    flex: 1,
   },
   docketItemPrice: {
     color: '#432821',
-    fontWeight: '600',
+    fontWeight: '700',
+    whiteSpace: 'nowrap',
+    flexShrink: 0,
+    marginLeft: '8px',
   },
   docketFooterRow: {
     display: 'flex',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: '8px 16px',
     fontSize: '11px',
-    paddingTop: '4px',
+    paddingTop: '6px',
     borderTop: '1px dashed #e4e2de',
   },
   docketTotal: {
     fontWeight: '700',
     color: '#432821',
     margin: 0,
+    whiteSpace: 'nowrap',
+    lineHeight: 1.4,
   },
   docketAdvanceLine: {
     color: '#065f46',
-    margin: 0,
+    margin: '2px 0 0 0',
+    whiteSpace: 'nowrap',
+    lineHeight: 1.4,
   },
   docketCodDue: {
     color: '#504441',
-    margin: 0,
+    margin: '2px 0 0 0',
+    fontWeight: '600',
+    whiteSpace: 'nowrap',
+    lineHeight: 1.4,
   },
   docketDeliveryMeta: {
     textAlign: 'right',
@@ -2116,6 +2141,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '11px',
     fontWeight: '700',
     color: '#7e544f',
+    whiteSpace: 'nowrap',
   },
   viewDocketButton: {
     backgroundColor: '#f5f3ef',

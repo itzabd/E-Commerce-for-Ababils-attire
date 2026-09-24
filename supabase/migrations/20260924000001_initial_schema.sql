@@ -8,14 +8,7 @@
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- 2. Drop existing triggers & functions if re-running
-DROP TRIGGER IF EXISTS trigger_set_order_invoice_number ON orders;
-DROP TRIGGER IF EXISTS trigger_orders_status_history ON orders;
-DROP TRIGGER IF EXISTS trigger_update_products_updated_at ON products;
-DROP TRIGGER IF EXISTS trigger_update_customers_updated_at ON customers;
-DROP TRIGGER IF EXISTS trigger_update_orders_updated_at ON orders;
-
--- 3. Utility Function: Timestamp updater
+-- 2. Utility Function: Timestamp updater
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -24,7 +17,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 4. Admin Users Table (Links to Supabase auth.users)
+-- 3. Admin Users Table (Links to Supabase auth.users)
 CREATE TABLE IF NOT EXISTS admin_users (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     email TEXT UNIQUE NOT NULL,
@@ -36,6 +29,7 @@ CREATE TABLE IF NOT EXISTS admin_users (
 );
 
 -- Trigger for admin_users timestamp
+DROP TRIGGER IF EXISTS trigger_update_admin_users_updated_at ON admin_users;
 CREATE TRIGGER trigger_update_admin_users_updated_at
 BEFORE UPDATE ON admin_users
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
@@ -63,6 +57,7 @@ CREATE INDEX IF NOT EXISTS idx_products_status ON products(status);
 CREATE INDEX IF NOT EXISTS idx_products_featured ON products(featured) WHERE featured = TRUE;
 CREATE INDEX IF NOT EXISTS idx_products_new_arrival ON products(new_arrival) WHERE new_arrival = TRUE;
 
+DROP TRIGGER IF EXISTS trigger_update_products_updated_at ON products;
 CREATE TRIGGER trigger_update_products_updated_at
 BEFORE UPDATE ON products
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
@@ -113,6 +108,7 @@ CREATE TABLE IF NOT EXISTS customers (
 CREATE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone);
 CREATE INDEX IF NOT EXISTS idx_customers_area ON customers(area);
 
+DROP TRIGGER IF EXISTS trigger_update_customers_updated_at ON customers;
 CREATE TRIGGER trigger_update_customers_updated_at
 BEFORE UPDATE ON customers
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
@@ -151,6 +147,7 @@ CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
 CREATE INDEX IF NOT EXISTS idx_orders_advance_status ON orders(advance_status);
 CREATE INDEX IF NOT EXISTS idx_orders_delivery_date ON orders(delivery_date);
 
+DROP TRIGGER IF EXISTS trigger_update_orders_updated_at ON orders;
 CREATE TRIGGER trigger_update_orders_updated_at
 BEFORE UPDATE ON orders
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
@@ -193,6 +190,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_set_order_invoice_number ON orders;
 CREATE TRIGGER trigger_set_order_invoice_number
 BEFORE INSERT ON orders
 FOR EACH ROW EXECUTE FUNCTION generate_invoice_number();
@@ -273,6 +271,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_orders_status_history ON orders;
 CREATE TRIGGER trigger_orders_status_history
 AFTER INSERT OR UPDATE OF status ON orders
 FOR EACH ROW EXECUTE FUNCTION log_order_status_change();

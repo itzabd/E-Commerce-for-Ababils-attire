@@ -8,13 +8,26 @@ import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useCart } from '../hooks/useCart';
 import { CartAddedNotification } from '../components/customer/CartAddedNotification';
+import { STUDIO_CONFIG, getStudioWhatsAppUrl } from '../lib/studio';
+import { settingsService } from '../services/settings.service';
+import type { StoreSettings } from '../types';
 
 export const CustomerLayout: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [secretToast, setSecretToast] = useState<string | null>(null);
+  const [storeSettings, setStoreSettings] = useState<StoreSettings | null>(null);
   const { isAdmin } = useAuth();
   const { itemCount, isBagBouncing } = useCart();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    settingsService.getSettings().then((s) => setStoreSettings(s));
+    const handleSettingsUpdated = (e: any) => {
+      if (e.detail) setStoreSettings(e.detail);
+    };
+    window.addEventListener('store_settings_updated', handleSettingsUpdated);
+    return () => window.removeEventListener('store_settings_updated', handleSettingsUpdated);
+  }, []);
 
   const secretTapCountRef = useRef(0);
   const secretTapTimerRef = useRef<any>(null);
@@ -105,7 +118,7 @@ export const CustomerLayout: React.FC = () => {
       {/* 1. STICKY BOUTIQUE HEADER (TopAppBar Anchor Component)            */}
       {/* ================================================================= */}
       <header style={styles.header}>
-        <div style={styles.headerInner}>
+        <div style={styles.headerInner} className="customer-header-inner">
           {/* Left: Mobile Drawer Toggle & Desktop Nav */}
           <div style={styles.leftGroup}>
             <button
@@ -158,9 +171,22 @@ export const CustomerLayout: React.FC = () => {
           </div>
 
           {/* Center: Brand Identity (Mathematically centered across viewports) */}
-          <div style={styles.brandCenter}>
-            <Link to="/" style={styles.brandLink}>
-              <span style={styles.brandTitle}>Ababil’s Attire</span>
+          <div style={styles.brandCenter} className="customer-brand-center">
+            <Link to="/" style={{ ...styles.brandLink, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+              {storeSettings?.logo_url ? (
+                <img
+                  src={storeSettings.logo_url}
+                  alt="Ababil’s Attire"
+                  style={{
+                    maxHeight: '38px',
+                    maxWidth: '180px',
+                    objectFit: 'contain',
+                    display: 'block',
+                  }}
+                />
+              ) : (
+                <span style={styles.brandTitle}>Ababil’s Attire</span>
+              )}
             </Link>
             <span
               style={styles.brandSubtitle}
@@ -174,7 +200,7 @@ export const CustomerLayout: React.FC = () => {
           </div>
 
           {/* Right: Actions Cluster (Track Order, Bag, Admin) */}
-          <div style={styles.rightGroup}>
+          <div style={styles.rightGroup} className="customer-right-group">
             {isAdmin && (
               <Link to="/admin" style={styles.adminBadgeLink} title="Studio Admin Suite">
                 <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
@@ -200,7 +226,7 @@ export const CustomerLayout: React.FC = () => {
               aria-label={`Shopping Bag (${itemCount} items)`}
               title="My Bag"
               style={styles.bagButton}
-              className={isBagBouncing ? 'bag-bounce-active' : ''}
+              className={`customer-header-bag-btn ${isBagBouncing ? 'bag-bounce-active' : ''}`}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>
                 shopping_bag
@@ -404,34 +430,34 @@ export const CustomerLayout: React.FC = () => {
           {/* Concierge Communication Buttons */}
           <div style={styles.footerConcierge}>
             <a
-              href="https://wa.me/"
+              href={getStudioWhatsAppUrl()}
               target="_blank"
               rel="noopener noreferrer"
               style={styles.conciergeIconBtn}
               aria-label="WhatsApp"
-              title="WhatsApp"
+              title="Message Sanjida on WhatsApp"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                 chat
               </span>
             </a>
             <a
-              href="https://instagram.com"
+              href={STUDIO_CONFIG.instagramUrl}
               target="_blank"
               rel="noopener noreferrer"
               style={styles.conciergeIconBtn}
               aria-label="Instagram"
-              title="Instagram"
+              title="Follow @ababils.attire on Instagram"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                 photo_camera
               </span>
             </a>
             <a
-              href="mailto:concierge@ababilsattire.com"
+              href={`mailto:${STUDIO_CONFIG.conciergeEmail}`}
               style={styles.conciergeIconBtn}
               aria-label="Email Studio"
-              title="Email Studio"
+              title="Email Studio Concierge"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                 mail

@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { trackingService } from '../../services/tracking.service';
 import type { OrderConfirmationResult, OrderTrackingResult } from '../../types';
+import { STUDIO_CONFIG, getStudioWhatsAppUrl } from '../../lib/studio';
 
 function formatDateDisplay(isoDateString?: string): string {
   if (!isoDateString) return 'Upcoming Delivery Date';
@@ -503,7 +504,7 @@ export const OrderConfirmedPage: React.FC = () => {
           </p>
 
           <a
-            href={`https://wa.me/8801712345678?text=${whatsappMessage}`}
+            href={getStudioWhatsAppUrl(whatsappMessage)}
             target="_blank"
             rel="noopener noreferrer"
             style={styles.whatsappBtn}
@@ -516,7 +517,7 @@ export const OrderConfirmedPage: React.FC = () => {
 
           <div style={{ marginTop: '8px' }}>
             <span style={styles.phoneDirectText}>
-              or phone us directly: <a href="tel:+8801712345678" style={styles.phoneLink}>+880 1712-345678</a>
+              or phone us directly: <a href={`tel:${STUDIO_CONFIG.phoneRaw}`} style={styles.phoneLink}>{STUDIO_CONFIG.phoneDisplay}</a>
             </span>
           </div>
         </section>

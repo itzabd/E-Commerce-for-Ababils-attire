@@ -188,6 +188,38 @@ input, select, textarea {
   .customer-desktop-nav {
     display: none !important;
   }
+  .customer-header-bag-btn {
+    display: none !important;
+  }
+  .customer-header-inner {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    position: relative !important;
+    width: 100% !important;
+  }
+  .customer-brand-center {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: max-content !important;
+    max-width: calc(100% - 110px) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    pointer-events: auto !important;
+    z-index: 1 !important;
+  }
+  .customer-right-group {
+    margin-left: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    z-index: 2 !important;
+  }
 }
 
 

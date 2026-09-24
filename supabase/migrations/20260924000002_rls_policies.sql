@@ -17,7 +17,7 @@ BEGIN
         )
     );
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
 
 -- 2. Enable RLS on all tables
 ALTER TABLE admin_users ENABLE ROW LEVEL SECURITY;
@@ -32,35 +32,65 @@ ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE order_status_history ENABLE ROW LEVEL SECURITY;
 
 -- ==============================================================================
--- 3. ADMIN USERS TABLE POLICIES
+-- 3. ADMIN USERS TABLE POLICIES (No recursion)
 -- ==============================================================================
-CREATE POLICY "Admins can view admin accounts"
+DROP POLICY IF EXISTS "Admins can view admin accounts" ON admin_users;
+DROP POLICY IF EXISTS "Superadmins can manage admin accounts" ON admin_users;
+DROP POLICY IF EXISTS "Users can view their own admin profile" ON admin_users;
+DROP POLICY IF EXISTS "Superadmins can insert admin accounts" ON admin_users;
+DROP POLICY IF EXISTS "Superadmins can update admin accounts" ON admin_users;
+DROP POLICY IF EXISTS "Superadmins can delete admin accounts" ON admin_users;
+
+-- Users can view their own admin record directly by auth.uid() (Zero recursion)
+CREATE POLICY "Users can view their own admin profile"
     ON admin_users
     FOR SELECT
-    USING (is_admin());
+    TO authenticated
+    USING (id = auth.uid());
 
-CREATE POLICY "Superadmins can manage admin accounts"
+CREATE OR REPLACE FUNCTION public.is_superadmin()
+RETURNS BOOLEAN AS $$
+DECLARE
+    v_role TEXT;
+BEGIN
+    SELECT role INTO v_role
+    FROM public.admin_users
+    WHERE id = auth.uid() AND is_active = TRUE;
+    RETURN COALESCE(v_role, '') = 'superadmin';
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
+
+CREATE POLICY "Superadmins can insert admin accounts"
     ON admin_users
-    FOR ALL
-    USING (
-        EXISTS (
-            SELECT 1 FROM admin_users
-            WHERE id = auth.uid()
-            AND role = 'superadmin'
-            AND is_active = TRUE
-        )
-    );
+    FOR INSERT
+    TO authenticated
+    WITH CHECK (public.is_superadmin());
+
+CREATE POLICY "Superadmins can update admin accounts"
+    ON admin_users
+    FOR UPDATE
+    TO authenticated
+    USING (public.is_superadmin())
+    WITH CHECK (public.is_superadmin());
+
+CREATE POLICY "Superadmins can delete admin accounts"
+    ON admin_users
+    FOR DELETE
+    TO authenticated
+    USING (public.is_superadmin());
 
 -- ==============================================================================
 -- 4. PRODUCTS & DETAILS POLICIES
 -- ==============================================================================
 
 -- Products: Public can read published products only; Admins can do everything
+DROP POLICY IF EXISTS "Public can view published products" ON products;
 CREATE POLICY "Public can view published products"
     ON products
     FOR SELECT
     USING (status = 'published');
 
+DROP POLICY IF EXISTS "Admins have full access to products" ON products;
 CREATE POLICY "Admins have full access to products"
     ON products
     FOR ALL
@@ -68,6 +98,7 @@ CREATE POLICY "Admins have full access to products"
     WITH CHECK (is_admin());
 
 -- Product Images: Public can view images for published products; Admins have full access
+DROP POLICY IF EXISTS "Public can view published product images" ON product_images;
 CREATE POLICY "Public can view published product images"
     ON product_images
     FOR SELECT
@@ -79,6 +110,7 @@ CREATE POLICY "Public can view published product images"
         )
     );
 
+DROP POLICY IF EXISTS "Admins have full access to product images" ON product_images;
 CREATE POLICY "Admins have full access to product images"
     ON product_images
     FOR ALL
@@ -86,6 +118,7 @@ CREATE POLICY "Admins have full access to product images"
     WITH CHECK (is_admin());
 
 -- Dress Details: Public can view for published products; Admins have full access
+DROP POLICY IF EXISTS "Public can view published dress details" ON dress_details;
 CREATE POLICY "Public can view published dress details"
     ON dress_details
     FOR SELECT
@@ -97,6 +130,7 @@ CREATE POLICY "Public can view published dress details"
         )
     );
 
+DROP POLICY IF EXISTS "Admins have full access to dress details" ON dress_details;
 CREATE POLICY "Admins have full access to dress details"
     ON dress_details
     FOR ALL
@@ -104,6 +138,7 @@ CREATE POLICY "Admins have full access to dress details"
     WITH CHECK (is_admin());
 
 -- Cake Details: Public can view for published products; Admins have full access
+DROP POLICY IF EXISTS "Public can view published cake details" ON cake_details;
 CREATE POLICY "Public can view published cake details"
     ON cake_details
     FOR SELECT
@@ -115,6 +150,7 @@ CREATE POLICY "Public can view published cake details"
         )
     );
 
+DROP POLICY IF EXISTS "Admins have full access to cake details" ON cake_details;
 CREATE POLICY "Admins have full access to cake details"
     ON cake_details
     FOR ALL
@@ -125,6 +161,7 @@ CREATE POLICY "Admins have full access to cake details"
 -- 5. CUSTOMERS POLICIES (Strictly Admin-Only for direct table access)
 -- Note: Guest checkout writes via SECURITY DEFINER RPC function create_guest_order()
 -- ==============================================================================
+DROP POLICY IF EXISTS "Admins have full access to customers" ON customers;
 CREATE POLICY "Admins have full access to customers"
     ON customers
     FOR ALL
@@ -135,6 +172,7 @@ CREATE POLICY "Admins have full access to customers"
 -- 6. ORDERS POLICIES (Strictly Admin-Only for direct table access)
 -- Note: Guest checkout writes and guest tracking reads via SECURITY DEFINER RPC functions
 -- ==============================================================================
+DROP POLICY IF EXISTS "Admins have full access to orders" ON orders;
 CREATE POLICY "Admins have full access to orders"
     ON orders
     FOR ALL
@@ -144,6 +182,7 @@ CREATE POLICY "Admins have full access to orders"
 -- ==============================================================================
 -- 7. ORDER ITEMS POLICIES (Strictly Admin-Only for direct table access)
 -- ==============================================================================
+DROP POLICY IF EXISTS "Admins have full access to order items" ON order_items;
 CREATE POLICY "Admins have full access to order items"
     ON order_items
     FOR ALL
@@ -153,6 +192,7 @@ CREATE POLICY "Admins have full access to order items"
 -- ==============================================================================
 -- 8. PAYMENTS POLICIES (Strictly Admin-Only for direct table access)
 -- ==============================================================================
+DROP POLICY IF EXISTS "Admins have full access to payments" ON payments;
 CREATE POLICY "Admins have full access to payments"
     ON payments
     FOR ALL
@@ -162,6 +202,7 @@ CREATE POLICY "Admins have full access to payments"
 -- ==============================================================================
 -- 9. ORDER STATUS HISTORY POLICIES (Strictly Admin-Only for direct table access)
 -- ==============================================================================
+DROP POLICY IF EXISTS "Admins have full access to order status history" ON order_status_history;
 CREATE POLICY "Admins have full access to order status history"
     ON order_status_history
     FOR ALL

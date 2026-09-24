@@ -223,6 +223,7 @@ export interface StoreSettings {
   id?: string;
   // Store Information
   store_name: string;
+  logo_url?: string | null;
   business_email: string;
   contact_phone: string;
   whatsapp_number: string;

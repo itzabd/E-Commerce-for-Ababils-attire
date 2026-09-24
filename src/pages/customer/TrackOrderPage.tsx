@@ -11,6 +11,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useParams, Link } from 'react-router-dom';
 import { trackingService } from '../../services/tracking.service';
 import type { OrderTrackingResult } from '../../types';
+import { STUDIO_CONFIG, getStudioWhatsAppUrl } from '../../lib/studio';
 
 export const TrackOrderPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -378,7 +379,7 @@ export const TrackOrderPage: React.FC = () => {
               <p style={styles.errorDescription}>{errorMsg}</p>
               <div style={styles.errorActionRow}>
                 <a
-                  href={`https://wa.me/8801712345678?text=${whatsappInquiry}`}
+                  href={getStudioWhatsAppUrl(whatsappInquiry)}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={styles.errorWhatsappBtn}
@@ -388,8 +389,8 @@ export const TrackOrderPage: React.FC = () => {
                   </span>
                   <span>Message Sanjida on WhatsApp</span>
                 </a>
-                <a href="tel:+8801712345678" style={styles.errorCallLink}>
-                  or call +880 1712-345678
+                <a href={`tel:${STUDIO_CONFIG.phoneRaw}`} style={styles.errorCallLink}>
+                  or call {STUDIO_CONFIG.phoneDisplay}
                 </a>
               </div>
             </div>
@@ -904,7 +905,7 @@ export const TrackOrderPage: React.FC = () => {
                 </p>
                 <div style={styles.conciergeActionRow}>
                   <a
-                    href={`https://wa.me/8801712345678?text=${whatsappInquiry}`}
+                    href={getStudioWhatsAppUrl(whatsappInquiry)}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={styles.conciergeWhatsappBtn}
@@ -914,11 +915,11 @@ export const TrackOrderPage: React.FC = () => {
                     </span>
                     <span>Chat on WhatsApp</span>
                   </a>
-                  <a href="tel:+8801712345678" style={styles.conciergeCallBtn}>
+                  <a href={`tel:${STUDIO_CONFIG.phoneRaw}`} style={styles.conciergeCallBtn}>
                     <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                       call
                     </span>
-                    <span>+880 1712-345678</span>
+                    <span>{STUDIO_CONFIG.phoneDisplay}</span>
                   </a>
                 </div>
               </div>

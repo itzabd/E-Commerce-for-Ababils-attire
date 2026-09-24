@@ -10,6 +10,7 @@ import type { ProductWithDetails } from '../../types';
 import { DressCard } from '../../components/customer/DressCard';
 import { CakeCard } from '../../components/customer/CakeCard';
 import { CustomerReviewsSection } from '../../components/customer/CustomerReviewsSection';
+import { getStudioWhatsAppUrl } from '../../lib/studio';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -355,7 +356,7 @@ export const HomePage: React.FC = () => {
               Shop Girls' Dresses
             </Link>
             <a
-              href="https://wa.me/"
+              href={getStudioWhatsAppUrl('Assalamu Alaikum Sanjida Apu, I would like to ask about designing a custom celebration cake.')}
               target="_blank"
               rel="noopener noreferrer"
               style={styles.inquireOutlineBtn}

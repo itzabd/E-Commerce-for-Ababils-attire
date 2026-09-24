@@ -11,19 +11,20 @@ const STORAGE_SETTINGS_KEY = 'ababil_admin_store_settings';
 
 export const DEFAULT_STORE_SETTINGS: StoreSettings = {
   store_name: 'Ababil’s Attire by Sanjida Bethi',
+  logo_url: null,
   business_email: 'sanjida@ababilsattire.com',
   contact_phone: '+880 1712-345678',
   whatsapp_number: '+880 1712-345678',
-  workshop_address: 'House 14, Road 7, Sector 3, Uttara, Dhaka - 1230',
+  workshop_address: 'House 14, Road 7, Sector 3, Uttara, Dhaka - 1230, Bangladesh',
   store_description: 'Handmade dresses and fresh celebration cakes handcrafted with loving care in Dhaka.',
-  studio_hours: 'Sunday – Friday: 10:00 AM – 8:00 PM (Saturday Studio Closed / Delivery Only)',
+  studio_hours: 'Saturday – Thursday: 10:00 AM – 8:00 PM (Friday Delivery Only)',
   instagram_handle: 'ababils.attire',
   facebook_url: 'facebook.com/ababilsattire',
 
   bkash_number: '01712-345678',
   bkash_type: 'personal',
   minimum_advance_amount: 500,
-  payment_instructions: 'Please Send Money of ৳ 500 to our bKash number and enter TrxID to lock your slot.',
+  payment_instructions: 'Please Send Money of ৳ 500 to our personal bKash number 01712-345678 and enter TrxID to lock your slot.',
   remaining_balance_policy: 'Remaining balance is collected as Cash on Delivery (COD) by Pathao / Paperfly / Chilled Van courier.',
   require_trx_id: true,
   require_sender_last4: true,
@@ -82,6 +83,10 @@ export const settingsService = {
    * Retrieve current store configuration
    */
   async getSettings(): Promise<StoreSettings> {
+    const local = getLocalSettings();
+    const storedLogo = typeof window !== 'undefined' ? localStorage.getItem('ababil_store_logo') : null;
+    const fallbackLogo = storedLogo || local.logo_url || 'https://tufmjeeodmfnrubkkqya.supabase.co/storage/v1/object/public/product-images/branding/store_logo.png';
+
     if (isSupabaseConfigured()) {
       try {
         const { data, error } = await (supabase.rpc as any)('get_store_settings');
@@ -89,6 +94,7 @@ export const settingsService = {
           const remoteSettings: StoreSettings = {
             ...DEFAULT_STORE_SETTINGS,
             ...data,
+            logo_url: data.logo_url || fallbackLogo,
             minimum_advance_amount: Number(data.minimum_advance_amount ?? 500),
             delivery_inside_dhaka: Number(data.delivery_inside_dhaka ?? 80),
             delivery_outside_dhaka: Number(data.delivery_outside_dhaka ?? 150),
@@ -104,7 +110,10 @@ export const settingsService = {
       }
     }
 
-    return getLocalSettings();
+    return {
+      ...local,
+      logo_url: local.logo_url || fallbackLogo,
+    };
   },
 
   /**
@@ -112,6 +121,16 @@ export const settingsService = {
    */
   async updateSettings(updates: Partial<StoreSettings>): Promise<StoreSettings> {
     const current = getLocalSettings();
+    if (updates.logo_url !== undefined) {
+      if (typeof window !== 'undefined') {
+        if (updates.logo_url) {
+          localStorage.setItem('ababil_store_logo', updates.logo_url);
+        } else {
+          localStorage.removeItem('ababil_store_logo');
+        }
+      }
+    }
+
     const merged: StoreSettings = {
       ...current,
       ...updates,
@@ -119,6 +138,9 @@ export const settingsService = {
     };
 
     saveLocalSettings(merged);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('store_settings_updated', { detail: merged }));
+    }
 
     if (isSupabaseConfigured()) {
       try {
@@ -130,12 +152,16 @@ export const settingsService = {
           const updated: StoreSettings = {
             ...DEFAULT_STORE_SETTINGS,
             ...data,
+            logo_url: merged.logo_url,
             minimum_advance_amount: Number(data.minimum_advance_amount ?? merged.minimum_advance_amount),
             delivery_inside_dhaka: Number(data.delivery_inside_dhaka ?? merged.delivery_inside_dhaka),
             delivery_outside_dhaka: Number(data.delivery_outside_dhaka ?? merged.delivery_outside_dhaka),
             delivery_cake_van: Number(data.delivery_cake_van ?? merged.delivery_cake_van),
           };
           saveLocalSettings(updated);
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('store_settings_updated', { detail: updated }));
+          }
           return updated;
         }
       } catch (err) {

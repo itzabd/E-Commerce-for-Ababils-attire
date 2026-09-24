@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { STUDIO_CONFIG, getStudioWhatsAppUrl } from '../../lib/studio';
 
 export const ContactPage: React.FC = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -50,7 +51,7 @@ export const ContactPage: React.FC = () => {
               Chat directly with Sanjida to share reference photos, ask for custom sizing, or verify cake availability.
             </p>
             <a
-              href="https://wa.me/"
+              href={getStudioWhatsAppUrl('Assalamu Alaikum Sanjida Apu, I would like to inquire about a custom order.')}
               target="_blank"
               rel="noopener noreferrer"
               style={styles.whatsAppBtn}
@@ -66,8 +67,8 @@ export const ContactPage: React.FC = () => {
                 location_on
               </span>
               <div>
-                <h4 style={styles.detailLabel}>Dhaka Studio</h4>
-                <p style={styles.detailValue}>Road 11, Block D, Banani, Dhaka, Bangladesh</p>
+                <h4 style={styles.detailLabel}>Dhaka Workshop & Studio</h4>
+                <p style={styles.detailValue}>{STUDIO_CONFIG.workshopAddress}</p>
               </div>
             </div>
 
@@ -77,7 +78,7 @@ export const ContactPage: React.FC = () => {
               </span>
               <div>
                 <h4 style={styles.detailLabel}>Studio Hours</h4>
-                <p style={styles.detailValue}>Saturday – Thursday: 10:00 AM – 8:00 PM (Friday Closed)</p>
+                <p style={styles.detailValue}>{STUDIO_CONFIG.studioHours}</p>
               </div>
             </div>
 
@@ -87,7 +88,7 @@ export const ContactPage: React.FC = () => {
               </span>
               <div>
                 <h4 style={styles.detailLabel}>Electronic Inquiries</h4>
-                <p style={styles.detailValue}>concierge@ababilsattire.com</p>
+                <p style={styles.detailValue}>{STUDIO_CONFIG.conciergeEmail}</p>
               </div>
             </div>
           </div>
@@ -97,7 +98,7 @@ export const ContactPage: React.FC = () => {
             <h4 style={styles.policyTitle}>Important Ordering Notes:</h4>
             <ul style={styles.policyList}>
               <li>
-                <strong>৳ 500 bKash Advance:</strong> Required for all orders to confirm reservation and start custom baking or tailoring. Remaining balance is settled via Cash on Delivery.
+                <strong>৳ 500 bKash Advance:</strong> Required to confirm booking via personal bKash ({STUDIO_CONFIG.bkashNumber}). Remaining balance is settled via Cash on Delivery.
               </li>
               <li>
                 <strong>Chilled Delivery:</strong> All cakes are transported in air-conditioned delivery transport across Dhaka to ensure flawless presentation.

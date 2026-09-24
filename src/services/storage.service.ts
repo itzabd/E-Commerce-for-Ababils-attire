@@ -64,27 +64,41 @@ export const storageService = {
     const sanitizedCode = productCode.replace(/[^a-zA-Z0-9_-]/g, '');
     const storagePath = `${folder}/${sanitizedCode}_${timestamp}_${sortOrder}.${fileExt}`;
 
-    // 1. Upload to Supabase Storage
-    const { error: uploadError } = await supabase.storage
-      .from(BUCKET_NAME)
-      .upload(storagePath, file, {
-        cacheControl: '3600',
-        upsert: false,
-      });
+    let imageUrl = '';
 
-    if (uploadError) {
-      console.error('Storage upload error:', uploadError);
-      throw new Error(`Image upload failed: ${uploadError.message}`);
+    // 1. Upload to Supabase Storage with explicit contentType
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from(BUCKET_NAME)
+        .upload(storagePath, file, {
+          cacheControl: '3600',
+          upsert: true,
+          contentType: file.type || 'image/jpeg',
+        });
+
+      if (!uploadError) {
+        const { data: publicUrlData } = supabase.storage
+          .from(BUCKET_NAME)
+          .getPublicUrl(storagePath);
+        imageUrl = publicUrlData.publicUrl;
+      } else {
+        console.warn('Supabase storage upload error, falling back to data URL:', uploadError);
+      }
+    } catch (uploadErr) {
+      console.warn('Storage exception, falling back to data URL:', uploadErr);
     }
 
-    // 2. Obtain public URL
-    const { data: publicUrlData } = supabase.storage
-      .from(BUCKET_NAME)
-      .getPublicUrl(storagePath);
+    // Resilient fallback: if remote upload did not provide URL, convert to Base64 Data URL
+    if (!imageUrl) {
+      imageUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (e) => reject(e);
+        reader.readAsDataURL(file);
+      });
+    }
 
-    const imageUrl = publicUrlData.publicUrl;
-
-    // 3. Insert record in product_images table
+    // 2. Insert record in product_images table
     const { data: imageRow, error: dbError } = await (supabase as any)
       .from('product_images')
       .insert({
@@ -158,23 +172,38 @@ export const storageService = {
     const sanitizedCode = productCode.replace(/[^a-zA-Z0-9_-]/g, '');
     const newStoragePath = `${folder}/${sanitizedCode}_${timestamp}_rep.${fileExt}`;
 
-    // Upload new image
-    const { error: uploadError } = await supabase.storage
-      .from(BUCKET_NAME)
-      .upload(newStoragePath, file, {
-        cacheControl: '3600',
-        upsert: false,
-      });
+    let newUrl = '';
 
-    if (uploadError) {
-      throw new Error(`Replacement upload failed: ${uploadError.message}`);
+    // Upload new image with contentType
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from(BUCKET_NAME)
+        .upload(newStoragePath, file, {
+          cacheControl: '3600',
+          upsert: true,
+          contentType: file.type || 'image/jpeg',
+        });
+
+      if (!uploadError) {
+        const { data: publicUrlData } = supabase.storage
+          .from(BUCKET_NAME)
+          .getPublicUrl(newStoragePath);
+        newUrl = publicUrlData.publicUrl;
+      } else {
+        console.warn('Supabase storage replace upload error, falling back to data URL:', uploadError);
+      }
+    } catch (e) {
+      console.warn('Storage replace exception, falling back to data URL:', e);
     }
 
-    const { data: publicUrlData } = supabase.storage
-      .from(BUCKET_NAME)
-      .getPublicUrl(newStoragePath);
-
-    const newUrl = publicUrlData.publicUrl;
+    if (!newUrl) {
+      newUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (err) => reject(err);
+        reader.readAsDataURL(file);
+      });
+    }
 
     // Update database record
     const { error: updateError } = await (supabase as any)
@@ -253,5 +282,58 @@ export const storageService = {
     } catch {
       return null;
     }
+  },
+
+  /**
+   * Upload store brand logo image to Supabase Storage or generate a Data URL
+   */
+  async uploadLogoImage(file: File): Promise<string> {
+    const validation = this.validateImageFile(file);
+    if (!validation.valid) {
+      throw new Error(validation.error);
+    }
+
+    let publicUrl = '';
+    const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
+    const filePath = `branding/store_logo.${ext}`;
+
+    try {
+      const { data, error } = await supabase.storage
+        .from(BUCKET_NAME)
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true,
+          contentType: file.type || 'image/png',
+        });
+
+      if (!error && data?.path) {
+        const { data: publicData } = supabase.storage
+          .from(BUCKET_NAME)
+          .getPublicUrl(data.path);
+        publicUrl = publicData.publicUrl;
+      }
+    } catch (err) {
+      console.warn('Supabase storage upload failed, falling back to base64 Data URL:', err);
+    }
+
+    // Resilient fallback: convert to base64 Data URL so it previews and saves reliably
+    if (!publicUrl) {
+      publicUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (e) => reject(e);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('ababil_store_logo', publicUrl);
+      } catch (e) {
+        console.warn('Could not persist logo to localStorage:', e);
+      }
+    }
+
+    return publicUrl;
   },
 };

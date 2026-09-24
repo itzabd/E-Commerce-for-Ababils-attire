@@ -142,14 +142,109 @@ export const CustomerReviewsSection: React.FC = () => {
             </header>
 
             <div style={styles.lightboxBody}>
-              <img
-                src={activeScreenshot.screenshot_url}
-                alt={`Full screenshot review from ${activeScreenshot.customer_name}`}
-                style={styles.lightboxImg}
-              />
-              <p style={styles.lightboxCaption}>
-                {activeScreenshot.caption}
-              </p>
+              {activeScreenshot.platform === 'whatsapp' ? (
+                /* Authentic WhatsApp Chat Screenshot View */
+                <div style={styles.waPhoneFrame}>
+                  {/* WhatsApp App Top Bar */}
+                  <div style={styles.waHeader}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#ffffff' }}>
+                        arrow_back
+                      </span>
+                      <div style={styles.waAvatar}>
+                        {activeScreenshot.customer_name.charAt(0)}
+                      </div>
+                      <div>
+                        <div style={styles.waContactName}>{activeScreenshot.customer_name}</div>
+                        <div style={styles.waContactStatus}>online</div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '16px', color: '#ffffff' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>videocam</span>
+                      <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>call</span>
+                      <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>more_vert</span>
+                    </div>
+                  </div>
+
+                  {/* WhatsApp Chat Canvas */}
+                  <div style={styles.waChatCanvas}>
+                    {/* Date Pill */}
+                    <div style={styles.waDatePill}>
+                      {activeScreenshot.date}
+                    </div>
+
+                    {/* Customer Message Bubble (Incoming) */}
+                    <div style={styles.waBubbleIncoming}>
+                      {/* Attached Customer Photo */}
+                      <img
+                        src={activeScreenshot.screenshot_url}
+                        alt={`Photo shared by ${activeScreenshot.customer_name}`}
+                        style={styles.waBubbleImg}
+                      />
+                      {/* Caption Message */}
+                      <p style={styles.waBubbleText}>
+                        {activeScreenshot.caption}
+                      </p>
+                      <div style={styles.waBubbleMeta}>
+                        <span>{activeScreenshot.date.includes(',') ? activeScreenshot.date.split(',')[1]?.trim() : '9:42 PM'}</span>
+                      </div>
+                    </div>
+
+                    {/* Atelier Reply Bubble (Outgoing) */}
+                    <div style={styles.waBubbleOutgoing}>
+                      <p style={styles.waReplyText}>
+                        Alhamdulillah Apu! We are so honored to be part of your celebration. Thank you for choosing Ababil’s Attire! 🤍✨
+                      </p>
+                      <div style={styles.waReplyMeta}>
+                        <span>9:45 PM</span>
+                        <span style={{ color: '#53bdeb', fontSize: '14px', lineHeight: 1 }}>✓✓</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* Authentic Facebook Recommendation Card View */
+                <div style={styles.fbFrame}>
+                  {/* Facebook Header */}
+                  <div style={styles.fbHeader}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={styles.fbAvatar}>
+                        {activeScreenshot.customer_name.charAt(0)}
+                      </div>
+                      <div>
+                        <div style={styles.fbName}>
+                          <strong>{activeScreenshot.customer_name}</strong> recommends <strong>Ababil’s Attire by Sanjida Bethi</strong>.
+                        </div>
+                        <div style={styles.fbMeta}>
+                          <span>{activeScreenshot.date} • </span>
+                          <span style={{ fontSize: '11px' }}>🌐 Public</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div style={styles.fbStars}>★★★★★</div>
+                  </div>
+
+                  {/* Facebook Body */}
+                  <div style={styles.fbBody}>
+                    <p style={styles.fbText}>{activeScreenshot.caption}</p>
+                    <img
+                      src={activeScreenshot.screenshot_url}
+                      alt={`Review shared by ${activeScreenshot.customer_name}`}
+                      style={styles.fbImg}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Attribution Footer */}
+              <div style={styles.lightboxFooterBar}>
+                <span style={{ fontSize: '12px', color: '#6f6764' }}>
+                  Client Location: <strong>{activeScreenshot.customer_area || 'Dhaka, Bangladesh'}</strong>
+                </span>
+                {activeScreenshot.product_name && (
+                  <span style={styles.productTag}>{activeScreenshot.product_name}</span>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -395,5 +490,180 @@ const styles: Record<string, React.CSSProperties> = {
     backgroundColor: '#fbf9f5',
     borderRadius: '8px',
     borderLeft: '3px solid #5c3e36',
+  },
+  waPhoneFrame: {
+    borderRadius: '12px',
+    overflow: 'hidden',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+    display: 'flex',
+    flexDirection: 'column',
+    backgroundColor: '#efeae2',
+  },
+  waHeader: {
+    backgroundColor: '#075e54',
+    padding: '10px 14px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  waAvatar: {
+    width: '34px',
+    height: '34px',
+    borderRadius: '9999px',
+    backgroundColor: '#128c7e',
+    color: '#ffffff',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontWeight: 700,
+    fontSize: '14px',
+    border: '1px solid rgba(255, 255, 255, 0.4)',
+  },
+  waContactName: {
+    color: '#ffffff',
+    fontSize: '13px',
+    fontWeight: 600,
+    fontFamily: "var(--font-sans, 'Plus Jakarta Sans', sans-serif)",
+  },
+  waContactStatus: {
+    color: '#a7f3d0',
+    fontSize: '10px',
+  },
+  waChatCanvas: {
+    padding: '16px 14px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+    backgroundImage: 'radial-gradient(#e0d7cb 1px, transparent 1px)',
+    backgroundSize: '16px 16px',
+    minHeight: '260px',
+  },
+  waDatePill: {
+    alignSelf: 'center',
+    backgroundColor: '#e1d9cc',
+    color: '#555555',
+    fontSize: '10px',
+    fontWeight: 600,
+    padding: '3px 10px',
+    borderRadius: '9999px',
+    boxShadow: '0 1px 2px rgba(0,0,0,0.06)',
+  },
+  waBubbleIncoming: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#ffffff',
+    borderRadius: '0 12px 12px 12px',
+    padding: '6px',
+    maxWidth: '85%',
+    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.15)',
+  },
+  waBubbleImg: {
+    width: '100%',
+    maxHeight: '260px',
+    objectFit: 'cover',
+    borderRadius: '8px',
+    display: 'block',
+    marginBottom: '8px',
+  },
+  waBubbleText: {
+    fontFamily: "var(--font-sans, 'Plus Jakarta Sans', sans-serif)",
+    fontSize: '13px',
+    color: '#111b21',
+    lineHeight: 1.5,
+    margin: '0 6px 4px 6px',
+  },
+  waBubbleMeta: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    fontSize: '10px',
+    color: '#667781',
+    paddingRight: '4px',
+  },
+  waBubbleOutgoing: {
+    alignSelf: 'flex-end',
+    backgroundColor: '#d9fdd3',
+    borderRadius: '12px 0 12px 12px',
+    padding: '8px 10px',
+    maxWidth: '82%',
+    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.15)',
+  },
+  waReplyText: {
+    fontFamily: "var(--font-sans, 'Plus Jakarta Sans', sans-serif)",
+    fontSize: '12px',
+    color: '#111b21',
+    lineHeight: 1.45,
+    margin: 0,
+  },
+  waReplyMeta: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: '3px',
+    fontSize: '10px',
+    color: '#667781',
+    marginTop: '4px',
+  },
+  fbFrame: {
+    borderRadius: '12px',
+    border: '1px solid #ced0d4',
+    backgroundColor: '#ffffff',
+    overflow: 'hidden',
+    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)',
+  },
+  fbHeader: {
+    padding: '12px 14px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderBottom: '1px solid #f0f2f5',
+  },
+  fbAvatar: {
+    width: '38px',
+    height: '38px',
+    borderRadius: '9999px',
+    backgroundColor: '#1877f2',
+    color: '#ffffff',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontWeight: 700,
+    fontSize: '15px',
+  },
+  fbName: {
+    fontSize: '12px',
+    color: '#050505',
+    lineHeight: 1.3,
+  },
+  fbMeta: {
+    fontSize: '11px',
+    color: '#65676b',
+    marginTop: '2px',
+  },
+  fbStars: {
+    color: '#1877f2',
+    letterSpacing: '1px',
+    fontSize: '14px',
+  },
+  fbBody: {
+    padding: '14px',
+  },
+  fbText: {
+    fontFamily: "var(--font-sans, 'Plus Jakarta Sans', sans-serif)",
+    fontSize: '13px',
+    color: '#050505',
+    lineHeight: 1.5,
+    margin: '0 0 12px 0',
+  },
+  fbImg: {
+    width: '100%',
+    maxHeight: '300px',
+    objectFit: 'cover',
+    borderRadius: '8px',
+  },
+  lightboxFooterBar: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '10px 4px 0 4px',
+    borderTop: '1px solid #f0eae6',
   },
 };

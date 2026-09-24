@@ -120,7 +120,7 @@ const INITIAL_DEMO_CUSTOMERS: CustomerProfileDetail[] = [
     name: 'Ayesha Rahman',
     phone: '01712345678',
     alt_phone: '01712999888',
-    email: 'ayesha.rahman@example.com',
+    email: 'ayesha.rahman21@gmail.com',
     address: 'House 14, Road 7, Sector 3, Uttara, Dhaka - 1230',
     area: 'Sector 3, Uttara, Dhaka',
     notes: null,
@@ -290,7 +290,7 @@ const INITIAL_DEMO_CUSTOMERS: CustomerProfileDetail[] = [
     name: 'Nusrat Jahan',
     phone: '01819223344',
     alt_phone: null,
-    email: 'nusrat.jahan@example.com',
+    email: 'dr.nusrat.jahan@gmail.com',
     address: 'House 18, Road 4, Dhanmondi, Dhaka',
     area: 'Dhanmondi, Dhaka',
     notes: null,
@@ -363,7 +363,7 @@ const INITIAL_DEMO_CUSTOMERS: CustomerProfileDetail[] = [
     name: 'Farhana Kabir',
     phone: '01911002233',
     alt_phone: '01911554433',
-    email: 'farhana.kabir@example.com',
+    email: 'farhana.kabir.bd@gmail.com',
     address: 'House 55, Road 11, Block C, Banani, Dhaka',
     area: 'Road 11, Banani, Dhaka',
     notes: null,
@@ -685,9 +685,8 @@ export const adminService = {
         };
       });
 
-      // Combine DB customers and unique demo customers
-      const dbIds = new Set(dbEntries.map((c) => c.id));
-      mergedList = [...dbEntries, ...INITIAL_DEMO_CUSTOMERS.filter((d) => !dbIds.has(d.id))];
+      // Use real database customers as primary source
+      mergedList = dbEntries;
     }
 
     // Apply Local Search
@@ -717,14 +716,14 @@ export const adminService = {
       }
     }
 
-    // Calculate Summary Metrics
-    const totalCustomers = Math.max(mergedList.length, 86);
-    const dressCount = Math.max(mergedList.filter((c) => c.purchased_categories.includes('dresses')).length, 54);
-    const cakeCount = Math.max(mergedList.filter((c) => c.purchased_categories.includes('cakes')).length, 48);
+    // Calculate Realtime Analytics directly from active dataset
+    const totalCustomers = mergedList.length;
+    const dressCount = mergedList.filter((c) => c.purchased_categories.includes('dresses')).length;
+    const cakeCount = mergedList.filter((c) => c.purchased_categories.includes('cakes')).length;
     const repeatCount = mergedList.filter((c) => c.total_orders > 1).length;
-    const repeatRate = Math.max(totalCustomers > 0 ? Math.round((repeatCount / totalCustomers) * 100) : 0, 42);
-    const totalSpendAll = mergedList.reduce((acc, c) => acc + c.lifetime_value, 0);
-    const avgLifetimeSpend = Math.max(totalCustomers > 0 ? Math.round(totalSpendAll / totalCustomers) : 0, 8400);
+    const repeatRate = totalCustomers > 0 ? Math.round((repeatCount / totalCustomers) * 100) : 0;
+    const totalSpendAll = mergedList.reduce((acc, c) => acc + (c.lifetime_value || 0), 0);
+    const avgLifetimeSpend = totalCustomers > 0 ? Math.round(totalSpendAll / totalCustomers) : 0;
 
     return {
       customers: filtered,

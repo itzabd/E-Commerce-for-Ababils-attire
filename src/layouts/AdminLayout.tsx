@@ -6,15 +6,30 @@
  * active route indicator, active admin identifier badge, and secure sign-out trigger.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { settingsService } from '../services/settings.service';
+import type { StoreSettings } from '../types';
 
 export const AdminLayout: React.FC = () => {
   const { admin, user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [storeSettings, setStoreSettings] = useState<StoreSettings | null>(null);
+
+  useEffect(() => {
+    // Initial fetch
+    settingsService.getSettings().then((s) => setStoreSettings(s));
+
+    // Listen to settings update events
+    const handleSettingsUpdated = (e: any) => {
+      if (e.detail) setStoreSettings(e.detail);
+    };
+    window.addEventListener('store_settings_updated', handleSettingsUpdated);
+    return () => window.removeEventListener('store_settings_updated', handleSettingsUpdated);
+  }, []);
 
   const handleSignOut = async () => {
     setIsSigningOut(true);
@@ -22,21 +37,62 @@ export const AdminLayout: React.FC = () => {
     navigate('/admin/login', { replace: true });
   };
 
-  const isProductsActive = location.pathname.startsWith('/admin/products');
+  const isDashboardActive = location.pathname === '/admin' || location.pathname === '/admin/';
   const isOrdersActive = location.pathname.startsWith('/admin/orders');
+  const isProductsActive = location.pathname.startsWith('/admin/products');
   const isCustomersActive = location.pathname.startsWith('/admin/customers');
   const isSettingsActive = location.pathname.startsWith('/admin/settings');
-  const isDashboardActive = location.pathname === '/admin' || location.pathname === '/admin/';
+
+  const navItems = [
+    {
+      to: '/admin',
+      label: 'Dashboard',
+      icon: 'grid_view',
+      isActive: isDashboardActive,
+    },
+    {
+      to: '/admin/orders',
+      label: 'Orders',
+      icon: 'receipt_long',
+      isActive: isOrdersActive,
+    },
+    {
+      to: '/admin/products',
+      label: 'Products',
+      icon: 'checkroom',
+      isActive: isProductsActive,
+    },
+    {
+      to: '/admin/customers',
+      label: 'Customers',
+      icon: 'group',
+      isActive: isCustomersActive,
+    },
+    {
+      to: '/admin/settings',
+      label: 'Settings',
+      icon: 'tune',
+      isActive: isSettingsActive,
+    },
+  ];
 
   return (
     <div style={styles.container}>
       {/* Admin Top Navigation Bar */}
       <header style={styles.header}>
         <div style={styles.headerInner}>
-          {/* Left: Brand Monogram & Admin Pill */}
+          {/* Left: Brand Logo / Monogram & Admin Pill */}
           <div style={styles.brandGroup}>
             <Link to="/admin" style={styles.brandLink}>
-              <span style={styles.monogram}>AB</span>
+              {storeSettings?.logo_url ? (
+                <img
+                  src={storeSettings.logo_url}
+                  alt="Store Logo"
+                  style={styles.logoImage}
+                />
+              ) : (
+                <span style={styles.monogram}>AB</span>
+              )}
               <div style={styles.titleStack}>
                 <span style={styles.brandTitle}>Ababil’s Attire</span>
                 <span style={styles.brandSubtitle}>ADMIN SUITE</span>
@@ -71,63 +127,61 @@ export const AdminLayout: React.FC = () => {
             </button>
           </div>
         </div>
-
-        {/* Sub-Navigation Tabs */}
-        <nav style={styles.subnav}>
-          <div style={styles.subnavInner}>
-            <Link
-              to="/admin"
-              style={{
-                ...styles.navTab,
-                ...(isDashboardActive ? styles.navTabActive : {}),
-              }}
-            >
-              Dashboard
-            </Link>
-            <Link
-              to="/admin/products"
-              style={{
-                ...styles.navTab,
-                ...(isProductsActive ? styles.navTabActive : {}),
-              }}
-            >
-              Products
-            </Link>
-            <Link
-              to="/admin/orders"
-              style={{
-                ...styles.navTab,
-                ...(isOrdersActive ? styles.navTabActive : {}),
-              }}
-            >
-              Orders
-            </Link>
-            <Link
-              to="/admin/customers"
-              style={{
-                ...styles.navTab,
-                ...(isCustomersActive ? styles.navTabActive : {}),
-              }}
-            >
-              Customers
-            </Link>
-            <Link
-              to="/admin/settings"
-              style={{
-                ...styles.navTab,
-                ...(isSettingsActive ? styles.navTabActive : {}),
-              }}
-            >
-              Settings
-            </Link>
-          </div>
-        </nav>
       </header>
 
       {/* Main Protected Admin Stage */}
       <main style={styles.main}>
         <Outlet />
       </main>
+
+      {/* DOCKED BOTTOM NAVIGATION BAR (Exact match to Stitch screenshot design) */}
+      <nav style={styles.bottomNav} aria-label="Admin Dock Navigation">
+        {navItems.map((item) => {
+          const color = item.isActive ? '#432821' : '#8c827a';
+          return (
+            <Link
+              key={item.to}
+              to={item.to}
+              style={{
+                ...styles.bottomNavItem,
+                color,
+              }}
+              title={item.label}
+            >
+              <span
+                className="material-symbols-outlined"
+                style={{
+                  fontSize: '22px',
+                  color,
+                  transition: 'color 0.2s ease',
+                }}
+              >
+                {item.icon}
+              </span>
+              <span
+                style={{
+                  ...styles.bottomNavLabel,
+                  fontWeight: item.isActive ? 700 : 500,
+                  color,
+                }}
+              >
+                {item.label}
+              </span>
+              {/* Active Indicator Dot directly underneath */}
+              <div
+                style={{
+                  width: '4px',
+                  height: '4px',
+                  borderRadius: '50%',
+                  backgroundColor: item.isActive ? '#432821' : 'transparent',
+                  marginTop: '2px',
+                  transition: 'background-color 0.2s ease',
+                }}
+              />
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 };
@@ -174,6 +228,12 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 700,
     color: '#5c3e36',
     letterSpacing: '0.04em',
+  },
+  logoImage: {
+    maxHeight: '34px',
+    maxWidth: '120px',
+    objectFit: 'contain',
+    borderRadius: '4px',
   },
   titleStack: {
     display: 'flex',
@@ -274,50 +334,45 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: 'pointer',
     transition: 'all 0.2s ease',
   },
-  subnav: {
-    borderTop: '1px solid #ece8e1',
-    backgroundColor: '#ffffff',
-  },
-  subnavInner: {
-    maxWidth: '1280px',
-    margin: '0 auto',
-    padding: '0 20px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '24px',
-    overflowX: 'auto',
-  },
-  navTab: {
-    padding: '12px 6px',
-    minHeight: '44px',
-    display: 'inline-flex',
-    alignItems: 'center',
-    fontSize: '13px',
-    fontWeight: 500,
-    color: '#6f6764',
-    textDecoration: 'none',
-    borderBottom: '2px solid transparent',
-    whiteSpace: 'nowrap',
-    transition: 'all 0.2s ease',
-  },
-  navTabActive: {
-    color: '#5c3e36',
-    fontWeight: 700,
-    borderBottomColor: '#5c3e36',
-  },
-  navTabDisabled: {
-    padding: '10px 4px',
-    fontSize: '13px',
-    color: '#988e8a',
-    whiteSpace: 'nowrap',
-    cursor: 'default',
-    opacity: 0.6,
-  },
   main: {
     flex: 1,
     maxWidth: '1280px',
     width: '100%',
     margin: '0 auto',
     padding: '24px 20px',
+    paddingBottom: '96px',
+  },
+  bottomNav: {
+    position: 'fixed',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '64px',
+    backgroundColor: '#ffffff',
+    borderTop: '1px solid #ebdcd6',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    zIndex: 50,
+    boxShadow: '0 -2px 10px rgba(67, 40, 33, 0.05)',
+  },
+  bottomNavItem: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    textDecoration: 'none',
+    padding: '6px 12px',
+    minWidth: '56px',
+    cursor: 'pointer',
+    position: 'relative',
+    transition: 'all 0.15s ease',
+  },
+  bottomNavLabel: {
+    fontFamily: "var(--font-sans, 'Plus Jakarta Sans', sans-serif)",
+    fontSize: '11px',
+    marginTop: '3px',
+    lineHeight: 1,
+    letterSpacing: '0.01em',
   },
 };

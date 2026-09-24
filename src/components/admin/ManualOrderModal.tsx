@@ -592,7 +592,7 @@ export const ManualOrderModal: React.FC<ManualOrderModalProps> = ({
                     type="email"
                     value={custEmail}
                     onChange={(e) => setCustEmail(e.target.value)}
-                    placeholder="ayesha@example.com"
+                    placeholder="ayesha.rahman@gmail.com"
                     style={styles.inputField}
                   />
                 </div>

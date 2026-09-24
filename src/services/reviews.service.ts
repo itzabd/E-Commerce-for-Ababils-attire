@@ -29,7 +29,7 @@ export const INITIAL_SEED_REVIEWS: CustomerReview[] = [
     customer_name: 'Dr. Nusrat Jahan',
     customer_area: 'Gulshan 2, Dhaka',
     platform: 'whatsapp',
-    screenshot_url: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=900&q=80',
+    screenshot_url: 'https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?auto=format&fit=crop&w=900&q=80',
     caption: '“Sanjida Apu, everyone at the dawat was asking where we made Inaya’s dress! The hand smocking on the chest and the organic cotton fabric was so gentle on her skin. She wore it happily the entire evening without any fuss!”',
     product_name: 'Aurelia Floral Smocked Dress',
     rating: 5,
@@ -75,6 +75,19 @@ export const INITIAL_SEED_REVIEWS: CustomerReview[] = [
     date: 'Last week',
     is_featured: true,
     created_at: '2026-09-18T14:10:00Z',
+  },
+  {
+    id: 'rev_5',
+    customer_name: 'Dr. Sabrina Islam',
+    customer_area: 'Banani, Dhaka',
+    platform: 'whatsapp',
+    screenshot_url: 'https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?auto=format&fit=crop&w=900&q=80',
+    caption: '“Apu, received both the Ivory Silk Organza gown and the Vanilla Lambeth cake! The delivery van arrived on time and the cake was chilled in flawless condition. Everyone loved it!”',
+    product_name: 'Ivory Silk Heirloom Gown & Lambeth Cake',
+    rating: 5,
+    date: 'Last Friday',
+    is_featured: true,
+    created_at: '2026-09-15T16:20:00Z',
   },
 ];
 

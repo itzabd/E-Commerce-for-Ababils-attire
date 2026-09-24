@@ -792,14 +792,16 @@ export const AdminOrders: React.FC = () => {
                   </div>
                   <div style={styles.financeLineBorder}>
                     <span style={styles.financeLineLabel}>Advance Payment</span>
-                    <span style={{ fontWeight: 600, color: '#7e544f' }}>
-                      ৳ {order.advance_amount.toLocaleString()}
+                    <div style={{ textAlign: 'right' }}>
+                      <span style={{ fontWeight: 700, color: '#7e544f', fontSize: '13px', whiteSpace: 'nowrap' }}>
+                        ৳ {order.advance_amount.toLocaleString()}
+                      </span>
                       {payment?.trx_id && (
-                        <span style={styles.trxPillInFinance}>
-                          (TrxID: {payment.trx_id} • From: {payment.sender_last4})
-                        </span>
+                        <div style={styles.trxPillInFinance}>
+                          TrxID: {payment.trx_id} {payment.sender_last4 ? `• From: ${payment.sender_last4}` : ''}
+                        </div>
                       )}
-                    </span>
+                    </div>
                   </div>
                   <div style={styles.financeLineBorder}>
                     <span style={styles.financeLineLabel}>Cash on Delivery Due</span>
@@ -1086,32 +1088,36 @@ export const AdminOrders: React.FC = () => {
               <div>Delivery Target: {slipOrder.delivery_date} ({slipOrder.delivery_time})</div>
             </div>
 
-            <table style={styles.slipTable}>
-              <thead>
-                <tr style={styles.slipTableHeaderRow}>
-                  <th style={styles.slipTh}>Item Description</th>
-                  <th style={styles.slipTh}>Qty</th>
-                  <th style={styles.slipTh}>Unit Price</th>
-                  <th style={styles.slipTh}>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {slipOrder.items?.map((it, idx) => (
-                  <tr key={idx} style={styles.slipTableRow}>
-                    <td style={styles.slipTd}>
-                      <strong>{it.product_name_snapshot}</strong>
-                      {it.selected_size && <div>Size: {it.selected_size}</div>}
-                      {it.cake_weight && <div>Weight: {it.cake_weight}</div>}
-                      {it.cake_flavor && <div>Flavor: {it.cake_flavor}</div>}
-                      {it.cake_message && <div>Message: "{it.cake_message}"</div>}
-                    </td>
-                    <td style={styles.slipTd}>{it.quantity}</td>
-                    <td style={styles.slipTd}>৳ {it.unit_price.toLocaleString()}</td>
-                    <td style={styles.slipTd}>৳ {(it.subtotal || it.unit_price * it.quantity).toLocaleString()}</td>
+            <div style={{ width: '100%', overflowX: 'auto', marginBottom: '16px' }}>
+              <table style={styles.slipTable}>
+                <thead>
+                  <tr style={styles.slipTableHeaderRow}>
+                    <th style={{ ...styles.slipTh, minWidth: '160px' }}>Item Description</th>
+                    <th style={{ ...styles.slipTh, whiteSpace: 'nowrap', textAlign: 'center', minWidth: '48px' }}>Qty</th>
+                    <th style={{ ...styles.slipTh, whiteSpace: 'nowrap', textAlign: 'right', minWidth: '80px' }}>Unit Price</th>
+                    <th style={{ ...styles.slipTh, whiteSpace: 'nowrap', textAlign: 'right', minWidth: '80px' }}>Total</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {slipOrder.items?.map((it, idx) => (
+                    <tr key={idx} style={styles.slipTableRow}>
+                      <td style={{ ...styles.slipTd, minWidth: '160px' }}>
+                        <strong>{it.product_name_snapshot}</strong>
+                        {it.selected_size && <div>Size: {it.selected_size}</div>}
+                        {it.cake_weight && <div>Weight: {it.cake_weight}</div>}
+                        {it.cake_flavor && <div>Flavor: {it.cake_flavor}</div>}
+                        {it.cake_message && <div>Message: "{it.cake_message}"</div>}
+                      </td>
+                      <td style={{ ...styles.slipTd, whiteSpace: 'nowrap', textAlign: 'center' }}>{it.quantity}</td>
+                      <td style={{ ...styles.slipTd, whiteSpace: 'nowrap', textAlign: 'right' }}>৳ {it.unit_price.toLocaleString()}</td>
+                      <td style={{ ...styles.slipTd, whiteSpace: 'nowrap', textAlign: 'right', fontWeight: 600 }}>
+                        ৳ {(it.subtotal || it.unit_price * it.quantity).toLocaleString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
             <div style={styles.slipTotalsGrid}>
               <div style={styles.slipSignatureBox}>
@@ -1122,7 +1128,9 @@ export const AdminOrders: React.FC = () => {
                 <div>Subtotal: ৳ {slipOrder.subtotal.toLocaleString()}</div>
                 <div>Delivery: ৳ {slipOrder.delivery_charge.toLocaleString()}</div>
                 <div>Total: ৳ {slipOrder.total_amount.toLocaleString()}</div>
-                <div style={{ color: '#065f46' }}>Advance Paid (bKash): - ৳ {slipOrder.advance_amount.toLocaleString()}</div>
+                <div style={{ color: '#065f46', whiteSpace: 'nowrap' }}>
+                  Advance Paid (bKash): - ৳ {slipOrder.advance_amount.toLocaleString()}
+                </div>
                 <strong style={styles.slipDueToCollect}>
                   CASH TO COLLECT: ৳ {slipOrder.cash_due.toLocaleString()}
                 </strong>
@@ -1622,25 +1630,28 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
+    flexWrap: 'wrap',
   },
   categorySelect: {
-    flex: 1,
-    height: '36px',
+    flex: '1 1 200px',
+    minWidth: '180px',
+    height: '38px',
     borderRadius: '6px',
     backgroundColor: '#f5f3ef',
     border: '1px solid rgba(212, 195, 191, 0.7)',
-    fontSize: '11px',
+    fontSize: '12px',
     color: '#432821',
     padding: '0 8px',
     outline: 'none',
   },
   scheduleFilterBox: {
-    flex: 1,
-    height: '36px',
+    flex: '1 1 180px',
+    minWidth: '180px',
+    height: '38px',
     borderRadius: '6px',
     backgroundColor: '#f5f3ef',
     border: '1px solid rgba(212, 195, 191, 0.7)',
-    fontSize: '11px',
+    fontSize: '12px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -2201,22 +2212,27 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
+    flexWrap: 'wrap',
+    gap: '12px 16px',
   },
   slipBrandTitle: {
     fontFamily: "var(--font-serif, 'Bodoni Moda', serif)",
     fontSize: '22px',
     color: '#5c3e36',
     margin: 0,
+    lineHeight: 1.2,
   },
   slipBrandSub: {
     fontSize: '12px',
     color: '#6f6764',
-    margin: '2px 0',
+    margin: '3px 0 2px 0',
+    lineHeight: 1.4,
   },
   slipAtelierDhaka: {
     fontSize: '11px',
     color: '#827470',
     margin: 0,
+    lineHeight: 1.4,
   },
   slipInvoiceCode: {
     fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)",
@@ -2224,10 +2240,14 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 700,
     color: '#5c3e36',
     display: 'block',
+    whiteSpace: 'nowrap',
   },
   slipDateText: {
     fontSize: '11px',
     color: '#827470',
+    display: 'block',
+    whiteSpace: 'nowrap',
+    marginTop: '2px',
   },
   slipDivider: {
     border: 'none',
@@ -2246,7 +2266,7 @@ const styles: Record<string, React.CSSProperties> = {
     width: '100%',
     borderCollapse: 'collapse',
     fontSize: '12px',
-    marginBottom: '16px',
+    marginBottom: '8px',
   },
   slipTableHeaderRow: {
     backgroundColor: '#f5ede9',
@@ -2257,6 +2277,7 @@ const styles: Record<string, React.CSSProperties> = {
     textAlign: 'left',
     color: '#5c3e36',
     fontWeight: 600,
+    fontSize: '11px',
   },
   slipTableRow: {
     borderBottom: '1px solid #f5f3ef',
@@ -2264,17 +2285,21 @@ const styles: Record<string, React.CSSProperties> = {
   slipTd: {
     padding: '8px',
     verticalAlign: 'top',
+    fontSize: '11px',
+    lineHeight: 1.4,
   },
   slipTotalsGrid: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
+    flexWrap: 'wrap',
+    gap: '16px',
     borderTop: '1px solid #dfd8ce',
     paddingTop: '16px',
     fontSize: '12px',
   },
   slipSignatureBox: {
-    width: '200px',
+    minWidth: '180px',
   },
   slipSignLine: {
     borderBottom: '1px dashed #827470',
@@ -2289,12 +2314,16 @@ const styles: Record<string, React.CSSProperties> = {
     textAlign: 'right',
     display: 'flex',
     flexDirection: 'column',
-    gap: '4px',
+    gap: '5px',
+    minWidth: '220px',
   },
   slipDueToCollect: {
     fontSize: '14px',
     color: '#5c3e36',
-    marginTop: '4px',
+    marginTop: '6px',
+    display: 'block',
+    whiteSpace: 'nowrap',
+    fontWeight: 700,
   },
   slipActionRow: {
     marginTop: '20px',
