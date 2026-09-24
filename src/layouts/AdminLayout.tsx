@@ -2,17 +2,18 @@
  * Ababil’s Attire by Sanjida Bethi
  * Protected Admin Layout
  *
- * Implements the Stitch Atelier Admin top navigation, session status bar,
- * active admin identifier badge, and secure sign-out trigger.
+ * Implements the Stitch Atelier Admin top navigation, sub-navigation tabs,
+ * active route indicator, active admin identifier badge, and secure sign-out trigger.
  */
 
 import React, { useState } from 'react';
-import { Outlet, Link, useNavigate } from 'react-router-dom';
+import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 export const AdminLayout: React.FC = () => {
   const { admin, user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   const handleSignOut = async () => {
@@ -20,6 +21,9 @@ export const AdminLayout: React.FC = () => {
     await signOut();
     navigate('/admin/login', { replace: true });
   };
+
+  const isProductsActive = location.pathname.startsWith('/admin/products');
+  const isDashboardActive = location.pathname === '/admin' || location.pathname === '/admin/';
 
   return (
     <div style={styles.container}>
@@ -64,6 +68,39 @@ export const AdminLayout: React.FC = () => {
             </button>
           </div>
         </div>
+
+        {/* Sub-Navigation Tabs */}
+        <nav style={styles.subnav}>
+          <div style={styles.subnavInner}>
+            <Link
+              to="/admin"
+              style={{
+                ...styles.navTab,
+                ...(isDashboardActive ? styles.navTabActive : {}),
+              }}
+            >
+              Dashboard
+            </Link>
+            <Link
+              to="/admin/products"
+              style={{
+                ...styles.navTab,
+                ...(isProductsActive ? styles.navTabActive : {}),
+              }}
+            >
+              Products {isProductsActive ? '(Active)' : ''}
+            </Link>
+            <span style={styles.navTabDisabled} title="Upcoming phase">
+              Orders (Phase 4)
+            </span>
+            <span style={styles.navTabDisabled} title="Upcoming phase">
+              Customers (Phase 4)
+            </span>
+            <span style={styles.navTabDisabled} title="Upcoming phase">
+              Settings (Phase 4)
+            </span>
+          </div>
+        </nav>
       </header>
 
       {/* Main Protected Admin Stage */}
@@ -97,6 +134,7 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: '16px',
+    flexWrap: 'wrap',
   },
   brandGroup: {
     display: 'flex',
@@ -208,6 +246,42 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 600,
     cursor: 'pointer',
     transition: 'all 0.2s ease',
+  },
+  subnav: {
+    borderTop: '1px solid #ece8e1',
+    backgroundColor: '#ffffff',
+  },
+  subnavInner: {
+    maxWidth: '1280px',
+    margin: '0 auto',
+    padding: '0 20px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '24px',
+    overflowX: 'auto',
+  },
+  navTab: {
+    padding: '10px 4px',
+    fontSize: '13px',
+    fontWeight: 500,
+    color: '#6f6764',
+    textDecoration: 'none',
+    borderBottom: '2px solid transparent',
+    whiteSpace: 'nowrap',
+    transition: 'all 0.2s ease',
+  },
+  navTabActive: {
+    color: '#5c3e36',
+    fontWeight: 700,
+    borderBottomColor: '#5c3e36',
+  },
+  navTabDisabled: {
+    padding: '10px 4px',
+    fontSize: '13px',
+    color: '#988e8a',
+    whiteSpace: 'nowrap',
+    cursor: 'default',
+    opacity: 0.6,
   },
   main: {
     flex: 1,

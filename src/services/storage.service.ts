@@ -5,8 +5,8 @@
  * Strategy:
  * - Bucket: 'product-images' (public)
  * - Path structure:
- *     - dresses/{product_code}_{timestamp}_{filename}.webp
- *     - cakes/{product_code}_{timestamp}_{filename}.webp
+ *     - dresses/{product_code}_{timestamp}_{sort_order}.webp
+ *     - cakes/{product_code}_{timestamp}_{sort_order}.webp
  * - Ordering: Controlled via sort_order in product_images table (0 = primary cover)
  * - Replacement: Upload new object -> update product_images table -> delete old object
  * - Deletion: Remove object from storage bucket + delete row from product_images table
@@ -16,10 +16,34 @@ import { supabase } from '../lib/supabase';
 import type { ProductCategory, ProductImageRow } from '../types';
 
 const BUCKET_NAME = 'product-images';
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB limit
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
 
 export const storageService = {
   /**
-   * Upload product image to Supabase Storage and register in product_images table
+   * Client-side image validation (size and mime type)
+   */
+  validateImageFile(file: File): { valid: boolean; error?: string } {
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+      return {
+        valid: false,
+        error: `Unsupported image format (${file.type || 'unknown'}). Supported: JPG, PNG, WEBP, AVIF.`,
+      };
+    }
+
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+      return {
+        valid: false,
+        error: `Image exceeds maximum size of 5 MB (current: ${sizeMb} MB). Please choose a smaller image.`,
+      };
+    }
+
+    return { valid: true };
+  },
+
+  /**
+   * Upload single product image to Supabase Storage and register in product_images table
    */
   async uploadProductImage(
     productId: string,
@@ -29,6 +53,11 @@ export const storageService = {
     sortOrder = 0,
     altText?: string
   ): Promise<ProductImageRow> {
+    const validation = this.validateImageFile(file);
+    if (!validation.valid) {
+      throw new Error(validation.error);
+    }
+
     const fileExt = file.name.split('.').pop()?.toLowerCase() || 'webp';
     const folder = category === 'dress' ? 'dresses' : 'cakes';
     const timestamp = Date.now();
@@ -76,6 +105,39 @@ export const storageService = {
   },
 
   /**
+   * Upload multiple images in sequence with incremental sort orders
+   */
+  async uploadMultipleImages(
+    productId: string,
+    productCode: string,
+    category: ProductCategory,
+    files: File[],
+    startingSortOrder = 0,
+    onProgress?: (uploadedCount: number, total: number) => void
+  ): Promise<ProductImageRow[]> {
+    const uploadedRows: ProductImageRow[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const sortOrder = startingSortOrder + i;
+      const row = await this.uploadProductImage(
+        productId,
+        productCode,
+        category,
+        file,
+        sortOrder,
+        `${productCode} photo ${sortOrder + 1}`
+      );
+      uploadedRows.push(row);
+      if (onProgress) {
+        onProgress(i + 1, files.length);
+      }
+    }
+
+    return uploadedRows;
+  },
+
+  /**
    * Replace existing image with a newly uploaded file
    */
   async replaceProductImage(
@@ -85,6 +147,11 @@ export const storageService = {
     productCode: string,
     category: ProductCategory
   ): Promise<string> {
+    const validation = this.validateImageFile(file);
+    if (!validation.valid) {
+      throw new Error(validation.error);
+    }
+
     const fileExt = file.name.split('.').pop()?.toLowerCase() || 'webp';
     const folder = category === 'dress' ? 'dresses' : 'cakes';
     const timestamp = Date.now();

@@ -10,6 +10,7 @@ import { AdminGuard } from './components/admin/AdminGuard';
 import { AdminLayout } from './layouts/AdminLayout';
 import { AdminLogin } from './pages/admin/AdminLogin';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
+import { AdminProducts } from './pages/admin/AdminProducts';
 import { StorefrontHome } from './pages/StorefrontHome';
 
 export const App: React.FC = () => {
@@ -33,6 +34,7 @@ export const App: React.FC = () => {
             }
           >
             <Route index element={<AdminDashboard />} />
+            <Route path="products" element={<AdminProducts />} />
           </Route>
 
           {/* Fallback to Storefront */}

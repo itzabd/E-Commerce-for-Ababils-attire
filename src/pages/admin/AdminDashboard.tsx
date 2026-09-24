@@ -7,6 +7,7 @@
  */
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
 export const AdminDashboard: React.FC = () => {
@@ -76,14 +77,34 @@ export const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Readiness Callout */}
+      {/* Product Management Phase 3 Active Box */}
       <div style={styles.readinessBox}>
-        <h3 style={styles.readinessTitle}>Authentication Foundation Complete</h3>
-        <p style={styles.readinessText}>
-          Dual-layer admin protection is active. Protected routes, session persistence, role validation,
-          and secure logout are operational. As specified, product management, order processing, and
-          bKash TrxID matching tools will be attached in the next phases.
-        </p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+          <div>
+            <h3 style={styles.readinessTitle}>Product Management Ready</h3>
+            <p style={styles.readinessText}>
+              Bespoke dresses and celebration cakes catalog archive, photography uploader, inventory, and status controls are live.
+            </p>
+          </div>
+          <Link
+            to="/admin/products"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              backgroundColor: '#5c3e36',
+              color: '#ffffff',
+              padding: '10px 20px',
+              borderRadius: '9999px',
+              fontSize: '13px',
+              fontWeight: 600,
+              textDecoration: 'none',
+              boxShadow: 'var(--shadow-sm, 0 2px 6px rgba(92, 62, 54, 0.08))',
+            }}
+          >
+            Manage Product Catalog →
+          </Link>
+        </div>
       </div>
     </div>
   );
