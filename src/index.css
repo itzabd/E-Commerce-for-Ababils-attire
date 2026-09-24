@@ -1,0 +1,121 @@
+/* ==============================================================================
+   Ababil’s Attire by Sanjida Bethi — Global Design Tokens & Foundation
+   Palette: Atelier Curated Heirloom
+   ============================================================================== */
+
+:root {
+  /* Brand Primary & Accents */
+  --color-primary: #5c3e36;
+  --color-primary-hover: #4a312a;
+  --color-primary-active: #3a2620;
+  --color-primary-subtle: #f5ede9;
+  --color-primary-container: #77554c;
+  --color-on-primary: #ffffff;
+
+  /* Surfaces */
+  --color-surface: #fbf9f5;
+  --color-surface-dim: #dbdad6;
+  --color-surface-bright: #ffffff;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f5f3ef;
+  --color-surface-container: #eeebe6;
+  --color-surface-container-high: #e7e4df;
+  --color-surface-container-highest: #e0dcd6;
+
+  /* Typography Colors */
+  --color-text-main: #2d2421;
+  --color-text-muted: #6f6764;
+  --color-text-subtle: #988e8a;
+  --color-text-inverse: #ffffff;
+
+  /* Borders & Hairlines */
+  --color-border-subtle: #ece8e1;
+  --color-border-default: #dfd8ce;
+  --color-border-focus: #5c3e36;
+
+  /* Semantic Alerts */
+  --color-success-bg: #ecfdf5;
+  --color-success-text: #065f46;
+  --color-success-border: #a7f3d0;
+
+  --color-warning-bg: #fffbeb;
+  --color-warning-text: #92400e;
+  --color-warning-border: #fde68a;
+
+  --color-danger-bg: #fef2f2;
+  --color-danger-text: #991b1b;
+  --color-danger-border: #fecaca;
+
+  --color-info-bg: #eff6ff;
+  --color-info-text: #1e40af;
+  --color-info-border: #bfdbfe;
+
+  --color-bkash-pink: #d12053;
+  --color-bkash-bg: #fdf2f4;
+
+  /* Fonts */
+  --font-serif: 'Bodoni Moda', 'Playfair Display', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  /* Radii */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 6px rgba(92, 62, 54, 0.05);
+  --shadow-md: 0 6px 18px rgba(92, 62, 54, 0.08);
+  --shadow-lg: 0 12px 32px rgba(92, 62, 54, 0.12);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-surface);
+  color: var(--color-text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input, select, textarea {
+  font-family: inherit;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
