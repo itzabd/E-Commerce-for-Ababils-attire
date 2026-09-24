@@ -5,35 +5,65 @@
 
 import { supabase } from '../lib/supabase';
 import type { ProductWithDetails, ProductCategory, ProductStatus } from '../types';
+import { FALLBACK_PRODUCTS } from '../data/fallbackProducts';
+
+function normalizeProduct(raw: any): ProductWithDetails {
+  const images = Array.isArray(raw.images)
+    ? [...raw.images].sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+    : [];
+
+  const dress_details = Array.isArray(raw.dress_details)
+    ? raw.dress_details[0] || null
+    : raw.dress_details || null;
+
+  const cake_details = Array.isArray(raw.cake_details)
+    ? raw.cake_details[0] || null
+    : raw.cake_details || null;
+
+  return {
+    ...raw,
+    images,
+    dress_details,
+    cake_details,
+  };
+}
 
 export const productsService = {
   /**
    * Fetch published products for customer storefront
    */
   async getPublishedProducts(category?: ProductCategory): Promise<ProductWithDetails[]> {
-    let query = (supabase as any)
-      .from('products')
-      .select(`
-        *,
-        images:product_images(*),
-        dress_details(*),
-        cake_details(*)
-      `)
-      .eq('status', 'published')
-      .order('featured', { ascending: false })
-      .order('created_at', { ascending: false });
+    try {
+      let query = (supabase as any)
+        .from('products')
+        .select(`
+          *,
+          images:product_images(*),
+          dress_details(*),
+          cake_details(*)
+        `)
+        .in('status', ['published', 'made_to_order', 'out_of_stock'])
+        .order('featured', { ascending: false })
+        .order('created_at', { ascending: false });
 
+      if (category) {
+        query = query.eq('category', category);
+      }
+
+      const { data, error } = await query;
+      if (!error && data && data.length > 0) {
+        return data.map(normalizeProduct);
+      }
+    } catch (err) {
+      console.warn('Supabase query failed, falling back to local catalog:', err);
+    }
+
+    // Fallback if Supabase table is empty or error
+    let fallback = FALLBACK_PRODUCTS;
     if (category) {
-      query = query.eq('category', category);
+      fallback = fallback.filter((p) => p.category === category);
     }
-
-    const { data, error } = await query;
-    if (error) {
-      console.error('Error fetching published products:', error);
-      throw error;
-    }
-
-    return (data as unknown as ProductWithDetails[]) || [];
+    return fallback;
   },
 
   /**
@@ -42,49 +72,59 @@ export const productsService = {
   async getProductByCode(codeOrId: string): Promise<ProductWithDetails | null> {
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(codeOrId);
 
-    const query = (supabase as any)
-      .from('products')
-      .select(`
-        *,
-        images:product_images(*),
-        dress_details(*),
-        cake_details(*)
-      `);
+    try {
+      const query = (supabase as any)
+        .from('products')
+        .select(`
+          *,
+          images:product_images(*),
+          dress_details(*),
+          cake_details(*)
+        `);
 
-    const { data, error } = isUuid
-      ? await query.eq('id', codeOrId).single()
-      : await query.eq('product_code', codeOrId).single();
+      const { data, error } = isUuid
+        ? await query.eq('id', codeOrId).single()
+        : await query.eq('product_code', codeOrId).single();
 
-    if (error) {
-      console.error('Error fetching product details:', error);
-      return null;
+      if (!error && data) {
+        return normalizeProduct(data);
+      }
+    } catch (err) {
+      console.warn('Supabase getProductByCode failed, checking local catalog:', err);
     }
 
-    return (data as unknown as ProductWithDetails) || null;
+    // Fallback search
+    const found = FALLBACK_PRODUCTS.find(
+      (p) => p.id === codeOrId || p.product_code.toLowerCase() === codeOrId.toLowerCase()
+    );
+    return found || null;
   },
 
   /**
    * Fetch featured items for homepage highlights
    */
   async getFeaturedProducts(limit = 6): Promise<ProductWithDetails[]> {
-    const { data, error } = await (supabase as any)
-      .from('products')
-      .select(`
-        *,
-        images:product_images(*),
-        dress_details(*),
-        cake_details(*)
-      `)
-      .eq('status', 'published')
-      .eq('featured', true)
-      .limit(limit);
+    try {
+      const { data, error } = await (supabase as any)
+        .from('products')
+        .select(`
+          *,
+          images:product_images(*),
+          dress_details(*),
+          cake_details(*)
+        `)
+        .in('status', ['published', 'made_to_order'])
+        .eq('featured', true)
+        .limit(limit);
 
-    if (error) {
-      console.error('Error fetching featured products:', error);
-      throw error;
+      if (!error && data && data.length > 0) {
+        return data.map(normalizeProduct);
+      }
+    } catch (err) {
+      console.warn('Supabase getFeaturedProducts failed, using fallback:', err);
     }
 
-    return (data as unknown as ProductWithDetails[]) || [];
+    return FALLBACK_PRODUCTS.filter((p) => p.featured).slice(0, limit);
   },
 
   /**

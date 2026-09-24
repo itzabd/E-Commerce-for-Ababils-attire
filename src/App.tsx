@@ -11,7 +11,14 @@ import { AdminLayout } from './layouts/AdminLayout';
 import { AdminLogin } from './pages/admin/AdminLogin';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminProducts } from './pages/admin/AdminProducts';
-import { StorefrontHome } from './pages/StorefrontHome';
+import { CustomerLayout } from './layouts/CustomerLayout';
+import { HomePage } from './pages/customer/HomePage';
+import { DressesPage } from './pages/customer/DressesPage';
+import { CakesPage } from './pages/customer/CakesPage';
+import { DressDetailPage } from './pages/customer/DressDetailPage';
+import { CakeDetailPage } from './pages/customer/CakeDetailPage';
+import { AboutPage } from './pages/customer/AboutPage';
+import { ContactPage } from './pages/customer/ContactPage';
 
 export const App: React.FC = () => {
   return (
@@ -19,7 +26,15 @@ export const App: React.FC = () => {
       <AuthProvider>
         <Routes>
           {/* Public Customer Routes (100% Guest-accessible without login) */}
-          <Route path="/" element={<StorefrontHome />} />
+          <Route element={<CustomerLayout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/dresses" element={<DressesPage />} />
+            <Route path="/dresses/:id" element={<DressDetailPage />} />
+            <Route path="/cakes" element={<CakesPage />} />
+            <Route path="/cakes/:id" element={<CakeDetailPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+          </Route>
 
           {/* Admin Login Portal */}
           <Route path="/admin/login" element={<AdminLogin />} />
