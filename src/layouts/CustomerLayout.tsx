@@ -176,21 +176,16 @@ export const CustomerLayout: React.FC = () => {
                 />
               </div>
 
-              {/* Currency */}
-              <div className="stitch-desktop-currency">
-                <span>BDT ৳</span>
-              </div>
-
-              {/* WhatsApp Concierge */}
+              {/* WhatsApp Concierge / Inquire */}
               <a
                 href={getStudioWhatsAppUrl('Assalamu Alaikum Sanjida Apu, I would like to inquire about an order.')}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="stitch-desktop-concierge-pill"
-                title="Chat with Atelier Concierge"
+                title="Chat with Atelier Team"
               >
                 <span className="material-symbols-outlined stitch-desktop-concierge-icon">chat</span>
-                <span>CONCIERGE</span>
+                <span>Chat with Us</span>
               </a>
 
               {/* My Bag */}
@@ -525,7 +520,7 @@ export const CustomerLayout: React.FC = () => {
         <div style={styles.drawerFooter}>
           <p style={styles.drawerQuote}>"Stitched with love, baked with care."</p>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-            <p style={styles.drawerDhaka}>{storeSettings?.workshop_address || "Studio • Dhaka, Bangladesh"}</p>
+            <p style={styles.drawerDhaka}>{storeSettings?.workshop_address || "House 639, Kuddus Khalifa Road, Morkun, Tongi, Gazipur - 1700"}</p>
             <button
               type="button"
               onClick={() => {
@@ -579,7 +574,7 @@ export const CustomerLayout: React.FC = () => {
                 <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#7e544f' }}>
                   verified
                 </span>
-                <span>Dhaka Artisan Guild Standard</span>
+                <span>Artisan Guild Standard</span>
               </div>
             </div>
 
@@ -596,7 +591,7 @@ export const CustomerLayout: React.FC = () => {
             <div className="stitch-desktop-footer-col">
               <span className="stitch-desktop-footer-col-title">Customer Care</span>
               <Link to="/track-order" className="stitch-desktop-footer-link">Cake Ordering Policy</Link>
-              <Link to="/track-order" className="stitch-desktop-footer-link">Delivery in Dhaka</Link>
+              <Link to="/track-order" className="stitch-desktop-footer-link">Delivery &amp; Courier Policy</Link>
               <Link to="/dresses" className="stitch-desktop-footer-link">Sizing &amp; Tailoring Guide</Link>
               <Link to="/about" className="stitch-desktop-footer-link">Care &amp; Preservation</Link>
             </div>
@@ -605,11 +600,10 @@ export const CustomerLayout: React.FC = () => {
             <div className="stitch-desktop-footer-col">
               <span className="stitch-desktop-footer-col-title">Atelier Studio</span>
               <p className="stitch-desktop-footer-address">
-                House 14, Road 7, Sector 3<br />
-                Uttara, Dhaka, Bangladesh
+                {storeSettings?.workshop_address || "House 639, Kuddus Khalifa Road, Morkun, Tongi, Gazipur - 1700"}
               </p>
               <p className="stitch-desktop-footer-phone">
-                WhatsApp: {storeSettings?.whatsapp_number || storeSettings?.contact_phone || '+880 1712-345678'}
+                WhatsApp: {storeSettings?.whatsapp_number || storeSettings?.contact_phone || '+880 1795-077102'}
               </p>
               <div className="stitch-desktop-footer-journal">
                 <span className="stitch-desktop-footer-journal-label">Join the Atelier Journal</span>
@@ -635,7 +629,7 @@ export const CustomerLayout: React.FC = () => {
               <span>•</span>
               <span>Fresh Baked Daily</span>
               <span>•</span>
-              <span>Dhaka Citywide Delivery</span>
+              <span>Nationwide &amp; Doorstep Delivery</span>
             </div>
           </div>
         </div>
@@ -750,9 +744,9 @@ export const CustomerLayout: React.FC = () => {
             <span
               onClick={handleSecretTap}
               style={{ ...styles.footerLink, cursor: 'default', userSelect: 'none' }}
-              title="Dhaka Studio Atelier"
+              title="Studio Atelier"
             >
-              {storeSettings?.workshop_address ? storeSettings.workshop_address.split(',')[0] : "Dhaka Atelier"}
+              {storeSettings?.workshop_address ? storeSettings.workshop_address.split(',')[0] : "Studio Atelier"}
             </span>
           </div>
 
@@ -797,7 +791,7 @@ export const CustomerLayout: React.FC = () => {
               onClick={handleSecretTap}
               title="Ababil’s Attire by Sanjida Bethi (Triple-tap for Atelier admin)"
             >
-              © {new Date().getFullYear()} {storeSettings?.store_name || "Ababil’s Attire by Sanjida Bethi"}. All Rights Reserved. • {storeSettings?.workshop_address || "Dhaka, Bangladesh"}
+              © {new Date().getFullYear()} {storeSettings?.store_name || "Ababil’s Attire by Sanjida Bethi"}. All Rights Reserved. • {storeSettings?.workshop_address || "House 639, Kuddus Khalifa Road, Morkun, Tongi, Gazipur - 1700"}
             </p>
           </div>
         </div>

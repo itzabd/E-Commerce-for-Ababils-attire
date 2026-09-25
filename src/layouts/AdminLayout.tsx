@@ -77,46 +77,107 @@ export const AdminLayout: React.FC = () => {
   ];
 
   return (
-    <div style={styles.container}>
-      {/* Admin Top Navigation Bar */}
-      <header style={styles.header}>
-        <div style={styles.headerInner}>
-          {/* Left: Brand Logo / Monogram & Admin Pill */}
-          <div style={styles.brandGroup}>
-            <Link to="/admin" style={styles.brandLink}>
-              {storeSettings?.logo_url ? (
-                <img
-                  src={storeSettings.logo_url}
-                  alt="Store Logo"
-                  style={styles.logoImage}
-                />
-              ) : (
-                <span style={styles.monogram}>AB</span>
-              )}
-              <div style={styles.titleStack}>
-                <span style={styles.brandTitle}>Ababil’s Attire</span>
-                <span style={styles.brandSubtitle}>ADMIN SUITE</span>
-              </div>
+    <div style={styles.container} className="admin-app-root">
+      {/* ===================================================================== */}
+      {/* 1. DESKTOP STITCH STUDIO SIDEBAR (Visible >= 960px)                   */}
+      {/* ===================================================================== */}
+      <aside className="stitch-admin-desktop-sidebar">
+        {/* Brand Workspace Title */}
+        <div className="stitch-admin-sidebar-header">
+          <Link to="/admin" className="stitch-admin-sidebar-brand">
+            <span className="stitch-admin-sidebar-brand-name">Ababil’s Attire</span>
+            <span className="stitch-admin-sidebar-brand-sub">STUDIO WORKSPACE</span>
+          </Link>
+        </div>
+
+        {/* Sidebar Nav Items */}
+        <nav className="stitch-admin-sidebar-nav" aria-label="Desktop Studio Navigation">
+          {navItems.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className={`stitch-admin-sidebar-link ${item.isActive ? 'active' : ''}`}
+            >
+              <span className="material-symbols-outlined stitch-admin-sidebar-icon">
+                {item.icon}
+              </span>
+              <span>{item.label}</span>
             </Link>
-            <span style={styles.adminPill}>ADMIN</span>
+          ))}
+        </nav>
+
+        {/* Sidebar Footer: Storefront Quick Link */}
+        <div className="stitch-admin-sidebar-footer">
+          <Link to="/" className="stitch-admin-storefront-btn">
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+              storefront
+            </span>
+            <span>Storefront Quick Link</span>
+          </Link>
+          <div className="stitch-admin-sync-indicator">
+            <span className="stitch-admin-sync-dot"></span>
+            <span>Studio Synchronized</span>
+          </div>
+        </div>
+      </aside>
+
+      {/* ===================================================================== */}
+      {/* 2. MAIN WORKSPACE AREA (Header + Content Stage)                       */}
+      {/* ===================================================================== */}
+      <div className="stitch-admin-stage-wrapper">
+        {/* DESKTOP TOP BAR (Visible >= 960px) */}
+        <header className="stitch-admin-desktop-topbar">
+          <div className="stitch-admin-topbar-left">
+            <div className="stitch-admin-topbar-brand-chip">
+              <span className="stitch-admin-chip-title">ABABIL’S ATTIRE</span>
+              <span className="stitch-admin-chip-sub">Admin Panel &amp; Studio Suite</span>
+            </div>
+            <div className="stitch-admin-topbar-location">
+              <span className="material-symbols-outlined" style={{ fontSize: '15px', color: '#7e544f' }}>
+                location_on
+              </span>
+              <span>Studio Atelier</span>
+            </div>
           </div>
 
-          {/* Right: Admin Profile & Actions */}
-          <div style={styles.actionGroup}>
-            <Link to="/" style={styles.storefrontLink} title="View Customer Storefront">
-              Storefront ↗
-            </Link>
+          <div className="stitch-admin-topbar-right">
+            {/* Search Input */}
+            <div className="stitch-admin-search-pill">
+              <span className="material-symbols-outlined stitch-admin-search-icon">search</span>
+              <input
+                type="text"
+                placeholder="Search orders, inventory, patrons..."
+                className="stitch-admin-search-input"
+              />
+            </div>
 
-            <div style={styles.profileBadge}>
-              <div style={styles.avatar}>
-                {admin?.full_name ? admin.full_name.slice(0, 2).toUpperCase() : 'SB'}
+            {/* Notification Bell */}
+            <button
+              type="button"
+              className="stitch-admin-icon-btn"
+              title="Notifications"
+              aria-label="Notifications"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+                notifications
+              </span>
+              <span className="stitch-admin-notification-badge"></span>
+            </button>
+
+            {/* Admin Lead Profile Chip */}
+            <div className="stitch-admin-lead-chip">
+              <div className="stitch-admin-lead-avatar">
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                  person
+                </span>
               </div>
-              <div style={styles.profileText}>
-                <span style={styles.profileName}>{admin?.full_name || user?.email || 'Admin'}</span>
-                <span style={styles.roleTag}>{admin?.role?.toUpperCase() || 'STAFF'}</span>
+              <div className="stitch-admin-lead-info">
+                <span className="stitch-admin-lead-name">{admin?.full_name || 'Sanjida Bethi'}</span>
+                <span className="stitch-admin-lead-role">{admin?.role?.toUpperCase() || 'LEAD ARTISAN'}</span>
               </div>
             </div>
 
+            {/* Sign Out Button */}
             <button
               onClick={handleSignOut}
               disabled={isSigningOut}
@@ -126,16 +187,65 @@ export const AdminLayout: React.FC = () => {
               {isSigningOut ? 'Signing out...' : 'Sign Out'}
             </button>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Main Protected Admin Stage */}
-      <main style={styles.main}>
-        <Outlet />
-      </main>
+        {/* MOBILE TOP BAR (Protected for < 960px) */}
+        <header style={styles.header} className="stitch-admin-mobile-header">
+          <div style={styles.headerInner}>
+            <div style={styles.brandGroup}>
+              <Link to="/admin" style={styles.brandLink}>
+                {storeSettings?.logo_url ? (
+                  <img
+                    src={storeSettings.logo_url}
+                    alt="Store Logo"
+                    style={styles.logoImage}
+                  />
+                ) : (
+                  <span style={styles.monogram}>AB</span>
+                )}
+                <div style={styles.titleStack}>
+                  <span style={styles.brandTitle}>Ababil’s Attire</span>
+                  <span style={styles.brandSubtitle}>ADMIN SUITE</span>
+                </div>
+              </Link>
+              <span style={styles.adminPill}>ADMIN</span>
+            </div>
 
-      {/* DOCKED BOTTOM NAVIGATION BAR (Exact match to Stitch screenshot design) */}
-      <nav style={styles.bottomNav} aria-label="Admin Dock Navigation">
+            <div style={styles.actionGroup}>
+              <Link to="/" style={styles.storefrontLink} title="View Customer Storefront">
+                Storefront ↗
+              </Link>
+
+              <div style={styles.profileBadge}>
+                <div style={styles.avatar}>
+                  {admin?.full_name ? admin.full_name.slice(0, 2).toUpperCase() : 'SB'}
+                </div>
+                <div style={styles.profileText}>
+                  <span style={styles.profileName}>{admin?.full_name || user?.email || 'Admin'}</span>
+                  <span style={styles.roleTag}>{admin?.role?.toUpperCase() || 'STAFF'}</span>
+                </div>
+              </div>
+
+              <button
+                onClick={handleSignOut}
+                disabled={isSigningOut}
+                style={styles.signOutButton}
+                title="Sign out of Admin Suite"
+              >
+                {isSigningOut ? '...' : 'Exit'}
+              </button>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Protected Admin Stage */}
+        <main style={styles.main} className="stitch-admin-main-stage">
+          <Outlet />
+        </main>
+      </div>
+
+      {/* DOCKED BOTTOM NAVIGATION BAR (Mobile Only - Protected for < 960px) */}
+      <nav style={styles.bottomNav} className="stitch-admin-mobile-dock" aria-label="Admin Dock Navigation">
         {navItems.map((item) => {
           const color = item.isActive ? '#432821' : '#8c827a';
           return (

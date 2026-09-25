@@ -273,6 +273,14 @@ export interface StoreSettings {
   size_chart?: SizeChartEntry[];
   size_guide_intro?: string;
 
+  // Dynamic About Section / Story Content
+  about_story_title?: string;
+  about_story_content?: string;
+  about_artisan_quote?: string;
+  about_craft_dresses_desc?: string;
+  about_craft_cakes_desc?: string;
+  about_story_image_url?: string;
+
   created_at?: string;
   updated_at?: string;
 }
