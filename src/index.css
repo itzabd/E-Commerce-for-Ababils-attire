@@ -249,6 +249,276 @@ input, select, textarea {
   }
 }
 
+/* ==============================================================================
+   DESKTOP POV — STITCH DESIGN SYSTEM (Project 1646646279704595948)
+   Editorial Haute-Couture Boutique Presentation
+   ============================================================================== */
+
+/* 1. Announcement Ribbon (Desktop & Tablet) */
+.desktop-announcement-bar {
+  background-color: #5c3e36;
+  color: #fbf9f5;
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  padding: 8px 32px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+}
+
+.desktop-announcement-inner {
+  max-width: 1360px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.announcement-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.announcement-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-weight: 500;
+}
+
+.announcement-divider {
+  opacity: 0.5;
+}
+
+.announcement-whatsapp-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #d9a59f;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.15s ease;
+}
+
+.announcement-whatsapp-link:hover {
+  color: #ffffff;
+}
+
+@media (max-width: 767px) {
+  .desktop-announcement-bar {
+    display: none !important;
+  }
+}
+
+/* 2. Global Max Width & Margins (1360px Max Frame) */
+.customer-page-container {
+  max-width: 1360px !important;
+  margin: 0 auto !important;
+  width: 100% !important;
+}
+
+@media (min-width: 1024px) {
+  .customer-page-container {
+    padding-left: 3rem !important;
+    padding-right: 3rem !important;
+  }
+  .customer-header-inner {
+    max-width: 1360px !important;
+    padding-left: 3rem !important;
+    padding-right: 3rem !important;
+    min-height: 76px !important;
+  }
+  .customer-brand-title {
+    font-size: 24px !important;
+    letter-spacing: 0.01em !important;
+  }
+  .customer-brand-subtitle {
+    font-size: 10px !important;
+    letter-spacing: 0.12em !important;
+  }
+}
+
+/* 3. Split Editorial Hero (Desktop >= 900px) */
+@media (min-width: 900px) {
+  .home-hero-section {
+    display: grid !important;
+    grid-template-columns: 1.15fr 0.9fr !important;
+    align-items: center !important;
+    text-align: left !important;
+    gap: 48px !important;
+    padding: 56px 48px !important;
+    border-radius: 20px !important;
+    background: linear-gradient(135deg, #f5f3ef 0%, #eeebe6 100%) !important;
+    border: 1px solid #dfd8ce !important;
+  }
+  .home-hero-text-wrapper {
+    order: 1 !important;
+    max-width: 600px !important;
+    margin: 0 !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+    gap: 16px !important;
+  }
+  .home-hero-image-wrapper {
+    order: 2 !important;
+    margin-bottom: 0 !important;
+    height: 100% !important;
+    min-height: 480px !important;
+    max-height: 520px !important;
+    border-radius: 16px !important;
+    box-shadow: 0 16px 40px -12px rgba(92, 62, 54, 0.16) !important;
+  }
+  .home-hero-headline {
+    font-size: 50px !important;
+    line-height: 1.15 !important;
+    letter-spacing: -0.02em !important;
+    font-family: 'Bodoni Moda', Georgia, serif !important;
+  }
+  .home-hero-description {
+    font-size: 16px !important;
+    line-height: 1.65 !important;
+    color: #504441 !important;
+  }
+  .home-hero-action-group {
+    display: flex !important;
+    flex-direction: row !important;
+    max-width: none !important;
+    width: auto !important;
+    gap: 16px !important;
+    margin-top: 16px !important;
+  }
+  .home-hero-btn-primary,
+  .home-hero-btn-secondary {
+    height: 50px !important;
+    padding: 0 28px !important;
+    font-size: 14px !important;
+    letter-spacing: 0.02em !important;
+    transition: all 0.2s ease !important;
+  }
+  .home-hero-btn-primary:hover {
+    background-color: #4a312a !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 18px rgba(92, 62, 54, 0.2) !important;
+  }
+  .home-hero-btn-secondary:hover {
+    background-color: #e5e0d7 !important;
+    transform: translateY(-2px) !important;
+  }
+}
+
+/* 4. 4-Column Desktop Product Grids */
+@media (min-width: 1024px) {
+  .customer-products-grid,
+  .home-products-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 28px !important;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .customer-products-grid,
+  .home-products-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 20px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .customer-products-grid,
+  .home-products-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+}
+
+/* 5. Product Card Artistry & Hover Physics */
+.atelier-product-card {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.28s ease !important;
+}
+
+.atelier-product-card:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 12px 30px -6px rgba(92, 62, 54, 0.12) !important;
+  border-color: #d9a59f !important;
+}
+
+.atelier-product-card:hover img {
+  transform: scale(1.03) !important;
+}
+
+/* 6. Dual Collection Banners on Desktop */
+@media (min-width: 840px) {
+  .home-dual-collection-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 32px !important;
+  }
+  .home-collection-card {
+    padding: 24px !important;
+    border-radius: 16px !important;
+    transition: transform 0.25s ease, box-shadow 0.25s ease !important;
+  }
+  .home-collection-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 14px 32px -8px rgba(92, 62, 54, 0.12) !important;
+  }
+}
+
+/* 7. Artisan Pillars on Desktop */
+@media (min-width: 840px) {
+  .home-artisan-section {
+    padding: 48px !important;
+    border-radius: 20px !important;
+  }
+  .home-pillars-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 28px !important;
+  }
+}
+
+/* 8. Product Detail Pages (PDP) Sticky 2-Column Layout */
+@media (min-width: 960px) {
+  .pdp-details-grid {
+    display: grid !important;
+    grid-template-columns: 1.15fr 0.85fr !important;
+    gap: 56px !important;
+    align-items: start !important;
+  }
+  .pdp-gallery-section {
+    position: sticky !important;
+    top: 96px !important;
+  }
+  .pdp-title {
+    font-size: 38px !important;
+    line-height: 1.2 !important;
+    letter-spacing: -0.015em !important;
+    font-family: 'Bodoni Moda', Georgia, serif !important;
+  }
+}
+
+/* 9. Shopping Bag (Cart) 2-Column Sticky Layout */
+@media (min-width: 960px) {
+  .cart-grid-desktop {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.4fr) minmax(380px, 440px) !important;
+    gap: 40px !important;
+    align-items: start !important;
+  }
+  .cart-summary-desktop {
+    position: sticky !important;
+    top: 96px !important;
+  }
+}
+
+
 
 
 

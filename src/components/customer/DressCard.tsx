@@ -25,7 +25,7 @@ export const DressCard: React.FC<DressCardProps> = ({ product }) => {
   const isMadeToOrder = product.status === 'made_to_order';
 
   return (
-    <article style={styles.card}>
+    <article style={styles.card} className="atelier-product-card">
       {/* 3:4 Aspect Ratio Image Container */}
       <Link to={`/dresses/${product.id}`} style={styles.imageLink}>
         <div style={styles.imageWrapper}>

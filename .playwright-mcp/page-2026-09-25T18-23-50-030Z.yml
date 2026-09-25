@@ -1,0 +1,229 @@
+- generic [ref=f4e6]:
+  - generic [ref=f4e8]:
+    - generic [ref=f4e9]:
+      - generic [ref=f4e10]: auto_awesome
+      - generic [ref=f4e11]: Dhaka Atelier • Sweet Handcrafted Dresses & Celebration Cakes
+    - generic [ref=f4e12]:
+      - generic [ref=f4e13]: "bKash Advance Reservation: ৳500"
+      - generic [ref=f4e14]: •
+      - link "chat WhatsApp Atelier" [ref=f4e15] [cursor=pointer]:
+        - /url: https://wa.me/8801712345678?text=Assalamu%20Alaikum%20Sanjida%20Apu%2C%20I%20would%20like%20to%20inquire%20about%20an%20order.
+        - generic [ref=f4e16]: chat
+        - generic [ref=f4e17]: WhatsApp Atelier
+  - banner [ref=f4e18]:
+    - generic [ref=f4e19]:
+      - navigation "Main Navigation" [ref=f4e21]:
+        - link "Home" [ref=f4e22] [cursor=pointer]:
+          - /url: /
+        - link "Dresses" [ref=f4e23] [cursor=pointer]:
+          - /url: /dresses
+        - link "Cakes" [ref=f4e24] [cursor=pointer]:
+          - /url: /cakes
+        - link "Our Story" [ref=f4e25] [cursor=pointer]:
+          - /url: /about
+        - link "Custom Orders & Contact" [ref=f4e26] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f4e27]:
+        - link "Ababil’s Attire by Sanjida Bethi" [ref=f4e28] [cursor=pointer]:
+          - /url: /
+        - button "Handmade Dresses & Homemade Cakes by Sanjida Bethi" [ref=f4e30]
+      - generic [ref=f4e31]:
+        - link "shield_person Admin" [ref=f4e32] [cursor=pointer]:
+          - /url: /admin
+          - generic [ref=f4e33]: shield_person
+          - generic [ref=f4e34]: Admin
+        - link "Track Order" [ref=f4e35] [cursor=pointer]:
+          - /url: /track-order
+          - generic [ref=f4e36]: local_shipping
+        - link "Shopping Bag (0 items)" [ref=f4e37] [cursor=pointer]:
+          - /url: /bag
+          - generic [ref=f4e38]: shopping_bag
+  - complementary [ref=f4e39]:
+    - generic [ref=f4e40]:
+      - generic [ref=f4e41]:
+        - heading "Ababil’s Attire" [level=2] [ref=f4e42]
+        - paragraph [ref=f4e43]: by Sanjida Bethi
+        - generic [ref=f4e44]: Handmade Dresses & Homemade Cakes
+      - button "Close menu" [ref=f4e45] [cursor=pointer]:
+        - generic [ref=f4e46]: close
+    - navigation [ref=f4e47]:
+      - link "storefront Home" [ref=f4e48] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f4e49]: storefront
+        - generic [ref=f4e50]: Home
+      - link "checkroom Handmade Dresses" [ref=f4e51] [cursor=pointer]:
+        - /url: /dresses
+        - generic [ref=f4e52]: checkroom
+        - generic [ref=f4e53]: Handmade Dresses
+      - link "cake Fresh Cakes" [ref=f4e54] [cursor=pointer]:
+        - /url: /cakes
+        - generic [ref=f4e55]: cake
+        - generic [ref=f4e56]: Fresh Cakes
+      - link "shopping_bag My Bag" [ref=f4e57] [cursor=pointer]:
+        - /url: /bag
+        - generic [ref=f4e58]: shopping_bag
+        - generic [ref=f4e59]: My Bag
+      - link "auto_stories Our Story" [ref=f4e60] [cursor=pointer]:
+        - /url: /about
+        - generic [ref=f4e61]: auto_stories
+        - generic [ref=f4e62]: Our Story
+      - link "edit_calendar Custom Orders & Contact" [ref=f4e63] [cursor=pointer]:
+        - /url: /contact
+        - generic [ref=f4e64]: edit_calendar
+        - generic [ref=f4e65]: Custom Orders & Contact
+      - link "local_shipping Track Order" [ref=f4e66] [cursor=pointer]:
+        - /url: /track-order
+        - generic [ref=f4e67]: local_shipping
+        - generic [ref=f4e68]: Track Order
+      - link "admin_panel_settings Admin Suite" [ref=f4e69] [cursor=pointer]:
+        - /url: /admin
+        - generic [ref=f4e70]: admin_panel_settings
+        - generic [ref=f4e71]: Admin Suite
+    - generic [ref=f4e72]:
+      - paragraph [ref=f4e73]: "\"Stitched with love, baked with care.\""
+      - generic [ref=f4e74]:
+        - paragraph [ref=f4e75]: Banani Studio • Dhaka, Bangladesh
+        - button "Studio Lock" [ref=f4e76] [cursor=pointer]:
+          - generic [ref=f4e77]: lock
+  - main [ref=f4e78]:
+    - generic [ref=f4e79]:
+      - navigation "Breadcrumb" [ref=f4e80]:
+        - generic [ref=f4e81]:
+          - link "arrow_back Home" [ref=f4e82] [cursor=pointer]:
+            - /url: /
+            - generic [ref=f4e83]: arrow_back
+            - generic [ref=f4e84]: Home
+          - generic [ref=f4e85]: /
+          - generic [ref=f4e86]: Girls’ Dresses
+        - generic [ref=f4e87]: 5 Handmade Pieces
+      - generic [ref=f4e88]:
+        - heading "Handmade Girls’ Dresses" [level=1] [ref=f4e89]
+        - paragraph [ref=f4e90]: Delicate handmade dresses handcrafted with natural cotton, pure linen, and intricate hand-smocking for your little one’s special milestones.
+        - link "Also looking for celebration cakes? Explore Homemade Cakes arrow_forward" [ref=f4e92] [cursor=pointer]:
+          - /url: /cakes
+          - generic [ref=f4e93]: Also looking for celebration cakes?
+          - generic [ref=f4e94]:
+            - text: Explore Homemade Cakes
+            - generic [ref=f4e95]: arrow_forward
+      - generic [ref=f4e96]:
+        - generic [ref=f4e97]:
+          - generic [ref=f4e98]: search
+          - searchbox "Search dresses, fabrics (e.g. linen, muslin, lace)..." [ref=f4e99]
+        - generic [ref=f4e100]:
+          - button "All Dresses (5)" [ref=f4e101] [cursor=pointer]
+          - button "New Arrivals" [ref=f4e102] [cursor=pointer]
+          - button "Ready to Ship" [ref=f4e103] [cursor=pointer]
+          - button "Made to Order" [ref=f4e104] [cursor=pointer]
+          - combobox "Sort dresses" [ref=f4e106] [cursor=pointer]:
+            - 'option "Sort: Featured" [selected]'
+            - 'option "Price: Low to High"'
+            - 'option "Price: High to Low"'
+            - option "Newest First"
+      - generic [ref=f4e107]:
+        - article [ref=f4e108]:
+          - link "Barbie dress 6M–4T New" [ref=f4e109] [cursor=pointer]:
+            - /url: /dresses/25aad77d-256e-406d-bb66-b56bb0b1d852
+            - generic [ref=f4e110]:
+              - img "Barbie dress" [ref=f4e111]
+              - generic [ref=f4e112]: 6M–4T
+              - generic [ref=f4e114]: New
+          - generic [ref=f4e116]:
+            - paragraph [ref=f4e117]: Premium quality Imported satin materials.
+            - link [ref=f4e118] [cursor=pointer]:
+              - /url: /dresses/25aad77d-256e-406d-bb66-b56bb0b1d852
+              - heading "Barbie dress" [level=3] [ref=f4e119]
+            - paragraph [ref=f4e120]: ৳ 3,200
+            - generic [ref=f4e121]: In Stock (6M–4T)
+            - link "View Dress" [ref=f4e122] [cursor=pointer]:
+              - /url: /dresses/25aad77d-256e-406d-bb66-b56bb0b1d852
+        - article [ref=f4e123]:
+          - link "Mermaid theme dress Out of Stock New" [ref=f4e124] [cursor=pointer]:
+            - /url: /dresses/d9b8d400-11e6-453c-81b2-21e49eaedf81
+            - generic [ref=f4e125]:
+              - img "Mermaid theme dress" [ref=f4e126]
+              - generic [ref=f4e127]: Out of Stock
+              - generic [ref=f4e129]: New
+          - generic [ref=f4e131]:
+            - paragraph [ref=f4e132]: 100% Organic Soft Cotton Voile
+            - link [ref=f4e133] [cursor=pointer]:
+              - /url: /dresses/d9b8d400-11e6-453c-81b2-21e49eaedf81
+              - heading "Mermaid theme dress" [level=3] [ref=f4e134]
+            - paragraph [ref=f4e135]: ৳ 5,500
+            - generic [ref=f4e136]: Currently Sold Out
+            - link "View Dress" [ref=f4e137] [cursor=pointer]:
+              - /url: /dresses/d9b8d400-11e6-453c-81b2-21e49eaedf81
+        - article [ref=f4e138]:
+          - link "Ivory Silk Organza Heirloom Gown Out of Stock" [ref=f4e139] [cursor=pointer]:
+            - /url: /dresses/22222222-2222-4222-8222-222222222222
+            - generic [ref=f4e140]:
+              - img "Ivory Silk Organza Heirloom Gown" [ref=f4e141]
+              - generic [ref=f4e142]: Out of Stock
+          - generic [ref=f4e144]:
+            - paragraph [ref=f4e145]: Pure Mulberry Silk Organza outer layer
+            - link [ref=f4e146] [cursor=pointer]:
+              - /url: /dresses/22222222-2222-4222-8222-222222222222
+              - heading "Ivory Silk Organza Heirloom Gown" [level=3] [ref=f4e147]
+            - paragraph [ref=f4e148]: ৳ 4,800
+            - generic [ref=f4e149]: Currently Sold Out
+            - link "View Dress" [ref=f4e150] [cursor=pointer]:
+              - /url: /dresses/22222222-2222-4222-8222-222222222222
+        - article [ref=f4e151]:
+          - link "Test 6M–18M New" [ref=f4e152] [cursor=pointer]:
+            - /url: /dresses/14a2085e-f797-4ce7-acd9-0d6c80b2e316
+            - generic [ref=f4e153]:
+              - img "Test" [ref=f4e154]
+              - generic [ref=f4e155]: 6M–18M
+              - generic [ref=f4e157]: New
+          - generic [ref=f4e159]:
+            - paragraph [ref=f4e160]: 100% Organic Soft Cotton Voile
+            - link [ref=f4e161] [cursor=pointer]:
+              - /url: /dresses/14a2085e-f797-4ce7-acd9-0d6c80b2e316
+              - heading "Test" [level=3] [ref=f4e162]
+            - paragraph [ref=f4e163]: ৳ 3,200
+            - generic [ref=f4e164]: In Stock (6M–18M)
+            - link "View Dress" [ref=f4e165] [cursor=pointer]:
+              - /url: /dresses/14a2085e-f797-4ce7-acd9-0d6c80b2e316
+        - article [ref=f4e166]:
+          - link "Vintage Rose Smocked Cotton Dress Out of Stock" [ref=f4e167] [cursor=pointer]:
+            - /url: /dresses/11111111-1111-4111-8111-111111111111
+            - generic [ref=f4e168]:
+              - img "Vintage Rose Smocked Cotton Dress" [ref=f4e169]
+              - generic [ref=f4e170]: Out of Stock
+          - generic [ref=f4e172]:
+            - paragraph [ref=f4e173]: 100% Organic Soft Voile Cotton
+            - link [ref=f4e174] [cursor=pointer]:
+              - /url: /dresses/11111111-1111-4111-8111-111111111111
+              - heading "Vintage Rose Smocked Cotton Dress" [level=3] [ref=f4e175]
+            - paragraph [ref=f4e176]: ৳ 3,800
+            - generic [ref=f4e177]: Currently Sold Out
+            - link "View Dress" [ref=f4e178] [cursor=pointer]:
+              - /url: /dresses/11111111-1111-4111-8111-111111111111
+  - contentinfo [ref=f4e179]:
+    - generic [ref=f4e180]:
+      - generic [ref=f4e181]:
+        - heading "Ababil’s Attire" [level=2] [ref=f4e182]
+        - paragraph [ref=f4e183]: by Sanjida Bethi
+        - paragraph [ref=f4e184]: Sweet handmade dresses for little girls and delicious homemade cakes for your family celebrations.
+      - generic [ref=f4e185]:
+        - link "WhatsApp" [ref=f4e186] [cursor=pointer]:
+          - /url: https://wa.me/8801712345678?text=Assalamu%20Alaikum%20Sanjida%20Apu%2C%20I%20would%20like%20to%20inquire%20about%20placing%20an%20order%20at%20Ababil%E2%80%99s%20Attire.
+          - generic [ref=f4e187]: chat
+        - link "Instagram" [ref=f4e188] [cursor=pointer]:
+          - /url: https://instagram.com/ababils.attire
+          - generic [ref=f4e189]: photo_camera
+        - link "Email Studio" [ref=f4e190] [cursor=pointer]:
+          - /url: mailto:concierge@ababilsattire.com
+          - generic [ref=f4e191]: mail
+      - generic [ref=f4e192]:
+        - link "Dresses Collection" [ref=f4e193] [cursor=pointer]:
+          - /url: /dresses
+        - link "Cake Ordering Guide" [ref=f4e194] [cursor=pointer]:
+          - /url: /cakes
+        - link "Track Your Order" [ref=f4e195] [cursor=pointer]:
+          - /url: /track-order
+        - link "Custom Orders" [ref=f4e196] [cursor=pointer]:
+          - /url: /contact
+        - link "Our Story" [ref=f4e197] [cursor=pointer]:
+          - /url: /about
+        - generic "Dhaka Studio Atelier" [ref=f4e198]: Dhaka Atelier
+      - paragraph [ref=f4e200]: © 2026 Ababil’s Attire by Sanjida Bethi. All Rights Reserved. Handmade Dresses & Homemade Cakes • Banani, Dhaka.

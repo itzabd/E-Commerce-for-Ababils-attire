@@ -1,0 +1,385 @@
+- generic [ref=f3e6]:
+  - generic [ref=f3e8]:
+    - generic [ref=f3e9]:
+      - generic [ref=f3e10]: auto_awesome
+      - generic [ref=f3e11]: Dhaka Atelier • Sweet Handcrafted Dresses & Celebration Cakes
+    - generic [ref=f3e12]:
+      - generic [ref=f3e13]: "bKash Advance Reservation: ৳500"
+      - generic [ref=f3e14]: •
+      - link "chat WhatsApp Atelier" [ref=f3e15] [cursor=pointer]:
+        - /url: https://wa.me/8801712345678?text=Assalamu%20Alaikum%20Sanjida%20Apu%2C%20I%20would%20like%20to%20inquire%20about%20an%20order.
+        - generic [ref=f3e16]: chat
+        - generic [ref=f3e17]: WhatsApp Atelier
+  - banner [ref=f3e18]:
+    - generic [ref=f3e19]:
+      - navigation "Main Navigation" [ref=f3e21]:
+        - link "Home" [ref=f3e22] [cursor=pointer]:
+          - /url: /
+        - link "Dresses" [ref=f3e23] [cursor=pointer]:
+          - /url: /dresses
+        - link "Cakes" [ref=f3e24] [cursor=pointer]:
+          - /url: /cakes
+        - link "Our Story" [ref=f3e25] [cursor=pointer]:
+          - /url: /about
+        - link "Custom Orders & Contact" [ref=f3e26] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f3e27]:
+        - link "Ababil’s Attire by Sanjida Bethi" [ref=f3e28] [cursor=pointer]:
+          - /url: /
+        - button "Handmade Dresses & Homemade Cakes by Sanjida Bethi" [ref=f3e30]
+      - generic [ref=f3e31]:
+        - link "shield_person Admin" [ref=f3e32] [cursor=pointer]:
+          - /url: /admin
+          - generic [ref=f3e33]: shield_person
+          - generic [ref=f3e34]: Admin
+        - link "Track Order" [ref=f3e35] [cursor=pointer]:
+          - /url: /track-order
+          - generic [ref=f3e36]: local_shipping
+        - link "Shopping Bag (0 items)" [ref=f3e37] [cursor=pointer]:
+          - /url: /bag
+          - generic [ref=f3e38]: shopping_bag
+  - complementary [ref=f3e39]:
+    - generic [ref=f3e40]:
+      - generic [ref=f3e41]:
+        - heading "Ababil’s Attire" [level=2] [ref=f3e42]
+        - paragraph [ref=f3e43]: by Sanjida Bethi
+        - generic [ref=f3e44]: Handmade Dresses & Homemade Cakes
+      - button "Close menu" [ref=f3e45] [cursor=pointer]:
+        - generic [ref=f3e46]: close
+    - navigation [ref=f3e47]:
+      - link "storefront Home" [ref=f3e48] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f3e49]: storefront
+        - generic [ref=f3e50]: Home
+      - link "checkroom Handmade Dresses" [ref=f3e51] [cursor=pointer]:
+        - /url: /dresses
+        - generic [ref=f3e52]: checkroom
+        - generic [ref=f3e53]: Handmade Dresses
+      - link "cake Fresh Cakes" [ref=f3e54] [cursor=pointer]:
+        - /url: /cakes
+        - generic [ref=f3e55]: cake
+        - generic [ref=f3e56]: Fresh Cakes
+      - link "shopping_bag My Bag" [ref=f3e57] [cursor=pointer]:
+        - /url: /bag
+        - generic [ref=f3e58]: shopping_bag
+        - generic [ref=f3e59]: My Bag
+      - link "auto_stories Our Story" [ref=f3e60] [cursor=pointer]:
+        - /url: /about
+        - generic [ref=f3e61]: auto_stories
+        - generic [ref=f3e62]: Our Story
+      - link "edit_calendar Custom Orders & Contact" [ref=f3e63] [cursor=pointer]:
+        - /url: /contact
+        - generic [ref=f3e64]: edit_calendar
+        - generic [ref=f3e65]: Custom Orders & Contact
+      - link "local_shipping Track Order" [ref=f3e66] [cursor=pointer]:
+        - /url: /track-order
+        - generic [ref=f3e67]: local_shipping
+        - generic [ref=f3e68]: Track Order
+      - link "admin_panel_settings Admin Suite" [ref=f3e69] [cursor=pointer]:
+        - /url: /admin
+        - generic [ref=f3e70]: admin_panel_settings
+        - generic [ref=f3e71]: Admin Suite
+    - generic [ref=f3e72]:
+      - paragraph [ref=f3e73]: "\"Stitched with love, baked with care.\""
+      - generic [ref=f3e74]:
+        - paragraph [ref=f3e75]: Banani Studio • Dhaka, Bangladesh
+        - button "Studio Lock" [ref=f3e76] [cursor=pointer]:
+          - generic [ref=f3e77]: lock
+  - main [ref=f3e78]:
+    - generic [ref=f3e79]:
+      - generic [ref=f3e80]:
+        - generic [ref=f3e81]:
+          - img "Handmade baby dress and celebration cake in sunlit studio" [ref=f3e82]
+          - generic [ref=f3e84]:
+            - generic [ref=f3e85]: Handmade with Love
+            - generic [ref=f3e86]: Custom Orders & Worldwide Delivery
+        - generic [ref=f3e87]:
+          - paragraph [ref=f3e88]: MADE WITH LOVE BY SANJIDA BETHI
+          - heading "Handmade Dresses & Homemade Cakes, Crafted with Care" [level=1] [ref=f3e89]
+          - paragraph [ref=f3e90]: Sweet handmade dresses for little girls and delicious homemade cakes, baked and sewn with love for your special family celebrations in Dhaka.
+          - generic [ref=f3e91]:
+            - link "Explore Dresses" [ref=f3e92] [cursor=pointer]:
+              - /url: /dresses
+            - link "Explore Cakes" [ref=f3e93] [cursor=pointer]:
+              - /url: /cakes
+      - generic [ref=f3e94]:
+        - generic [ref=f3e95]:
+          - generic [ref=f3e96]: OUR FAVORITES
+          - heading "Shop by Collection" [level=2] [ref=f3e97]
+        - generic [ref=f3e98]:
+          - article [ref=f3e99]:
+            - img "Handcrafted girls dresses" [ref=f3e101]
+            - generic [ref=f3e102]:
+              - generic [ref=f3e103]:
+                - heading "Girls' Handmade Dresses" [level=3] [ref=f3e104]
+                - generic [ref=f3e105]: arrow_forward
+              - paragraph [ref=f3e106]: Soft, comfortable dresses made with gentle cotton and linen for your little girl’s sweetest days.
+              - link "See All Dresses →" [ref=f3e108] [cursor=pointer]:
+                - /url: /dresses
+          - article [ref=f3e109]:
+            - img "Homemade celebration cakes" [ref=f3e111]
+            - generic [ref=f3e112]:
+              - generic [ref=f3e113]:
+                - heading "Homemade Celebration Cakes" [level=3] [ref=f3e114]
+                - generic [ref=f3e115]: arrow_forward
+              - paragraph [ref=f3e116]: Freshly baked cakes made from scratch with pure butter and real ingredients, decorated just for your party.
+              - link "See All Cakes →" [ref=f3e118] [cursor=pointer]:
+                - /url: /cakes
+      - generic [ref=f3e119]:
+        - generic [ref=f3e120]:
+          - generic [ref=f3e121]: LITTLE GIRLS' DRESSES
+          - heading "Featured Dresses" [level=2] [ref=f3e122]
+          - paragraph [ref=f3e123]: Made with soft, breathable fabrics and sweet hand-stitched details.
+          - link "See All Dresses (16+)" [ref=f3e125] [cursor=pointer]:
+            - /url: /dresses
+        - generic [ref=f3e126]:
+          - article [ref=f3e127]:
+            - link "Barbie dress 6M–4T New" [ref=f3e128] [cursor=pointer]:
+              - /url: /dresses/25aad77d-256e-406d-bb66-b56bb0b1d852
+              - generic [ref=f3e129]:
+                - img "Barbie dress" [ref=f3e130]
+                - generic [ref=f3e131]: 6M–4T
+                - generic [ref=f3e133]: New
+            - generic [ref=f3e135]:
+              - paragraph [ref=f3e136]: Premium quality Imported satin materials.
+              - link [ref=f3e137] [cursor=pointer]:
+                - /url: /dresses/25aad77d-256e-406d-bb66-b56bb0b1d852
+                - heading "Barbie dress" [level=3] [ref=f3e138]
+              - paragraph [ref=f3e139]: ৳ 3,200
+              - generic [ref=f3e140]: In Stock (6M–4T)
+              - link "View Dress" [ref=f3e141] [cursor=pointer]:
+                - /url: /dresses/25aad77d-256e-406d-bb66-b56bb0b1d852
+          - article [ref=f3e142]:
+            - link "Mermaid theme dress Out of Stock New" [ref=f3e143] [cursor=pointer]:
+              - /url: /dresses/d9b8d400-11e6-453c-81b2-21e49eaedf81
+              - generic [ref=f3e144]:
+                - img "Mermaid theme dress" [ref=f3e145]
+                - generic [ref=f3e146]: Out of Stock
+                - generic [ref=f3e148]: New
+            - generic [ref=f3e150]:
+              - paragraph [ref=f3e151]: 100% Organic Soft Cotton Voile
+              - link [ref=f3e152] [cursor=pointer]:
+                - /url: /dresses/d9b8d400-11e6-453c-81b2-21e49eaedf81
+                - heading "Mermaid theme dress" [level=3] [ref=f3e153]
+              - paragraph [ref=f3e154]: ৳ 5,500
+              - generic [ref=f3e155]: Currently Sold Out
+              - link "View Dress" [ref=f3e156] [cursor=pointer]:
+                - /url: /dresses/d9b8d400-11e6-453c-81b2-21e49eaedf81
+          - article [ref=f3e157]:
+            - link "Ivory Silk Organza Heirloom Gown Out of Stock" [ref=f3e158] [cursor=pointer]:
+              - /url: /dresses/22222222-2222-4222-8222-222222222222
+              - generic [ref=f3e159]:
+                - img "Ivory Silk Organza Heirloom Gown" [ref=f3e160]
+                - generic [ref=f3e161]: Out of Stock
+            - generic [ref=f3e163]:
+              - paragraph [ref=f3e164]: Pure Mulberry Silk Organza outer layer
+              - link [ref=f3e165] [cursor=pointer]:
+                - /url: /dresses/22222222-2222-4222-8222-222222222222
+                - heading "Ivory Silk Organza Heirloom Gown" [level=3] [ref=f3e166]
+              - paragraph [ref=f3e167]: ৳ 4,800
+              - generic [ref=f3e168]: Currently Sold Out
+              - link "View Dress" [ref=f3e169] [cursor=pointer]:
+                - /url: /dresses/22222222-2222-4222-8222-222222222222
+      - generic [ref=f3e170]:
+        - generic [ref=f3e171]:
+          - generic [ref=f3e172]: HOMEMADE CAKES
+          - heading "Celebration Cakes" [level=2] [ref=f3e173]
+          - paragraph [ref=f3e174]: Baked fresh for your celebration. Please order at least 2 days ahead.
+          - link "See All Cakes" [ref=f3e176] [cursor=pointer]:
+            - /url: /cakes
+        - article [ref=f3e178]:
+          - link "Vintage Lambeth Ruffle Bento Cake 24h Notice Fresh Baked" [ref=f3e179] [cursor=pointer]:
+            - /url: /cakes/55555555-5555-4555-8555-555555555555
+            - generic [ref=f3e180]:
+              - img "Vintage Lambeth Ruffle Bento Cake" [ref=f3e181]
+              - generic [ref=f3e182]: 24h Notice
+              - generic [ref=f3e184]: Fresh Baked
+          - generic [ref=f3e186]:
+            - paragraph [ref=f3e187]:
+              - text: Starts at ৳ 1,650
+              - generic [ref=f3e188]: (0.5 lb Bento)
+            - link [ref=f3e189] [cursor=pointer]:
+              - /url: /cakes/55555555-5555-4555-8555-555555555555
+              - heading "Vintage Lambeth Ruffle Bento Cake" [level=3] [ref=f3e190]
+            - paragraph [ref=f3e191]: Salted Caramel Vanilla
+            - paragraph [ref=f3e192]:
+              - text: ৳ 1,650
+              - generic [ref=f3e193]: (0.5 lb Bento)
+            - link "View Cake" [ref=f3e194] [cursor=pointer]:
+              - /url: /cakes/55555555-5555-4555-8555-555555555555
+      - generic [ref=f3e195]:
+        - generic [ref=f3e196]:
+          - generic [ref=f3e197]: A NOTE FROM THE MAKER
+          - heading "Meet Sanjida Bethi" [level=2] [ref=f3e198]
+          - paragraph [ref=f3e199]: "\"Every stitch in our dresses is placed by hand, and every cake is baked fresh from scratch using pure ingredients—never pre-mixes. We believe family celebrations deserve thoughtful craft.\""
+        - generic [ref=f3e200]:
+          - generic [ref=f3e201]:
+            - generic [ref=f3e202]: favorite
+            - heading "Handmade with Love" [level=3] [ref=f3e204]
+            - paragraph [ref=f3e205]: Every stitch, gather, and ruffle is carefully cut and sewn by hand in our Dhaka studio.
+          - generic [ref=f3e206]:
+            - generic [ref=f3e207]: eco
+            - heading "Real, Fresh Ingredients" [level=3] [ref=f3e209]
+            - paragraph [ref=f3e210]: No artificial mixes. Baked with pure butter, farm-fresh eggs, and real vanilla bean.
+          - generic [ref=f3e211]:
+            - generic [ref=f3e212]: palette
+            - heading "Custom Sizing & Designs" [level=3] [ref=f3e214]
+            - paragraph [ref=f3e215]: Need a custom dress size or specific cake palette? We happily tailor to your event.
+          - generic [ref=f3e216]:
+            - generic [ref=f3e217]: support_agent
+            - heading "Friendly Personal Service" [level=3] [ref=f3e219]
+            - paragraph [ref=f3e220]: Message directly with Sanjida via WhatsApp to consult on dress sizing or cake flavors.
+      - region [ref=f3e221]:
+        - generic [ref=f3e222]:
+          - generic [ref=f3e223]: Love from Mothers
+          - heading "Real WhatsApp & Facebook Reviews" [level=2] [ref=f3e224]
+          - paragraph [ref=f3e225]: Unedited messages, photos, and thank-you notes shared by families across Dhaka after birthdays and celebrations. Tap any screenshot to expand.
+        - generic [ref=f3e226]:
+          - article [ref=f3e227]:
+            - generic [ref=f3e228]:
+              - generic [ref=f3e229]:
+                - generic [ref=f3e230]:
+                  - generic [ref=f3e231]: 💬
+                  - generic [ref=f3e232]: WhatsApp
+                - generic [ref=f3e233]: Yesterday, 9:42 PM
+              - generic "5 out of 5 stars" [ref=f3e234]: ★★★★★
+            - button "Enlarge review screenshot from Dr. Nusrat Jahan" [ref=f3e235] [cursor=pointer]:
+              - img "Screenshot review from Dr. Nusrat Jahan" [ref=f3e236]
+              - generic [ref=f3e237]:
+                - generic [ref=f3e238]: zoom_in
+                - generic [ref=f3e239]: Tap to View Message
+            - generic [ref=f3e240]:
+              - paragraph [ref=f3e241]: “Sanjida Apu, everyone at the dawat was asking where we made Inaya’s dress! The hand smocking on the chest and the organic cotton fabric was so gentle on her skin. She wore it happily the entire evening without any fuss!”
+              - generic [ref=f3e242]:
+                - generic [ref=f3e243]:
+                  - heading "Dr. Nusrat Jahan" [level=4] [ref=f3e244]
+                  - paragraph [ref=f3e245]: Gulshan 2, Dhaka
+                - generic [ref=f3e246]: Aurelia Dress
+          - article [ref=f3e247]:
+            - generic [ref=f3e248]:
+              - generic [ref=f3e249]:
+                - generic [ref=f3e250]:
+                  - generic [ref=f3e251]: 📘
+                  - generic [ref=f3e252]: Facebook
+                - generic [ref=f3e253]: 3 days ago
+              - generic "5 out of 5 stars" [ref=f3e254]: ★★★★★
+            - button "Enlarge review screenshot from Tanzeen Ahmed" [ref=f3e255] [cursor=pointer]:
+              - img "Screenshot review from Tanzeen Ahmed" [ref=f3e256]
+              - generic [ref=f3e257]:
+                - generic [ref=f3e258]: zoom_in
+                - generic [ref=f3e259]: Tap to View Message
+            - generic [ref=f3e260]:
+              - paragraph [ref=f3e261]: “The Madagascar Vanilla Bento Cake was heavenly! Not overly sweet, sponge was super moist, and the chilled van delivery arrived right on time before our celebration. Thank you for making our baby’s milestone so sweet.”
+              - generic [ref=f3e262]:
+                - generic [ref=f3e263]:
+                  - heading "Tanzeen Ahmed" [level=4] [ref=f3e264]
+                  - paragraph [ref=f3e265]: Uttara Sector 4, Dhaka
+                - generic [ref=f3e266]: Vintage Cake
+          - article [ref=f3e267]:
+            - generic [ref=f3e268]:
+              - generic [ref=f3e269]:
+                - generic [ref=f3e270]:
+                  - generic [ref=f3e271]: 💬
+                  - generic [ref=f3e272]: WhatsApp
+                - generic [ref=f3e273]: 5 days ago
+              - generic "5 out of 5 stars" [ref=f3e274]: ★★★★★
+            - button "Enlarge review screenshot from Farhana Rahman" [ref=f3e275] [cursor=pointer]:
+              - img "Screenshot review from Farhana Rahman" [ref=f3e276]
+              - generic [ref=f3e277]:
+                - generic [ref=f3e278]: zoom_in
+                - generic [ref=f3e279]: Tap to View Message
+            - generic [ref=f3e280]:
+              - paragraph [ref=f3e281]: “Sharing Maya’s 1st birthday shoot photo! Look at the mother-of-pearl buttons and neat French seams. The matching bow headband was such a thoughtful surprise. Submitting another order for Eid soon in sha Allah!”
+              - generic [ref=f3e282]:
+                - generic [ref=f3e283]:
+                  - heading "Farhana Rahman" [level=4] [ref=f3e284]
+                  - paragraph [ref=f3e285]: Dhanmondi, Dhaka
+                - generic [ref=f3e286]: Zoya Cake
+          - article [ref=f3e287]:
+            - generic [ref=f3e288]:
+              - generic [ref=f3e289]:
+                - generic [ref=f3e290]:
+                  - generic [ref=f3e291]: 📘
+                  - generic [ref=f3e292]: Facebook
+                - generic [ref=f3e293]: Last week
+              - generic "5 out of 5 stars" [ref=f3e294]: ★★★★★
+            - button "Enlarge review screenshot from Maliha Chowdhury" [ref=f3e295] [cursor=pointer]:
+              - img "Screenshot review from Maliha Chowdhury" [ref=f3e296]
+              - generic [ref=f3e297]:
+                - generic [ref=f3e298]: zoom_in
+                - generic [ref=f3e299]: Tap to View Message
+            - generic [ref=f3e300]:
+              - paragraph [ref=f3e301]: “Such clean presentation and love the bKash advance transparency. Sanjida personally called within 10 minutes to verify the child’s chest measurements. That kind of personal boutique care is rare in Dhaka nowadays.”
+              - generic [ref=f3e302]:
+                - generic [ref=f3e303]:
+                  - heading "Maliha Chowdhury" [level=4] [ref=f3e304]
+                  - paragraph [ref=f3e305]: Bashundhara R/A, Dhaka
+                - generic [ref=f3e306]: Pastel Cake
+          - article [ref=f3e307]:
+            - generic [ref=f3e308]:
+              - generic [ref=f3e309]:
+                - generic [ref=f3e310]:
+                  - generic [ref=f3e311]: 💬
+                  - generic [ref=f3e312]: WhatsApp
+                - generic [ref=f3e313]: Last Friday
+              - generic "5 out of 5 stars" [ref=f3e314]: ★★★★★
+            - button "Enlarge review screenshot from Dr. Sabrina Islam" [ref=f3e315] [cursor=pointer]:
+              - img "Screenshot review from Dr. Sabrina Islam" [ref=f3e316]
+              - generic [ref=f3e317]:
+                - generic [ref=f3e318]: zoom_in
+                - generic [ref=f3e319]: Tap to View Message
+            - generic [ref=f3e320]:
+              - paragraph [ref=f3e321]: “Apu, received both the Ivory Silk Organza gown and the Vanilla Lambeth cake! The delivery van arrived on time and the cake was chilled in flawless condition. Everyone loved it!”
+              - generic [ref=f3e322]:
+                - generic [ref=f3e323]:
+                  - heading "Dr. Sabrina Islam" [level=4] [ref=f3e324]
+                  - paragraph [ref=f3e325]: Banani, Dhaka
+                - generic [ref=f3e326]: Ivory Cake
+      - generic [ref=f3e328]:
+        - generic [ref=f3e329]: local_shipping
+        - generic [ref=f3e331]:
+          - heading "Track Your Order" [level=2] [ref=f3e332]
+          - paragraph [ref=f3e333]: Already placed an order? Enter your order number or invoice code to see tailoring and baking progress.
+        - generic [ref=f3e334]:
+          - textbox "e.g. AA-84920 or 01711..." [ref=f3e335]
+          - button "Check Order Status search" [ref=f3e336] [cursor=pointer]:
+            - generic [ref=f3e337]: Check Order Status
+            - generic [ref=f3e338]: search
+      - generic [ref=f3e340]:
+        - generic [ref=f3e341]: LET'S CELEBRATE
+        - heading "Have a Special Day Coming Up?" [level=2] [ref=f3e342]
+        - paragraph [ref=f3e343]: Whether you’re dressing your little one for a birthday or planning a yummy cake, we'd love to help make your family milestone unforgettable.
+        - generic [ref=f3e344]:
+          - link "Shop Girls' Dresses" [ref=f3e345] [cursor=pointer]:
+            - /url: /dresses
+          - link "Ask About a Custom Cake 💬" [ref=f3e346] [cursor=pointer]:
+            - /url: https://wa.me/8801712345678?text=Assalamu%20Alaikum%20Sanjida%20Apu%2C%20I%20would%20like%20to%20ask%20about%20designing%20a%20custom%20celebration%20cake.
+  - contentinfo [ref=f3e347]:
+    - generic [ref=f3e348]:
+      - generic [ref=f3e349]:
+        - heading "Ababil’s Attire" [level=2] [ref=f3e350]
+        - paragraph [ref=f3e351]: by Sanjida Bethi
+        - paragraph [ref=f3e352]: Sweet handmade dresses for little girls and delicious homemade cakes for your family celebrations.
+      - generic [ref=f3e353]:
+        - link "WhatsApp" [ref=f3e354] [cursor=pointer]:
+          - /url: https://wa.me/8801712345678?text=Assalamu%20Alaikum%20Sanjida%20Apu%2C%20I%20would%20like%20to%20inquire%20about%20placing%20an%20order%20at%20Ababil%E2%80%99s%20Attire.
+          - generic [ref=f3e355]: chat
+        - link "Instagram" [ref=f3e356] [cursor=pointer]:
+          - /url: https://instagram.com/ababils.attire
+          - generic [ref=f3e357]: photo_camera
+        - link "Email Studio" [ref=f3e358] [cursor=pointer]:
+          - /url: mailto:concierge@ababilsattire.com
+          - generic [ref=f3e359]: mail
+      - generic [ref=f3e360]:
+        - link "Dresses Collection" [ref=f3e361] [cursor=pointer]:
+          - /url: /dresses
+        - link "Cake Ordering Guide" [ref=f3e362] [cursor=pointer]:
+          - /url: /cakes
+        - link "Track Your Order" [ref=f3e363] [cursor=pointer]:
+          - /url: /track-order
+        - link "Custom Orders" [ref=f3e364] [cursor=pointer]:
+          - /url: /contact
+        - link "Our Story" [ref=f3e365] [cursor=pointer]:
+          - /url: /about
+        - generic "Dhaka Studio Atelier" [ref=f3e366]: Dhaka Atelier
+      - paragraph [ref=f3e368]: © 2026 Ababil’s Attire by Sanjida Bethi. All Rights Reserved. Handmade Dresses & Homemade Cakes • Banani, Dhaka.
