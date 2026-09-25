@@ -144,7 +144,15 @@ export const AdminSettings: React.FC = () => {
     try {
       const data = await settingsService.getSettings();
       setInitialSettings(data);
-      setForm(JSON.parse(JSON.stringify(data)));
+      // Restore unsaved draft if user navigated between tabs without saving
+      let activeData = data;
+      try {
+        const savedDraft = sessionStorage.getItem('ababil_admin_settings_draft');
+        if (savedDraft) {
+          activeData = { ...data, ...JSON.parse(savedDraft) };
+        }
+      } catch {}
+      setForm(JSON.parse(JSON.stringify(activeData)));
     } catch (err) {
       console.error('Failed to load settings:', err);
       showToast('Could not load settings from server. Using local defaults.');
@@ -277,12 +285,25 @@ export const AdminSettings: React.FC = () => {
 
   const hasUnsavedChanges = unsavedCount > 0;
 
+  // Persist unsaved draft in sessionStorage so navigating away or switching tabs doesn't discard progress
+  useEffect(() => {
+    if (!form || !initialSettings) return;
+    try {
+      if (unsavedCount > 0) {
+        sessionStorage.setItem('ababil_admin_settings_draft', JSON.stringify(form));
+      } else {
+        sessionStorage.removeItem('ababil_admin_settings_draft');
+      }
+    } catch {}
+  }, [form, initialSettings, unsavedCount]);
+
   // Save Settings
   const handleSave = async () => {
     if (!form) return;
     setIsSaving(true);
     try {
       const updated = await settingsService.updateSettings(form);
+      try { sessionStorage.removeItem('ababil_admin_settings_draft'); } catch {}
       setInitialSettings(updated);
       setForm(JSON.parse(JSON.stringify(updated)));
       showToast('Store settings successfully updated and deployed.');
@@ -297,6 +318,7 @@ export const AdminSettings: React.FC = () => {
   // Discard Changes
   const handleDiscard = () => {
     if (window.confirm('Discard all unsaved boutique settings changes? Unsaved edits will be reverted.')) {
+      try { sessionStorage.removeItem('ababil_admin_settings_draft'); } catch {}
       if (initialSettings) {
         setForm(JSON.parse(JSON.stringify(initialSettings)));
       }
