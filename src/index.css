@@ -1000,6 +1000,277 @@ input, select, textarea {
   }
 }
 
+/* ==============================================================================
+   DESKTOP STITCH COMPONENT ARCHITECTURES (Project 13092249108045248978)
+   ============================================================================== */
+
+/* 18. Stitch Desktop 4-Column Footer */
+.stitch-desktop-footer {
+  display: none;
+  background-color: #f5f3ef;
+  border-top: 1px solid rgba(223, 216, 206, 0.7);
+  box-shadow: 0 -1px 12px rgba(92, 62, 54, 0.03);
+  width: 100%;
+  margin-top: auto;
+}
+
+.stitch-desktop-footer-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 48px 3rem 32px 3rem;
+}
+
+.stitch-desktop-footer-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 0.9fr 0.9fr 1.1fr;
+  gap: 40px;
+  margin-bottom: 40px;
+}
+
+.stitch-desktop-footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stitch-desktop-footer-brand-title {
+  font-family: 'Bodoni Moda', Georgia, serif;
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 500;
+  color: #432821;
+}
+
+.stitch-desktop-footer-desc {
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  line-height: 20px;
+  color: #504441;
+  margin: 0;
+}
+
+.stitch-desktop-footer-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #7e544f;
+}
+
+.stitch-desktop-footer-col-title {
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #432821;
+  margin-bottom: 6px;
+}
+
+.stitch-desktop-footer-link {
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  color: #504441;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.stitch-desktop-footer-link:hover {
+  color: #432821;
+}
+
+.stitch-desktop-footer-address,
+.stitch-desktop-footer-phone {
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  line-height: 20px;
+  color: #504441;
+  margin: 0;
+}
+
+.stitch-desktop-footer-phone {
+  font-weight: 600;
+  color: #432821;
+  margin-top: 4px;
+}
+
+.stitch-desktop-footer-journal {
+  margin-top: 10px;
+}
+
+.stitch-desktop-footer-journal-label {
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #504441;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.stitch-desktop-footer-journal-input-wrap {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  border-radius: 9999px;
+  padding: 4px 6px 4px 14px;
+  border: 1px solid rgba(223, 216, 206, 0.8);
+  box-shadow: 0 2px 8px rgba(92, 62, 54, 0.04);
+}
+
+.stitch-desktop-footer-journal-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  color: #504441;
+  flex: 1;
+}
+
+.stitch-desktop-footer-journal-btn {
+  background-color: #432821;
+  color: #ffffff;
+  border: none;
+  border-radius: 9999px;
+  padding: 6px 16px;
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.stitch-desktop-footer-journal-btn:hover {
+  background-color: #5c3e36;
+}
+
+.stitch-desktop-footer-bottom {
+  border-top: 1px solid rgba(223, 216, 206, 0.6);
+  padding-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px;
+  color: #504441;
+}
+
+.stitch-desktop-footer-bottom-tags {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* 19. Responsive Layouts & Catalog 4-Column Grids (Desktop >= 960px) */
+@media (min-width: 960px) {
+  .stitch-desktop-footer {
+    display: block !important;
+  }
+  .stitch-mobile-footer {
+    display: none !important;
+  }
+
+  /* Catalog Grids: 4 Columns */
+  .customer-products-grid,
+  .home-products-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 24px !important;
+  }
+
+  /* Home Dual Categories (50/50 Split) */
+  .home-dual-collection-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 32px !important;
+  }
+  .home-collection-card {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+  }
+  .home-collection-card > div:first-child {
+    width: 220px !important;
+    height: 180px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Home Artisan Pillars: 4 Columns */
+  .home-pillars-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 24px !important;
+  }
+
+  /* Checkout Desktop: 2 Columns (60% Form / 40% Order & Payment) */
+  .checkout-page-canvas {
+    max-width: 1280px !important;
+    margin: 0 auto !important;
+    padding: 32px 3rem 64px 3rem !important;
+  }
+  .checkout-form-desktop-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.95fr) !important;
+    gap: 40px !important;
+    align-items: start !important;
+  }
+  .checkout-desktop-left-col {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 24px !important;
+  }
+  .checkout-desktop-right-col {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 24px !important;
+    position: sticky !important;
+    top: 130px !important;
+  }
+
+  /* My Bag Desktop: 2 Columns (Cart Items + Sticky Order Summary) */
+  .cart-grid-desktop {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.85fr) !important;
+    gap: 40px !important;
+    align-items: start !important;
+  }
+  .cart-summary-desktop {
+    position: sticky !important;
+    top: 130px !important;
+  }
+
+  /* PDP (Dress & Cake Detail): 2 Columns (50/50 Split Gallery + Info) */
+  .pdp-details-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr) !important;
+    gap: 48px !important;
+    align-items: start !important;
+  }
+  .pdp-gallery-section {
+    position: sticky !important;
+    top: 130px !important;
+  }
+}
+
+@media (max-width: 959px) {
+  .stitch-desktop-footer {
+    display: none !important;
+  }
+  .stitch-mobile-footer {
+    display: block !important;
+  }
+}
+
 
 
 

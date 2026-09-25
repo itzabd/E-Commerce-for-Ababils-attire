@@ -562,9 +562,89 @@ export const CustomerLayout: React.FC = () => {
       </main>
 
       {/* ================================================================= */}
-      {/* ATELIER FOOTER (Anchor Implementation)                            */}
+      {/* 2A. STITCH DESKTOP 4-COLUMN FOOTER (Visible >= 960px)             */}
       {/* ================================================================= */}
-      <footer style={styles.footer} className="customer-footer">
+      <footer className="stitch-desktop-footer">
+        <div className="stitch-desktop-footer-inner">
+          <div className="stitch-desktop-footer-grid">
+            {/* Column 1: Brand & Guild Standard */}
+            <div className="stitch-desktop-footer-col">
+              <span className="stitch-desktop-footer-brand-title">
+                {mainBrandName || "Ababil’s Attire"}
+              </span>
+              <p className="stitch-desktop-footer-desc">
+                Handcrafted heirloom dresses tailored with pure organic threads alongside bespoke celebration confections designed for timeless memories.
+              </p>
+              <div className="stitch-desktop-footer-badge">
+                <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#7e544f' }}>
+                  verified
+                </span>
+                <span>Dhaka Artisan Guild Standard</span>
+              </div>
+            </div>
+
+            {/* Column 2: Collections */}
+            <div className="stitch-desktop-footer-col">
+              <span className="stitch-desktop-footer-col-title">Collections</span>
+              <Link to="/dresses" className="stitch-desktop-footer-link">Heirloom Dresses</Link>
+              <Link to="/cakes" className="stitch-desktop-footer-link">Celebration Cakes</Link>
+              <Link to="/cakes" className="stitch-desktop-footer-link">Bento Confections</Link>
+              <Link to="/contact" className="stitch-desktop-footer-link">Custom Commissions</Link>
+            </div>
+
+            {/* Column 3: Customer Care */}
+            <div className="stitch-desktop-footer-col">
+              <span className="stitch-desktop-footer-col-title">Customer Care</span>
+              <Link to="/track-order" className="stitch-desktop-footer-link">Cake Ordering Policy</Link>
+              <Link to="/track-order" className="stitch-desktop-footer-link">Delivery in Dhaka</Link>
+              <Link to="/dresses" className="stitch-desktop-footer-link">Sizing &amp; Tailoring Guide</Link>
+              <Link to="/about" className="stitch-desktop-footer-link">Care &amp; Preservation</Link>
+            </div>
+
+            {/* Column 4: Atelier Studio */}
+            <div className="stitch-desktop-footer-col">
+              <span className="stitch-desktop-footer-col-title">Atelier Studio</span>
+              <p className="stitch-desktop-footer-address">
+                House 14, Road 7, Sector 3<br />
+                Uttara, Dhaka, Bangladesh
+              </p>
+              <p className="stitch-desktop-footer-phone">
+                WhatsApp: {storeSettings?.whatsapp_number || storeSettings?.contact_phone || '+880 1712-345678'}
+              </p>
+              <div className="stitch-desktop-footer-journal">
+                <span className="stitch-desktop-footer-journal-label">Join the Atelier Journal</span>
+                <div className="stitch-desktop-footer-journal-input-wrap">
+                  <input
+                    type="email"
+                    placeholder="Enter your email"
+                    className="stitch-desktop-footer-journal-input"
+                  />
+                  <button type="button" className="stitch-desktop-footer-journal-btn">
+                    Join
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="stitch-desktop-footer-bottom">
+            <span>© {new Date().getFullYear()} Ababil’s Attire by Sanjida Bethi. All rights reserved.</span>
+            <div className="stitch-desktop-footer-bottom-tags">
+              <span>Bespoke Craftsmanship</span>
+              <span>•</span>
+              <span>Fresh Baked Daily</span>
+              <span>•</span>
+              <span>Dhaka Citywide Delivery</span>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      {/* ================================================================= */}
+      {/* 2B. PROTECTED MOBILE FOOTER (Visible < 960px)                      */}
+      {/* ================================================================= */}
+      <footer style={styles.footer} className="customer-footer stitch-mobile-footer">
         <div style={styles.footerInner}>
           {/* Brand Header */}
           <div style={styles.footerBrandSection}>
