@@ -12,6 +12,9 @@ const STORAGE_SETTINGS_KEY = 'ababil_admin_store_settings';
 export const DEFAULT_STORE_SETTINGS: StoreSettings = {
   store_name: 'Ababil’s Attire by Sanjida Bethi',
   logo_url: null,
+  hero_banner_url: 'https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=1200&q=80',
+  dresses_collection_url: 'https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?auto=format&fit=crop&w=900&q=80',
+  cakes_collection_url: 'https://images.unsplash.com/photo-1535141192574-5d4897c13136?auto=format&fit=crop&w=900&q=80',
   business_email: 'sanjida@ababilsattire.com',
   contact_phone: '+880 1712-345678',
   whatsapp_number: '+880 1712-345678',
@@ -85,7 +88,7 @@ export const settingsService = {
   async getSettings(): Promise<StoreSettings> {
     const local = getLocalSettings();
     const storedLogo = typeof window !== 'undefined' ? localStorage.getItem('ababil_store_logo') : null;
-    const fallbackLogo = storedLogo || local.logo_url || 'https://tufmjeeodmfnrubkkqya.supabase.co/storage/v1/object/public/product-images/branding/store_logo.png';
+    const fallbackLogo = storedLogo || local.logo_url || null;
 
     if (isSupabaseConfigured()) {
       try {
@@ -95,6 +98,9 @@ export const settingsService = {
             ...DEFAULT_STORE_SETTINGS,
             ...data,
             logo_url: data.logo_url || fallbackLogo,
+            hero_banner_url: data.hero_banner_url || local.hero_banner_url || DEFAULT_STORE_SETTINGS.hero_banner_url,
+            dresses_collection_url: data.dresses_collection_url || local.dresses_collection_url || DEFAULT_STORE_SETTINGS.dresses_collection_url,
+            cakes_collection_url: data.cakes_collection_url || local.cakes_collection_url || DEFAULT_STORE_SETTINGS.cakes_collection_url,
             minimum_advance_amount: Number(data.minimum_advance_amount ?? 500),
             delivery_inside_dhaka: Number(data.delivery_inside_dhaka ?? 80),
             delivery_outside_dhaka: Number(data.delivery_outside_dhaka ?? 150),
@@ -153,6 +159,9 @@ export const settingsService = {
             ...DEFAULT_STORE_SETTINGS,
             ...data,
             logo_url: merged.logo_url,
+            hero_banner_url: merged.hero_banner_url,
+            dresses_collection_url: merged.dresses_collection_url,
+            cakes_collection_url: merged.cakes_collection_url,
             minimum_advance_amount: Number(data.minimum_advance_amount ?? merged.minimum_advance_amount),
             delivery_inside_dhaka: Number(data.delivery_inside_dhaka ?? merged.delivery_inside_dhaka),
             delivery_outside_dhaka: Number(data.delivery_outside_dhaka ?? merged.delivery_outside_dhaka),

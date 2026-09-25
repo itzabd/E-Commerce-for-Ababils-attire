@@ -189,7 +189,7 @@ const styles: Record<string, React.CSSProperties> = {
     backgroundColor: '#ffffff',
     border: '1px solid var(--color-border-default, #dfd8ce)',
     borderRadius: '16px',
-    padding: '40px 32px',
+    padding: '36px 20px',
     maxWidth: '440px',
     width: '100%',
     boxShadow: 'var(--shadow-md, 0 6px 18px rgba(92, 62, 54, 0.08))',

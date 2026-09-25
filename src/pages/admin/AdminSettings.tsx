@@ -20,6 +20,8 @@ import { settingsService } from '../../services/settings.service';
 import { storageService } from '../../services/storage.service';
 import { reviewsService, type CustomerReview } from '../../services/reviews.service';
 import type { StoreSettings } from '../../types';
+import { convertToCSV, downloadFile } from '../../lib/csv';
+import { ImageCropper } from '../../components/admin/ImageCropper';
 
 export const AdminSettings: React.FC = () => {
   const { admin, user, signOut } = useAuth();
@@ -150,6 +152,50 @@ export const AdminSettings: React.FC = () => {
     }
   };
 
+  // Image Upload States
+  const [uploadingBannerField, setUploadingBannerField] = useState<string | null>(null);
+  const [croppingField, setCroppingField] = useState<{ field: keyof StoreSettings, file: File, aspect: number } | null>(null);
+
+  const handleBannerFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof StoreSettings, aspect: number) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        showToast('Please select a valid image file (JPG, PNG, WEBP).');
+        return;
+      }
+      setCroppingField({ field, file, aspect });
+    }
+    // Clear input so re-selecting same image triggers onChange
+    if (e.target) {
+      e.target.value = '';
+    }
+  };
+
+  const handleCroppedImage = async (croppedBlob: Blob | File) => {
+    if (!croppingField || !form) return;
+    const { field, file } = croppingField;
+    setCroppingField(null);
+    setUploadingBannerField(field);
+
+    try {
+      const croppedFile = croppedBlob instanceof File 
+        ? croppedBlob 
+        : new File([croppedBlob], `banner_${field}_${Date.now()}.jpg`, { type: 'image/jpeg' });
+      const publicUrl = await storageService.uploadGeneralImage(croppedFile, 'banners');
+      
+      // Auto-save immediately to store settings so it's live across the storefront right away
+      const updated = await settingsService.updateSettings({ [field]: publicUrl });
+      setInitialSettings(updated);
+      setForm(JSON.parse(JSON.stringify(updated)));
+      showToast(`${field.replace(/_/g, ' ')} uploaded and published live!`);
+    } catch (err: any) {
+      console.error('Banner upload error:', err);
+      showToast(`Upload failed: ${err.message || 'Error uploading banner'}`);
+    } finally {
+      setUploadingBannerField(null);
+    }
+  };
+
   // Load Customer Screenshot Reviews
   const loadReviews = async () => {
     setReviewsLoading(true);
@@ -239,6 +285,48 @@ export const AdminSettings: React.FC = () => {
     const exists = currentDays.includes(day);
     const updated = exists ? currentDays.filter((d) => d !== day) : [...currentDays, day];
     setForm({ ...form, available_delivery_days: updated });
+  };
+
+  const handleExportData = async (type: 'customers' | 'orders' | 'products' | 'settings') => {
+    try {
+      let data: any[] = [];
+      let filename = '';
+      
+      switch (type) {
+        case 'customers': {
+          const m = await import('../../services/admin.service');
+          const resp = await m.adminService.getCustomersDirectory();
+          data = resp.customers;
+          filename = `customers_export_${new Date().toISOString().split('T')[0]}.csv`;
+          break;
+        }
+        case 'orders': {
+          const m = await import('../../services/orders.service');
+          data = await m.ordersService.getOrdersAdmin();
+          filename = `orders_export_${new Date().toISOString().split('T')[0]}.csv`;
+          break;
+        }
+        case 'products': {
+          const m = await import('../../services/products.service');
+          data = await m.productsService.getAllProductsAdmin();
+          filename = `products_export_${new Date().toISOString().split('T')[0]}.csv`;
+          break;
+        }
+        case 'settings': {
+          data = [await settingsService.getSettings()];
+          filename = `store_settings_export_${new Date().toISOString().split('T')[0]}.csv`;
+          break;
+        }
+      }
+      
+      const csvStr = convertToCSV(data);
+      downloadFile(csvStr, filename);
+      
+      showToast(`${type.charAt(0).toUpperCase() + type.slice(1)} data exported successfully!`);
+    } catch (err: any) {
+      console.error(`Failed to export ${type}:`, err);
+      showToast(`Export failed: ${err.message}`);
+    }
   };
 
   // Add custom dress size
@@ -736,6 +824,115 @@ export const AdminSettings: React.FC = () => {
                   style={styles.input}
                 />
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* =================================================================== */}
+        {/* SECTION 1.5: HOME PAGE BANNERS                                      */}
+        {/* =================================================================== */}
+        <section id="section-banners" style={styles.sectionCard}>
+          <div style={styles.sectionCardHeader}>
+            <div style={styles.sectionHeaderLeft}>
+              <span className="material-symbols-outlined" style={styles.sectionIcon}>
+                image
+              </span>
+              <h2 style={styles.sectionCardTitle}>Home Page Banners</h2>
+            </div>
+          </div>
+          
+          <div style={styles.sectionBody}>
+            <p style={styles.secDesc} style={{ marginBottom: '16px' }}>Upload and crop images directly for your storefront banners. Images are automatically cropped to the perfect size.</p>
+            
+            <div style={styles.formGrid2}>
+              {(() => {
+                const renderBannerUpload = (
+                  field: keyof StoreSettings,
+                  label: string,
+                  aspectRatio: number,
+                  imageUrl?: string | null,
+                ) => {
+                  const isUploading = uploadingBannerField === field;
+                  return (
+                    <div>
+                      <label style={styles.label}>{label}</label>
+                      <div style={{
+                        position: 'relative',
+                        width: '100%',
+                        aspectRatio: `${aspectRatio}`,
+                        borderRadius: '8px',
+                        border: '2px dashed #d9cbbf',
+                        backgroundColor: '#faf7f3',
+                        overflow: 'hidden',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: isUploading ? 'not-allowed' : 'pointer',
+                        transition: 'all 0.2s',
+                        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)',
+                      }}>
+                        {isUploading ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#8a6552' }}>
+                            <span className="material-symbols-outlined" style={{ animation: 'spin 1s linear infinite' }}>sync</span>
+                            <span style={{ fontSize: '13px', fontWeight: 600 }}>Processing...</span>
+                          </div>
+                        ) : (
+                          <>
+                            {imageUrl ? (
+                              <img src={imageUrl} alt={label} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ) : (
+                              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#a68a7c' }}>
+                                <span className="material-symbols-outlined" style={{ fontSize: '32px' }}>add_photo_alternate</span>
+                                <span style={{ fontSize: '13px', fontWeight: 500 }}>Click to Upload</span>
+                              </div>
+                            )}
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              onChange={(e) => handleBannerFileChange(e, field, aspectRatio)} 
+                              style={{
+                                position: 'absolute',
+                                top: 0, left: 0, width: '100%', height: '100%',
+                                opacity: 0, cursor: 'pointer',
+                                zIndex: 10
+                              }}
+                              title={imageUrl ? "Change Image" : "Upload Image"}
+                            />
+                            {imageUrl && (
+                              <div style={{
+                                position: 'absolute',
+                                bottom: 0, left: 0, width: '100%',
+                                padding: '12px 8px 8px',
+                                background: 'linear-gradient(transparent, rgba(67, 40, 33, 0.7))',
+                                color: '#fff',
+                                fontSize: '12px',
+                                fontWeight: 500,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '6px',
+                                pointerEvents: 'none',
+                                zIndex: 5
+                              }}>
+                                <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>edit</span>
+                                Click to Change Image
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  );
+                };
+
+                return (
+                  <>
+                    {renderBannerUpload('hero_banner_url', 'Top Hero Banner (3:2 Ratio)', 3/2, form.hero_banner_url)}
+                    {renderBannerUpload('dresses_collection_url', 'Dresses Collection Card (1:1 Ratio)', 1/1, form.dresses_collection_url)}
+                    {renderBannerUpload('cakes_collection_url', 'Cakes Collection Card (1:1 Ratio)', 1/1, form.cakes_collection_url)}
+                  </>
+                );
+              })()}
             </div>
           </div>
         </section>
@@ -1479,6 +1676,57 @@ export const AdminSettings: React.FC = () => {
         </section>
       </main>
 
+      {/* =================================================================== */}
+      {/* SECTION 7: DATA EXPORT & BACKUP                                     */}
+      {/* =================================================================== */}
+      <section id="section-export" style={styles.sectionCard}>
+        <div style={styles.sectionCardHeader}>
+          <div style={styles.sectionHeaderLeft}>
+            <span className="material-symbols-outlined" style={styles.sectionIcon}>
+              download
+            </span>
+            <h2 style={styles.sectionCardTitle}>Data Export & Backup</h2>
+          </div>
+          <span style={styles.ownerBadge}>Excel / CSV Format</span>
+        </div>
+
+        <div style={styles.sectionBody}>
+          <p style={styles.secDesc} style={{ marginBottom: '16px' }}>
+            Download complete records of your store's data in CSV format, natively compatible with Microsoft Excel and Google Sheets.
+          </p>
+          <div style={styles.formGrid2}>
+            <button
+              type="button"
+              onClick={() => handleExportData('orders')}
+              style={styles.changePasswordBtn}
+            >
+              Export Orders
+            </button>
+            <button
+              type="button"
+              onClick={() => handleExportData('products')}
+              style={styles.changePasswordBtn}
+            >
+              Export Products
+            </button>
+            <button
+              type="button"
+              onClick={() => handleExportData('customers')}
+              style={styles.changePasswordBtn}
+            >
+              Export Customers
+            </button>
+            <button
+              type="button"
+              onClick={() => handleExportData('settings')}
+              style={styles.changePasswordBtn}
+            >
+              Export Settings
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* Sticky Bottom Save Bar (Visible when there are unsaved changes) */}
       {hasUnsavedChanges && (
         <aside style={styles.stickyBar}>
@@ -1751,6 +1999,15 @@ export const AdminSettings: React.FC = () => {
             </form>
           </div>
         </div>
+      )}
+      {/* Cropper Modal */}
+      {croppingField && (
+        <ImageCropper
+          imageFile={croppingField.file}
+          aspectRatio={croppingField.aspect}
+          onCrop={handleCroppedImage}
+          onCancel={() => setCroppingField(null)}
+        />
       )}
     </div>
   );

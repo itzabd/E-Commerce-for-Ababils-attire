@@ -16,6 +16,7 @@ export const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const [featuredDresses, setFeaturedDresses] = useState<ProductWithDetails[]>([]);
   const [featuredCakes, setFeaturedCakes] = useState<ProductWithDetails[]>([]);
+  const [storeSettings, setStoreSettings] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [trackingNumber, setTrackingNumber] = useState('');
 
@@ -25,12 +26,14 @@ export const HomePage: React.FC = () => {
     async function loadFeatured() {
       try {
         setLoading(true);
-        const [dresses, cakes] = await Promise.all([
+        const [dresses, cakes, settings] = await Promise.all([
           productsService.getPublishedProducts('dress'),
           productsService.getPublishedProducts('cake'),
+          import('../../services/settings.service').then(m => m.settingsService.getSettings()),
         ]);
 
         if (isMounted) {
+          setStoreSettings(settings);
           const featDresses = dresses.filter((d) => d.featured).slice(0, 4);
           const featCakes = cakes.filter((c) => c.featured).slice(0, 4);
           setFeaturedDresses(featDresses.length > 0 ? featDresses : dresses.slice(0, 4));
@@ -65,7 +68,7 @@ export const HomePage: React.FC = () => {
         {/* Ambient Image Arch */}
         <div style={styles.heroImageWrapper}>
           <img
-            src="https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=1200&q=80"
+            src={storeSettings?.hero_banner_url || "https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=1200&q=80"}
             alt="Handmade baby dress and celebration cake in sunlit studio"
             style={styles.heroImage}
           />
@@ -113,7 +116,7 @@ export const HomePage: React.FC = () => {
           <article style={styles.collectionCard}>
             <div style={styles.collectionImageWrapper}>
               <img
-                src="https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?auto=format&fit=crop&w=900&q=80"
+                src={storeSettings?.dresses_collection_url || "https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?auto=format&fit=crop&w=900&q=80"}
                 alt="Handcrafted girls dresses"
                 style={styles.collectionImage}
               />
@@ -140,7 +143,7 @@ export const HomePage: React.FC = () => {
           <article style={styles.collectionCard}>
             <div style={styles.collectionImageWrapper}>
               <img
-                src="https://images.unsplash.com/photo-1535141192574-5d4897c13136?auto=format&fit=crop&w=900&q=80"
+                src={storeSettings?.cakes_collection_url || "https://images.unsplash.com/photo-1535141192574-5d4897c13136?auto=format&fit=crop&w=900&q=80"}
                 alt="Homemade celebration cakes"
                 style={styles.collectionImage}
               />

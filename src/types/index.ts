@@ -221,9 +221,12 @@ export interface DeliveryTimeSlot {
 /** Store Configuration Settings */
 export interface StoreSettings {
   id?: string;
-  // Store Information
+  // Store Information & Branding
   store_name: string;
   logo_url?: string | null;
+  hero_banner_url?: string | null;
+  dresses_collection_url?: string | null;
+  cakes_collection_url?: string | null;
   business_email: string;
   contact_phone: string;
   whatsapp_number: string;

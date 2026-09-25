@@ -16,6 +16,7 @@ export const CustomerLayout: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [secretToast, setSecretToast] = useState<string | null>(null);
   const [storeSettings, setStoreSettings] = useState<StoreSettings | null>(null);
+  const [logoImgError, setLogoImgError] = useState(false);
   const { isAdmin } = useAuth();
   const { itemCount, isBagBouncing } = useCart();
   const navigate = useNavigate();
@@ -173,10 +174,11 @@ export const CustomerLayout: React.FC = () => {
           {/* Center: Brand Identity (Mathematically centered across viewports) */}
           <div style={styles.brandCenter} className="customer-brand-center">
             <Link to="/" style={{ ...styles.brandLink, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-              {storeSettings?.logo_url ? (
+              {storeSettings?.logo_url && !logoImgError ? (
                 <img
                   src={storeSettings.logo_url}
                   alt="Ababil’s Attire"
+                  onError={() => setLogoImgError(true)}
                   style={{
                     maxHeight: '38px',
                     maxWidth: '180px',
