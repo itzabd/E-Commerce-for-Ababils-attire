@@ -4,6 +4,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { ordersService } from '../../services/orders.service';
 import { productsService } from '../../services/products.service';
 import { adminService } from '../../services/admin.service';
+import { supabase } from '../../lib/supabase';
 
 export const AdminDashboard: React.FC = () => {
   const { admin, user } = useAuth();
@@ -17,34 +18,47 @@ export const AdminDashboard: React.FC = () => {
     repeatRate: 0,
   });
 
+  const loadStats = async () => {
+    try {
+      const [ordersRes, prods, custDir] = await Promise.all([
+        ordersService.getOrdersAdmin(),
+        productsService.getAllProductsAdmin(),
+        adminService.getCustomersDirectory(),
+      ]);
+
+      const orders = Array.isArray(ordersRes) ? ordersRes : [];
+      const activeOrders = orders.filter((o: any) => o.status !== 'cancelled');
+      const pending = activeOrders.filter((o: any) => o.status === 'review_required' || o.advance_status === 'pending').length;
+      const dresses = prods.filter((p: any) => p.category === 'dress').length;
+      const cakes = prods.filter((p: any) => p.category === 'cake').length;
+
+      setStats({
+        totalOrders: activeOrders.length,
+        pendingOrders: pending,
+        totalProducts: prods.length,
+        dressCount: dresses,
+        cakeCount: cakes,
+        totalCustomers: custDir.metrics?.total_customers || 0,
+        repeatRate: custDir.metrics?.repeat_customer_rate || 0,
+      });
+    } catch (err) {
+      console.warn('Dashboard stats load error:', err);
+    }
+  };
+
   useEffect(() => {
-    const loadStats = async () => {
-      try {
-        const [ordersRes, prods, custDir] = await Promise.all([
-          ordersService.getOrdersAdmin(),
-          productsService.getAllProductsAdmin(),
-          adminService.getCustomersDirectory(),
-        ]);
-
-        const orders = Array.isArray(ordersRes) ? ordersRes : [];
-        const pending = orders.filter((o: any) => o.status === 'review_required' || o.advance_status === 'pending').length;
-        const dresses = prods.filter((p: any) => p.category === 'dress').length;
-        const cakes = prods.filter((p: any) => p.category === 'cake').length;
-
-        setStats({
-          totalOrders: orders.length,
-          pendingOrders: pending,
-          totalProducts: prods.length,
-          dressCount: dresses,
-          cakeCount: cakes,
-          totalCustomers: custDir.metrics?.total_customers || 0,
-          repeatRate: custDir.metrics?.repeat_customer_rate || 0,
-        });
-      } catch (err) {
-        console.warn('Dashboard stats load error:', err);
-      }
-    };
     loadStats();
+
+    const channel = supabase
+      .channel('dashboard-metrics')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, loadStats)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, loadStats)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'customers' }, loadStats)
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return (
@@ -66,7 +80,7 @@ export const AdminDashboard: React.FC = () => {
 
       {/* Metric Cards Row */}
       <div style={styles.metricsGrid}>
-        <div style={styles.metricCard}>
+        <Link to="/admin/orders" style={{ ...styles.metricCard, textDecoration: 'none' }}>
           <div style={styles.metricHeader}>
             <span style={styles.metricLabel}>Total Orders</span>
             <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#8c5e51' }}>
@@ -80,9 +94,9 @@ export const AdminDashboard: React.FC = () => {
             )}
           </div>
           <p style={styles.metricHint}>Client inquiries and placed orders</p>
-        </div>
+        </Link>
 
-        <div style={styles.metricCard}>
+        <Link to="/admin/products" style={{ ...styles.metricCard, textDecoration: 'none' }}>
           <div style={styles.metricHeader}>
             <span style={styles.metricLabel}>Product Archive</span>
             <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#8c5e51' }}>
@@ -96,9 +110,9 @@ export const AdminDashboard: React.FC = () => {
             </span>
           </div>
           <p style={styles.metricHint}>Handmade dresses and fresh cakes</p>
-        </div>
+        </Link>
 
-        <div style={styles.metricCard}>
+        <Link to="/admin/customers" style={{ ...styles.metricCard, textDecoration: 'none' }}>
           <div style={styles.metricHeader}>
             <span style={styles.metricLabel}>Atelier Clients</span>
             <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#8c5e51' }}>
@@ -110,9 +124,9 @@ export const AdminDashboard: React.FC = () => {
             <span style={styles.repeatBadge}>{stats.repeatRate}% repeat</span>
           </div>
           <p style={styles.metricHint}>Client directory in Dhaka</p>
-        </div>
+        </Link>
 
-        <div style={styles.metricCard}>
+        <Link to="/admin/settings" style={{ ...styles.metricCard, textDecoration: 'none' }}>
           <div style={styles.metricHeader}>
             <span style={styles.metricLabel}>bKash Advance</span>
             <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#8c5e51' }}>
@@ -124,7 +138,7 @@ export const AdminDashboard: React.FC = () => {
             <span style={styles.verifiedBadge}>Standard</span>
           </div>
           <p style={styles.metricHint}>Per order booking requirement</p>
-        </div>
+        </Link>
       </div>
 
       {/* Quick Actions Hub */}

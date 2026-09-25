@@ -332,7 +332,7 @@ export const AdminSettings: React.FC = () => {
     setForm({ ...form, available_delivery_days: updated });
   };
 
-  const handleExportData = async (type: 'customers' | 'orders' | 'products' | 'settings') => {
+  const handleExportData = async (type: 'customers' | 'orders' | 'products') => {
     try {
       let data: any[] = [];
       let filename = '';
@@ -341,7 +341,17 @@ export const AdminSettings: React.FC = () => {
         case 'customers': {
           const m = await import('../../services/admin.service');
           const resp = await m.adminService.getCustomersDirectory();
-          data = resp.customers;
+          data = resp.customers.map((c: any) => ({
+            'Customer ID': c.id,
+            'Name': c.name,
+            'Phone': c.phone,
+            'Alt Phone': c.alt_phone || '',
+            'Area': c.area || '',
+            'Address': c.address || '',
+            'Total Orders': c.total_orders || 0,
+            'Lifetime Value': c.ltv || 0,
+            'Last Order': c.last_order_date || '',
+          }));
           filename = `customers_export_${new Date().toISOString().split('T')[0]}.csv`;
           break;
         }
@@ -355,11 +365,6 @@ export const AdminSettings: React.FC = () => {
           const m = await import('../../services/products.service');
           data = await m.productsService.getAllProductsAdmin();
           filename = `products_export_${new Date().toISOString().split('T')[0]}.csv`;
-          break;
-        }
-        case 'settings': {
-          data = [await settingsService.getSettings()];
-          filename = `store_settings_export_${new Date().toISOString().split('T')[0]}.csv`;
           break;
         }
       }
@@ -2407,13 +2412,6 @@ export const AdminSettings: React.FC = () => {
             >
               Export Customers
             </button>
-            <button
-              type="button"
-              onClick={() => handleExportData('settings')}
-              style={styles.changePasswordBtn}
-            >
-              Export Settings
-            </button>
           </div>
         </div>
       </section>
@@ -2565,7 +2563,8 @@ export const AdminSettings: React.FC = () => {
                       }}
                       style={{
                         fontSize: '11px',
-                        padding: '4px 8px',
+                        padding: '6px 10px',
+                        minHeight: '32px',
                         backgroundColor: '#ffffff',
                         border: '1px solid #d9cbbf',
                         borderRadius: '4px',
@@ -2655,7 +2654,7 @@ export const AdminSettings: React.FC = () => {
                       <span style={{ fontSize: '13px', fontWeight: 600 }}>Uploading screenshot to cloud storage...</span>
                     </div>
                   ) : reviewForm.screenshot_url ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', textAlign: 'left' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '12px', textAlign: 'left' }}>
                       <img
                         src={reviewForm.screenshot_url}
                         alt="Screenshot Preview"
@@ -2665,17 +2664,19 @@ export const AdminSettings: React.FC = () => {
                           objectFit: 'cover',
                           borderRadius: '8px',
                           border: '1px solid #d4c3bf',
-                          boxShadow: '0 2px 6px rgba(0,0,0,0.08)'
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
+                          flexShrink: 0
                         }}
                       />
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#065f46', fontSize: '12px', fontWeight: 600, marginBottom: '6px' }}>
+                      <div style={{ flex: '1 1 200px', minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#065f46', fontSize: '12px', fontWeight: 600, marginBottom: '8px' }}>
                           <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>check_circle</span>
                           Screenshot Attached
                         </div>
-                        <div style={{ display: 'flex', gap: '8px' }}>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                           <label style={{
-                            padding: '6px 12px',
+                            padding: '8px 12px',
+                            minHeight: '38px',
                             backgroundColor: '#ffffff',
                             border: '1px solid #d9cbbf',
                             borderRadius: '6px',
@@ -2687,7 +2688,7 @@ export const AdminSettings: React.FC = () => {
                             alignItems: 'center',
                             gap: '4px'
                           }}>
-                            <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>upload</span>
+                            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>upload</span>
                             Change Image
                             <input
                               type="file"
@@ -2700,14 +2701,17 @@ export const AdminSettings: React.FC = () => {
                             type="button"
                             onClick={() => setReviewForm({ ...reviewForm, screenshot_url: '' })}
                             style={{
-                              padding: '6px 10px',
+                              padding: '8px 12px',
+                              minHeight: '38px',
                               backgroundColor: '#fee2e2',
                               border: '1px solid #fecaca',
                               borderRadius: '6px',
                               fontSize: '12px',
                               fontWeight: 600,
                               color: '#991b1b',
-                              cursor: 'pointer'
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center'
                             }}
                           >
                             Remove
@@ -2744,14 +2748,14 @@ export const AdminSettings: React.FC = () => {
                 </div>
 
                 {/* Optional manual URL input */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                   <span style={{ fontSize: '11px', color: '#7e726b', whiteSpace: 'nowrap' }}>Or paste image link:</span>
                   <input
                     type="url"
                     value={reviewForm.screenshot_url}
                     onChange={(e) => setReviewForm({ ...reviewForm, screenshot_url: e.target.value })}
                     placeholder="https://... direct image link"
-                    style={{ ...styles.input, flex: 1, padding: '6px 10px', fontSize: '12px' }}
+                    style={{ ...styles.input, flex: '1 1 200px', minWidth: '150px', padding: '8px 10px', fontSize: '12px' }}
                   />
                 </div>
               </div>
@@ -2946,6 +2950,8 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '12px',
     borderBottom: '1px solid #eae8e4',
     paddingBottom: '14px',
     marginBottom: '20px',
@@ -2998,7 +3004,8 @@ const styles: Record<string, React.CSSProperties> = {
   },
   crestCard: {
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    flexWrap: 'wrap',
     gap: '16px',
     backgroundColor: '#f5f3ef',
     border: '1px solid #eae8e4',
@@ -3338,6 +3345,8 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '12px',
     border: '1px solid #eae8e4',
     borderRadius: '6px',
     padding: '14px 16px',
@@ -3688,6 +3697,7 @@ const styles: Record<string, React.CSSProperties> = {
   modalFooter: {
     display: 'flex',
     justifyContent: 'flex-end',
+    flexWrap: 'wrap',
     gap: '10px',
     marginTop: '6px',
     paddingTop: '12px',
