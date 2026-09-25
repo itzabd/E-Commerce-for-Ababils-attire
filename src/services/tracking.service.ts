@@ -94,40 +94,41 @@ export const trackingService = {
       console.warn('Error reading cached orders from localStorage:', e);
     }
 
-    // Standard Demo Seed Fallback for AB-260923-1042
-    if (cleanInvoice === 'AB-260923-1042') {
+    // Standard Demo Seed Fallback for AA-2409 (Stitch Screen Showcase) or AB-260923-1042
+    if (cleanInvoice === 'AA-2409' || cleanInvoice === 'AB-260923-1042') {
+      const isAA = cleanInvoice === 'AA-2409';
       return {
         found: true,
-        invoice_number: 'AB-260923-1042',
+        invoice_number: isAA ? 'AA-2409' : 'AB-260923-1042',
         status: 'in_production',
-        customer_name_initial: 'Ayesha',
-        delivery_area: 'House 42, Road 11, Block D, Banani, Dhaka',
+        customer_name_initial: isAA ? 'Barrister Nabila Rahman' : 'Ayesha',
+        delivery_area: 'House 42, Road 11, Block D, Studio Delivery Metro',
         delivery_date: '2026-09-28',
-        delivery_time: '2:00 PM - 4:00 PM',
-        subtotal: 7350,
+        delivery_time: 'Afternoon Slot (2:00 PM – 6:00 PM)',
+        subtotal: 5800,
         delivery_charge: 250,
-        total_amount: 7600,
+        total_amount: 6050,
         advance_amount: 500,
         advance_status: 'verified',
-        cash_due: 7100,
-        created_at: '2026-09-24T14:30:00Z',
+        cash_due: 5550,
+        created_at: '2026-09-24T09:12:00Z',
         items: [
           {
             id: 'demo_item_1',
-            product_name: 'Vintage Rose Smocked Cotton Dress',
+            product_name: 'Aurelia Smocked Dress',
             quantity: 1,
-            unit_price: 3800,
-            subtotal: 3800,
-            selected_size: '12-18M',
+            unit_price: 3200,
+            subtotal: 3200,
+            selected_size: '1-2Y (Custom tailored)',
           },
           {
             id: 'demo_item_2',
-            product_name: 'Vanilla Bean & Wild Fig Celebration Cake',
+            product_name: 'Vintage Rose Birthday Cake',
             quantity: 1,
-            unit_price: 3550,
-            subtotal: 3550,
-            cake_weight: '1.0 lb',
-            cake_flavor: 'Madagascar Vanilla Bean & Fig',
+            unit_price: 2600,
+            subtotal: 2600,
+            cake_weight: '2 lb',
+            cake_flavor: 'Vanilla & Raspberry Compote',
             cake_message: 'Happy 2nd Birthday Inaya!',
           },
         ],

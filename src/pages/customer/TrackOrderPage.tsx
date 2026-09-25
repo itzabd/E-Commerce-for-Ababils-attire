@@ -16,9 +16,11 @@ import { STUDIO_CONFIG, getStudioWhatsAppUrl } from '../../lib/studio';
 export const TrackOrderPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const routeParams = useParams<{ invoiceNumber?: string }>();
-  const invoiceParam = searchParams.get('invoice') || routeParams.invoiceNumber || '';
+  const defaultDemoInvoice = 'AA-2409';
+  const invoiceParam = searchParams.get('invoice') || routeParams.invoiceNumber || defaultDemoInvoice;
 
   const [inputInvoice, setInputInvoice] = useState(invoiceParam);
+  const [inputPhone, setInputPhone] = useState('01712-884920');
   const [activeInvoice, setActiveInvoice] = useState(invoiceParam.trim().toUpperCase());
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<OrderTrackingResult | null>(null);
@@ -35,7 +37,7 @@ export const TrackOrderPage: React.FC = () => {
   const performLookup = useCallback(async (invoiceToFind: string) => {
     const clean = normalizeInvoice(invoiceToFind);
     if (!clean) {
-      setErrorMsg('Please enter an invoice number (e.g. AB-260923-1042)');
+      setErrorMsg('Please enter an invoice number (e.g. AA-2409)');
       setResult(null);
       return;
     }
@@ -65,11 +67,9 @@ export const TrackOrderPage: React.FC = () => {
 
   // Sync on initial mount or when query param changes
   useEffect(() => {
-    if (invoiceParam) {
-      const clean = normalizeInvoice(invoiceParam);
-      setInputInvoice(clean);
-      performLookup(clean);
-    }
+    const clean = normalizeInvoice(invoiceParam);
+    setInputInvoice(clean);
+    performLookup(clean);
   }, [invoiceParam, performLookup]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -279,6 +279,20 @@ export const TrackOrderPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Editorial Header Section Matching DressesPage & Store Style */}
+      <section style={styles.editorialHeader} className="catalog-editorial-header">
+        <div style={styles.kickerBadge}>
+          <span className="material-symbols-outlined" style={{ fontSize: '15px', color: '#7e544f' }}>
+            local_shipping
+          </span>
+          <span>Live Atelier &amp; Pâtisserie Portal</span>
+        </div>
+        <h1 style={styles.editorialTitle}>Track Your Bespoke Order &amp; Fresh Bake</h1>
+        <p style={styles.editorialDescription}>
+          Real-time studio tracking for your handmade garments and celebration cakes — from hand-smocking and oven timers to chilled courier dispatch.
+        </p>
+      </section>
+
       <div style={styles.contentWrapper} className="customer-page-container track-page-container">
         {/* ===================================================================== */}
         {/* 2. ORDER SEARCH / LOOKUP HERO CARD                                    */}
@@ -369,6 +383,8 @@ export const TrackOrderPage: React.FC = () => {
                   </span>
                   <input
                     type="text"
+                    value={inputPhone}
+                    onChange={(e) => setInputPhone(e.target.value)}
                     placeholder="01712-XXXXXX"
                     style={styles.inputField}
                     aria-label="Customer Phone Number"
@@ -1279,6 +1295,47 @@ const styles: Record<string, React.CSSProperties> = {
   breadcrumbCurrent: {
     color: '#5c3e36',
     fontWeight: 600,
+  },
+  editorialHeader: {
+    textAlign: 'center',
+    maxWidth: '720px',
+    margin: '32px auto 8px auto',
+    padding: '0 20px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '12px',
+  },
+  kickerBadge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '6px',
+    padding: '4px 14px',
+    borderRadius: '9999px',
+    backgroundColor: '#f5f3ef',
+    border: '1px solid #ebdcd6',
+    fontSize: '11px',
+    fontWeight: 700,
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase',
+    color: '#7e544f',
+    boxShadow: '0 1px 3px rgba(67, 40, 33, 0.04)',
+  },
+  editorialTitle: {
+    fontFamily: "var(--font-serif, 'Bodoni Moda', serif)",
+    fontSize: '32px',
+    fontWeight: 500,
+    color: '#2d2421',
+    margin: 0,
+    letterSpacing: '-0.01em',
+    lineHeight: 1.2,
+  },
+  editorialDescription: {
+    fontSize: '14px',
+    color: '#6f6764',
+    lineHeight: 1.6,
+    margin: 0,
+    maxWidth: '580px',
   },
   contentWrapper: {
     maxWidth: '720px',

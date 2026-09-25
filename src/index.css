@@ -278,6 +278,27 @@ input, select, textarea {
    Editorial Haute-Couture Boutique Presentation
    ============================================================================== */
 
+/* 0. Admin Suite Desktop/Mobile Separation Defaults */
+.stitch-admin-desktop-sidebar {
+  display: none;
+}
+.stitch-admin-desktop-topbar {
+  display: none;
+}
+.stitch-admin-desktop-view {
+  display: none;
+}
+.stitch-admin-mobile-header {
+  display: block;
+}
+.stitch-admin-mobile-dock {
+  display: flex;
+}
+.stitch-admin-mobile-view {
+  display: flex;
+  flex-direction: column;
+}
+
 /* 1. Stitch Desktop 2-Row Header (Project 13092249108045248978 PC View) */
 .stitch-desktop-header {
   display: none;
@@ -2108,6 +2129,27 @@ input, select, textarea {
 }
 
 @media (max-width: 959px) {
+  .stitch-desktop-footer {
+    display: none !important;
+  }
+  .stitch-mobile-footer {
+    display: block !important;
+  }
+  .stitch-admin-desktop-sidebar {
+    display: none !important;
+  }
+  .stitch-admin-desktop-topbar {
+    display: none !important;
+  }
+  .stitch-admin-stage-wrapper {
+    margin-left: 0 !important;
+  }
+  .stitch-admin-mobile-header {
+    display: block !important;
+  }
+  .stitch-admin-mobile-dock {
+    display: flex !important;
+  }
   .stitch-admin-desktop-view {
     display: none !important;
   }
@@ -2117,6 +2159,7 @@ input, select, textarea {
     gap: 20px;
   }
 }
+
 
 
 
