@@ -230,9 +230,26 @@ input, select, textarea {
   }
 }
 
+@media (max-width: 640px) {
+  .customer-brand-logo-wrapper {
+    width: 34px !important;
+    height: 34px !important;
+  }
+  .customer-brand-link {
+    gap: 8px !important;
+  }
+}
+
 @media (max-width: 480px) {
+  .customer-brand-logo-wrapper {
+    width: 30px !important;
+    height: 30px !important;
+  }
+  .customer-brand-link {
+    gap: 8px !important;
+  }
   .customer-brand-title {
-    font-size: 16px !important;
+    font-size: 15px !important;
   }
   .customer-brand-subtitle {
     font-size: 8px !important;
@@ -241,8 +258,15 @@ input, select, textarea {
 }
 
 @media (max-width: 360px) {
+  .customer-brand-logo-wrapper {
+    width: 26px !important;
+    height: 26px !important;
+  }
+  .customer-brand-link {
+    gap: 6px !important;
+  }
   .customer-brand-title {
-    font-size: 14px !important;
+    font-size: 13px !important;
   }
   .customer-brand-subtitle {
     display: none !important;
@@ -331,6 +355,13 @@ input, select, textarea {
     padding-left: 3rem !important;
     padding-right: 3rem !important;
     min-height: 76px !important;
+  }
+  .customer-brand-logo-wrapper {
+    width: 44px !important;
+    height: 44px !important;
+  }
+  .customer-brand-link {
+    gap: 14px !important;
   }
   .customer-brand-title {
     font-size: 24px !important;

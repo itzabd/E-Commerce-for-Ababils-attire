@@ -75,7 +75,7 @@ export const ContactPage: React.FC = () => {
                 location_on
               </span>
               <div>
-                <h4 style={styles.detailLabel}>Dhaka Workshop & Studio</h4>
+                <h4 style={styles.detailLabel}>Workshop & Studio</h4>
                 <p style={styles.detailValue}>{storeSettings?.workshop_address || STUDIO_CONFIG.workshopAddress}</p>
               </div>
             </div>

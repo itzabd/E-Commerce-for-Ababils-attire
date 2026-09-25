@@ -91,6 +91,13 @@ export const CustomerLayout: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [drawerOpen]);
 
+  // Determine clean brand title and subtitle without duplicating "by Sanjida Bethi"
+  const rawStoreName = (storeSettings?.store_name || "Ababil’s Attire by Sanjida Bethi").trim();
+  const hasAuthorInName = /by\s+Sanjida\s+Bethi/i.test(rawStoreName);
+  const headerSubtitleText = hasAuthorInName
+    ? "Handmade Dresses & Homemade Cakes"
+    : "Handmade Dresses & Homemade Cakes • by Sanjida Bethi";
+
   return (
     <div style={styles.pageContainer}>
       {/* Floating Add to Cart Notification */}
@@ -210,29 +217,37 @@ export const CustomerLayout: React.FC = () => {
 
           {/* Center: Brand Identity (Mathematically centered across viewports) */}
           <div style={styles.brandCenter} className="customer-brand-center">
-            <Link to="/" style={styles.brandLink}>
+            <Link to="/" style={styles.brandLink} className="customer-brand-link">
               {storeSettings?.logo_url && !logoImgError && (
-                <img
-                  src={storeSettings.logo_url}
-                  alt="Ababil’s Attire Logo"
-                  onError={() => setLogoImgError(true)}
-                  style={styles.brandLogoImg}
-                />
+                <div style={styles.brandLogoWrapper} className="customer-brand-logo-wrapper">
+                  <img
+                    src={storeSettings.logo_url}
+                    alt="Ababil’s Attire Logo"
+                    onError={() => setLogoImgError(true)}
+                    style={styles.brandLogoImg}
+                  />
+                </div>
               )}
-              <span style={styles.brandTitle} className="customer-brand-title">
-                {storeSettings?.store_name || "Ababil’s Attire"}
-              </span>
+              <div style={styles.brandTextStack} className="customer-brand-text-stack">
+                <span style={styles.brandTitle} className="customer-brand-title">
+                  {rawStoreName}
+                </span>
+                <span
+                  style={styles.brandSubtitle}
+                  className="customer-brand-subtitle"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleSecretTap();
+                  }}
+                  title="Ababil’s Attire by Sanjida Bethi"
+                  role="button"
+                  tabIndex={-1}
+                >
+                  {headerSubtitleText}
+                </span>
+              </div>
             </Link>
-            <span
-              style={styles.brandSubtitle}
-              className="customer-brand-subtitle"
-              onClick={handleSecretTap}
-              title="Ababil’s Attire by Sanjida Bethi"
-              role="button"
-              tabIndex={-1}
-            >
-              Handmade Dresses & Homemade Cakes by Sanjida Bethi
-            </span>
           </div>
 
           {/* Right: Actions Cluster (Track Order, Bag, Admin) */}
@@ -293,10 +308,21 @@ export const CustomerLayout: React.FC = () => {
       >
         {/* Drawer Header */}
         <div style={styles.drawerHeader}>
-          <div>
-            <h2 style={styles.drawerBrandTitle}>Ababil’s Attire</h2>
-            <p style={styles.drawerBrandSubtitle}>by Sanjida Bethi</p>
-            <span style={styles.drawerCrest}>Handmade Dresses & Homemade Cakes</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {storeSettings?.logo_url && !logoImgError && (
+              <div style={styles.drawerLogoWrapper}>
+                <img
+                  src={storeSettings.logo_url}
+                  alt="Ababil’s Attire Logo"
+                  style={styles.drawerLogoImg}
+                />
+              </div>
+            )}
+            <div>
+              <h2 style={styles.drawerBrandTitle}>Ababil’s Attire</h2>
+              <p style={styles.drawerBrandSubtitle}>by Sanjida Bethi</p>
+              <span style={styles.drawerCrest}>Handmade Dresses & Homemade Cakes</span>
+            </div>
           </div>
           <button
             type="button"
@@ -461,8 +487,17 @@ export const CustomerLayout: React.FC = () => {
         <div style={styles.footerInner}>
           {/* Brand Header */}
           <div style={styles.footerBrandSection}>
-            <h2 style={styles.footerTitle}>{storeSettings?.store_name || "Ababil’s Attire"}</h2>
-            <p style={styles.footerAuthor}>by Sanjida Bethi</p>
+            {storeSettings?.logo_url && !logoImgError && (
+              <div style={styles.footerLogoWrapper}>
+                <img
+                  src={storeSettings.logo_url}
+                  alt="Ababil’s Attire Logo"
+                  style={styles.footerLogoImg}
+                />
+              </div>
+            )}
+            <h2 style={styles.footerTitle}>{rawStoreName}</h2>
+            {!hasAuthorInName && <p style={styles.footerAuthor}>by Sanjida Bethi</p>}
             <p style={styles.footerTagline}>
               {storeSettings?.store_description || "Sweet handmade dresses for little girls and delicious homemade cakes for your family celebrations."}
             </p>
@@ -764,12 +799,10 @@ const styles: Record<string, React.CSSProperties> = {
   },
   brandCenter: {
     display: 'flex',
-    flexDirection: 'column',
     alignItems: 'center',
-    textAlign: 'center',
+    justifyContent: 'center',
     justifySelf: 'center',
-    maxWidth: '60vw',
-    gap: '2px',
+    maxWidth: '65vw',
   },
   brandLink: {
     textDecoration: 'none',
@@ -777,28 +810,46 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '8px',
+    gap: '12px',
+  },
+  brandLogoWrapper: {
+    width: '42px',
+    height: '42px',
+    borderRadius: '50%',
+    overflow: 'hidden',
+    backgroundColor: '#ffffff',
+    border: '1.5px solid #ebd8d0',
+    boxShadow: '0 2px 8px rgba(92, 62, 54, 0.08)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
   },
   brandLogoImg: {
-    height: '28px',
-    width: 'auto',
-    maxWidth: '36px',
-    objectFit: 'contain',
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
     display: 'block',
-    flexShrink: 0,
+  },
+  brandTextStack: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    textAlign: 'center',
+    gap: '2px',
   },
   brandTitle: {
     fontFamily: "var(--font-serif, 'Bodoni Moda', serif)",
-    fontSize: '19px',
+    fontSize: '20px',
     fontWeight: 600,
     color: '#5c3e36',
     letterSpacing: '0.02em',
-    lineHeight: 1.1,
+    lineHeight: 1.15,
     whiteSpace: 'nowrap',
   },
   brandSubtitle: {
     fontFamily: "var(--font-sans, 'Plus Jakarta Sans', sans-serif)",
-    fontSize: '9px',
+    fontSize: '9.5px',
     letterSpacing: '0.12em',
     color: '#8c5e51',
     textTransform: 'uppercase',
@@ -898,6 +949,24 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'space-between',
     paddingBottom: '16px',
     borderBottom: '1px solid var(--color-border-subtle, #ece8e1)',
+  },
+  drawerLogoWrapper: {
+    width: '42px',
+    height: '42px',
+    borderRadius: '50%',
+    overflow: 'hidden',
+    backgroundColor: '#ffffff',
+    border: '1.5px solid #ebd8d0',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  drawerLogoImg: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+    display: 'block',
   },
   drawerBrandTitle: {
     fontFamily: "var(--font-serif, 'Bodoni Moda', serif)",
@@ -1021,7 +1090,26 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '4px',
+    gap: '6px',
+  },
+  footerLogoWrapper: {
+    width: '48px',
+    height: '48px',
+    borderRadius: '50%',
+    overflow: 'hidden',
+    backgroundColor: '#ffffff',
+    border: '1.5px solid #ebd8d0',
+    boxShadow: '0 2px 8px rgba(92, 62, 54, 0.08)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: '6px',
+  },
+  footerLogoImg: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+    display: 'block',
   },
   footerTitle: {
     fontFamily: "var(--font-serif, 'Bodoni Moda', serif)",
