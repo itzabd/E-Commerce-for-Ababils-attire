@@ -16,10 +16,12 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { settingsService } from '../../services/settings.service';
+import { settingsService, DEFAULT_SIZE_CHART } from '../../services/settings.service';
 import { storageService } from '../../services/storage.service';
 import { reviewsService, type CustomerReview } from '../../services/reviews.service';
-import type { StoreSettings } from '../../types';
+import type { StoreSettings, SizeChartEntry } from '../../types';
+import { convertToCSV, downloadFile } from '../../lib/csv';
+import { ImageCropper } from '../../components/admin/ImageCropper';
 
 export const AdminSettings: React.FC = () => {
   const { admin, user, signOut } = useAuth();
@@ -39,6 +41,7 @@ export const AdminSettings: React.FC = () => {
   const [reviews, setReviews] = useState<CustomerReview[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [showAddReviewModal, setShowAddReviewModal] = useState(false);
+  const [isUploadingScreenshot, setIsUploadingScreenshot] = useState(false);
   const [reviewForm, setReviewForm] = useState({
     customer_name: '',
     customer_area: '',
@@ -61,7 +64,7 @@ export const AdminSettings: React.FC = () => {
     },
     {
       label: 'Vintage Lambeth Cake (Facebook)',
-      url: 'https://images.unsplash.com/photo-1535141192574-5d4897c13136?auto=format&fit=crop&w=900&q=80',
+      url: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=900&q=80',
       product: 'Vintage Lambeth Celebration Cake',
       platform: 'facebook' as const,
       quote: '“Cake was heavenly, arrived safely in chilled van right on time!”',
@@ -147,6 +150,94 @@ export const AdminSettings: React.FC = () => {
       showToast('Could not load settings from server. Using local defaults.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Image Upload States
+  const [uploadingBannerField, setUploadingBannerField] = useState<string | null>(null);
+  const [croppingField, setCroppingField] = useState<{ field: keyof StoreSettings; file?: File | null; imageSrc?: string | null; aspect: number } | null>(null);
+  const [hoveredBanner, setHoveredBanner] = useState<string | null>(null);
+
+  const handleBannerFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof StoreSettings, aspect: number) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        showToast('Please select a valid image file (JPG, PNG, WEBP).');
+        return;
+      }
+      setCroppingField({ field, file, aspect });
+    }
+    // Clear input so re-selecting same image triggers onChange
+    if (e.target) {
+      e.target.value = '';
+    }
+  };
+
+  const handleReCropBanner = (field: keyof StoreSettings, aspect: number, currentUrl?: string | null) => {
+    if (!currentUrl) return;
+    setCroppingField({ field, file: null, imageSrc: currentUrl, aspect });
+  };
+
+  const handleResetBanner = async (field: keyof StoreSettings, defaultUrl: string, name: string) => {
+    if (window.confirm(`Reset "${name}" to the signature boutique default photo?`)) {
+      setUploadingBannerField(field);
+      try {
+        const updated = await settingsService.updateSettings({ [field]: defaultUrl });
+        setInitialSettings(updated);
+        setForm(JSON.parse(JSON.stringify(updated)));
+        showToast(`"${name}" restored to boutique default.`);
+      } catch (err: any) {
+        showToast(`Reset failed: ${err.message || 'Error'}`);
+      } finally {
+        setUploadingBannerField(null);
+      }
+    }
+  };
+
+  const handleCroppedImage = async (croppedBlob: Blob | File) => {
+    if (!croppingField || !form) return;
+    const { field } = croppingField;
+    setCroppingField(null);
+    setUploadingBannerField(field);
+
+    // Create optimistic local preview so user sees the new crop instantly with 0ms loading lag
+    const localPreviewUrl = URL.createObjectURL(croppedBlob);
+    setForm((prev) => (prev ? { ...prev, [field]: localPreviewUrl } : prev));
+
+    try {
+      const croppedFile = croppedBlob instanceof File 
+        ? croppedBlob 
+        : new File([croppedBlob], `banner_${field}_${Date.now()}.jpg`, { type: 'image/jpeg' });
+      const publicUrl = await storageService.uploadGeneralImage(croppedFile, 'banners');
+      
+      // Auto-save immediately to store settings so it's live across the storefront right away
+      const updated = await settingsService.updateSettings({ [field]: publicUrl });
+      setInitialSettings(updated);
+      showToast(`${field.replace(/_/g, ' ')} uploaded and published live!`);
+
+      // Preload remote URL in background before revoking local blob to prevent CDN edge propagation blink
+      const preloader = new Image();
+      preloader.src = publicUrl;
+      preloader.onload = () => {
+        setForm((prev) => (prev ? { ...prev, [field]: publicUrl } : prev));
+        URL.revokeObjectURL(localPreviewUrl);
+      };
+      preloader.onerror = () => {
+        // If CDN edge has slight propagation delay, retry after 1.5s in background
+        setTimeout(() => {
+          setForm((prev) => (prev ? { ...prev, [field]: `${publicUrl}?v=${Date.now()}` } : prev));
+          URL.revokeObjectURL(localPreviewUrl);
+        }, 1500);
+      };
+    } catch (err: any) {
+      console.error('Banner upload error:', err);
+      showToast(`Upload failed: ${err.message || 'Error uploading banner'}`);
+      if (initialSettings) {
+        setForm((prev) => (prev ? { ...prev, [field]: initialSettings[field] } : prev));
+      }
+      URL.revokeObjectURL(localPreviewUrl);
+    } finally {
+      setUploadingBannerField(null);
     }
   };
 
@@ -241,6 +332,53 @@ export const AdminSettings: React.FC = () => {
     setForm({ ...form, available_delivery_days: updated });
   };
 
+  const handleExportData = async (type: 'customers' | 'orders' | 'products') => {
+    try {
+      let data: any[] = [];
+      let filename = '';
+      
+      switch (type) {
+        case 'customers': {
+          const m = await import('../../services/admin.service');
+          const resp = await m.adminService.getCustomersDirectory();
+          data = resp.customers.map((c: any) => ({
+            'Customer ID': c.id,
+            'Name': c.name,
+            'Phone': c.phone,
+            'Alt Phone': c.alt_phone || '',
+            'Area': c.area || '',
+            'Address': c.address || '',
+            'Total Orders': c.total_orders || 0,
+            'Lifetime Value': c.ltv || 0,
+            'Last Order': c.last_order_date || '',
+          }));
+          filename = `customers_export_${new Date().toISOString().split('T')[0]}.csv`;
+          break;
+        }
+        case 'orders': {
+          const m = await import('../../services/orders.service');
+          data = await m.ordersService.getOrdersAdmin();
+          filename = `orders_export_${new Date().toISOString().split('T')[0]}.csv`;
+          break;
+        }
+        case 'products': {
+          const m = await import('../../services/products.service');
+          data = await m.productsService.getAllProductsAdmin();
+          filename = `products_export_${new Date().toISOString().split('T')[0]}.csv`;
+          break;
+        }
+      }
+      
+      const csvStr = convertToCSV(data);
+      downloadFile(csvStr, filename);
+      
+      showToast(`${type.charAt(0).toUpperCase() + type.slice(1)} data exported successfully!`);
+    } catch (err: any) {
+      console.error(`Failed to export ${type}:`, err);
+      showToast(`Export failed: ${err.message}`);
+    }
+  };
+
   // Add custom dress size
   const handleAddSize = () => {
     if (!newSizeInput.trim() || !form) return;
@@ -279,6 +417,66 @@ export const AdminSettings: React.FC = () => {
       ...form,
       preconfigured_cake_weights: form.preconfigured_cake_weights.filter((w) => w !== weightToRemove),
     });
+  };
+
+  // Size Chart Handlers
+  const handleSizeChartChange = (index: number, field: keyof SizeChartEntry, value: string) => {
+    if (!form) return;
+    const currentChart = [...(form.size_chart || DEFAULT_SIZE_CHART)];
+    currentChart[index] = { ...currentChart[index], [field]: value };
+    setForm({ ...form, size_chart: currentChart });
+  };
+
+  const handleAddSizeChartRow = () => {
+    if (!form) return;
+    const currentChart = [...(form.size_chart || DEFAULT_SIZE_CHART)];
+    const newRow: SizeChartEntry = {
+      id: `sz_${Date.now()}`,
+      size: '5-6Y',
+      chest: '24.5"',
+      length: '25"',
+      typical_age: '5–6 Years',
+    };
+    const updated = [...currentChart, newRow];
+    setForm({
+      ...form,
+      size_chart: updated,
+      preconfigured_sizes: Array.from(new Set([...form.preconfigured_sizes, newRow.size])),
+    });
+  };
+
+  const handleRemoveSizeChartRow = (index: number) => {
+    if (!form) return;
+    const currentChart = [...(form.size_chart || DEFAULT_SIZE_CHART)];
+    if (currentChart.length <= 1) {
+      showToast('You must have at least one size in your size guide chart.');
+      return;
+    }
+    currentChart.splice(index, 1);
+    setForm({ ...form, size_chart: currentChart });
+  };
+
+  const handleMoveSizeChartRow = (index: number, direction: 'up' | 'down') => {
+    if (!form) return;
+    const currentChart = [...(form.size_chart || DEFAULT_SIZE_CHART)];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= currentChart.length) return;
+    const [moved] = currentChart.splice(index, 1);
+    currentChart.splice(targetIndex, 0, moved);
+    setForm({ ...form, size_chart: currentChart });
+  };
+
+  const handleResetSizeChart = () => {
+    if (window.confirm('Reset size chart measurements back to default boutique standards (6M, 12M, 18M, 2-3Y, 3-4Y, 4-5Y)?')) {
+      if (form) {
+        setForm({
+          ...form,
+          size_chart: JSON.parse(JSON.stringify(DEFAULT_SIZE_CHART)),
+          size_guide_intro: 'Measurements in inches. Handcrafted garments have a relaxed silhouette for ease and growing room.',
+        });
+        showToast('Size chart reset to defaults. Click Save to deploy.');
+      }
+    }
   };
 
   // Add Customer Screenshot Review
@@ -330,6 +528,34 @@ export const AdminSettings: React.FC = () => {
         console.error('Delete review error:', err);
         showToast('Failed to delete review.');
       }
+    }
+  };
+
+  // Upload Customer Review Screenshot from Local Device
+  const handleScreenshotFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      showToast('Please select a valid image file (PNG, JPG, WEBP).');
+      return;
+    }
+
+    setIsUploadingScreenshot(true);
+    // Instant optimistic preview so user sees screenshot immediately
+    const localUrl = URL.createObjectURL(file);
+    setReviewForm((prev) => ({ ...prev, screenshot_url: localUrl }));
+
+    try {
+      const uploadedUrl = await storageService.uploadGeneralImage(file, 'reviews');
+      setReviewForm((prev) => ({ ...prev, screenshot_url: uploadedUrl }));
+      showToast('Screenshot uploaded and ready!');
+    } catch (err: any) {
+      console.error('Screenshot upload error:', err);
+      showToast(`Upload failed: ${err.message || 'Error uploading screenshot'}`);
+    } finally {
+      setIsUploadingScreenshot(false);
+      if (e.target) e.target.value = '';
     }
   };
 
@@ -741,6 +967,733 @@ export const AdminSettings: React.FC = () => {
         </section>
 
         {/* =================================================================== */}
+        {/* SECTION 1.5: HOME PAGE BANNERS & VISUAL MERCHANDISING               */}
+        {/* =================================================================== */}
+        <section id="section-banners" style={{ ...styles.sectionCard, padding: 'clamp(14px, 3.5vw, 24px)' }}>
+          <div style={{ ...styles.sectionCardHeader, alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+            <div style={{ ...styles.sectionHeaderLeft, alignItems: 'flex-start', flex: '1 1 240px', minWidth: '0' }}>
+              <span className="material-symbols-outlined" style={{ ...styles.sectionIcon, marginTop: '2px', flexShrink: 0 }}>
+                photo_library
+              </span>
+              <div style={{ minWidth: '0' }}>
+                <h2 style={{ ...styles.sectionCardTitle, wordBreak: 'break-word', fontSize: 'clamp(16px, 4vw, 18px)' }}>
+                  Home Page Banners & Visual Merchandising
+                </h2>
+                <span style={{ ...styles.publicProfileTag, display: 'block', marginTop: '4px', lineHeight: '1.4' }}>
+                  Curate the signature imagery featured across your storefront top hero arch and collection discovery cards
+                </span>
+              </div>
+            </div>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 14px',
+              backgroundColor: '#ecfdf5',
+              border: '1px solid #a7f3d0',
+              borderRadius: '20px',
+              fontSize: '12px',
+              fontWeight: 600,
+              color: '#065f46',
+              flexShrink: 0,
+              alignSelf: 'flex-start'
+            }}>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981', display: 'inline-block' }} />
+              Live on Storefront
+            </div>
+          </div>
+          
+          <div style={styles.sectionBody}>
+            {/* --- 1. TOP HERO BANNER (PRIMARY SHOWCASE) --- */}
+            <div style={{
+              backgroundColor: '#faf7f4',
+              border: '1px solid #ebdcd5',
+              borderRadius: '16px',
+              padding: 'clamp(14px, 3vw, 20px)',
+              marginBottom: '28px',
+              boxShadow: '0 2px 8px rgba(67, 40, 33, 0.04)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', flex: '1 1 220px', minWidth: '0' }}>
+                  <span className="material-symbols-outlined" style={{
+                    fontSize: '20px',
+                    color: '#8a6552',
+                    backgroundColor: '#ffffff',
+                    padding: '6px',
+                    borderRadius: '8px',
+                    border: '1px solid #ebdcd5',
+                    flexShrink: 0
+                  }}>
+                    view_carousel
+                  </span>
+                  <div style={{ minWidth: '0' }}>
+                    <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#432821', wordBreak: 'break-word' }}>
+                      Storefront Top Hero Banner
+                    </h3>
+                    <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
+                      <span style={{
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        color: '#8a6552',
+                        backgroundColor: '#f1e6df',
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        3:2 Aspect Ratio • 1500 × 1000px
+                      </span>
+                      <span style={{ fontSize: '11px', color: '#7e726b', whiteSpace: 'nowrap' }}>
+                        Primary Homepage Arch
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Hero Action Buttons */}
+                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                  {form.hero_banner_url && (
+                    <button
+                      type="button"
+                      onClick={() => handleReCropBanner('hero_banner_url', 3 / 2, form.hero_banner_url)}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '8px 14px',
+                        minHeight: '38px',
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #d9cbbf',
+                        borderRadius: '8px',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        color: '#432821',
+                        cursor: 'pointer'
+                      }}
+                      title="Re-adjust framing or zoom on existing photo"
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>crop</span>
+                      Adjust / Crop
+                    </button>
+                  )}
+                  <label style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 14px',
+                    minHeight: '38px',
+                    backgroundColor: '#432821',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    color: '#ffffff',
+                    cursor: uploadingBannerField === 'hero_banner_url' ? 'not-allowed' : 'pointer',
+                    boxShadow: '0 2px 6px rgba(67, 40, 33, 0.2)'
+                  }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>upload</span>
+                    {form.hero_banner_url ? 'Change Photo' : 'Upload Banner'}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleBannerFileChange(e, 'hero_banner_url', 3 / 2)}
+                      style={{ display: 'none' }}
+                      disabled={uploadingBannerField === 'hero_banner_url'}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => handleResetBanner('hero_banner_url', 'https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=1200&q=80', 'Hero Banner')}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '8px',
+                      minHeight: '38px',
+                      minWidth: '38px',
+                      backgroundColor: '#ffffff',
+                      border: '1px solid #ebdcd5',
+                      borderRadius: '8px',
+                      color: '#827470',
+                      cursor: 'pointer'
+                    }}
+                    title="Reset to signature default photo"
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>restart_alt</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Hero Visual Viewport */}
+              <div 
+                onMouseEnter={() => setHoveredBanner('hero_banner_url')}
+                onMouseLeave={() => setHoveredBanner(null)}
+                style={{
+                  position: 'relative',
+                  width: '100%',
+                  aspectRatio: '3/2',
+                  maxHeight: '380px',
+                  borderRadius: '12px',
+                  overflow: 'hidden',
+                  backgroundColor: '#1b1c1a',
+                  border: '1px solid #ebdcd5',
+                  boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                {uploadingBannerField === 'hero_banner_url' ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', color: '#ffffff', zIndex: 10 }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '36px', animation: 'spin 1s linear infinite' }}>sync</span>
+                    <span style={{ fontSize: '13px', fontWeight: 600 }}>Optimizing & Publishing Hero Banner...</span>
+                  </div>
+                ) : (
+                  <>
+                    <img
+                      src={form.hero_banner_url || "https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=1200&q=80"}
+                      alt="Top Hero Banner"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => {
+                        const target = e.currentTarget as HTMLImageElement;
+                        const src = target.src;
+                        if (!target.dataset.retried && src.includes('supabase.co')) {
+                          target.dataset.retried = 'true';
+                          setTimeout(() => {
+                            target.src = `${src}${src.includes('?') ? '&' : '?'}retry=${Date.now()}`;
+                          }, 1200);
+                        }
+                      }}
+                    />
+
+                    {/* Storefront Ambient Badge Mockup */}
+                    <div style={{
+                      position: 'absolute',
+                      bottom: '12px',
+                      left: '12px',
+                      maxWidth: 'calc(100% - 24px)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '5px 12px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.92)',
+                      backdropFilter: 'blur(8px)',
+                      borderRadius: '30px',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                      pointerEvents: 'none',
+                      zIndex: 3
+                    }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#8a6552', flexShrink: 0 }}>favorite</span>
+                      <span style={{ fontSize: '11px', fontWeight: 700, color: '#432821', letterSpacing: '0.02em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        Handmade with Love • Dhaka Atelier
+                      </span>
+                    </div>
+
+                    {/* Hover Overlay */}
+                    <div style={{
+                      position: 'absolute',
+                      top: 0, left: 0, width: '100%', height: '100%',
+                      backgroundColor: 'rgba(27, 28, 26, 0.45)',
+                      backdropFilter: 'blur(2px)',
+                      opacity: hoveredBanner === 'hero_banner_url' ? 1 : 0,
+                      transition: 'opacity 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '12px',
+                      zIndex: 5
+                    }}>
+                      <label style={{
+                        padding: '10px 18px',
+                        backgroundColor: '#ffffff',
+                        borderRadius: '8px',
+                        fontWeight: 600,
+                        fontSize: '13px',
+                        color: '#432821',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                      }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>upload</span>
+                        Change Image
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleBannerFileChange(e, 'hero_banner_url', 3 / 2)}
+                          style={{ display: 'none' }}
+                        />
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => handleReCropBanner('hero_banner_url', 3 / 2, form.hero_banner_url)}
+                        style={{
+                          padding: '10px 18px',
+                          backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                          backdropFilter: 'blur(6px)',
+                          border: '1px solid rgba(255,255,255,0.4)',
+                          borderRadius: '8px',
+                          fontWeight: 600,
+                          fontSize: '13px',
+                          color: '#ffffff',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>crop</span>
+                        Adjust Framing
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* --- 2. SHOP BY COLLECTION CARDS (DUAL SQUARES) --- */}
+            <div>
+              <div style={{ marginBottom: '14px' }}>
+                <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#432821' }}>
+                  Shop by Collection Discovery Cards
+                </h3>
+                <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#7e726b', lineHeight: '1.4' }}>
+                  Dual 1:1 square category promotion banners featured in the homepage collection navigation section.
+                </p>
+              </div>
+
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))',
+                gap: '16px'
+              }}>
+                {/* Collection Card 1: Dresses */}
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #ebdcd5',
+                  borderRadius: '14px',
+                  padding: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                  boxShadow: '0 2px 8px rgba(67, 40, 33, 0.04)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap' }}>
+                    <div style={{ minWidth: '0' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#8a6552', flexShrink: 0 }}>checkroom</span>
+                        <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#432821' }}>
+                          Girls' Handmade Dresses
+                        </h4>
+                      </div>
+                      <span style={{ fontSize: '11px', color: '#8a6552', fontWeight: 600 }}>
+                        1:1 Square • 800 × 800px
+                      </span>
+                    </div>
+                    <span style={{
+                      fontSize: '11px',
+                      color: '#5c3e36',
+                      backgroundColor: '#f8f4f0',
+                      padding: '3px 8px',
+                      borderRadius: '6px',
+                      fontWeight: 600,
+                      flexShrink: 0
+                    }}>
+                      /dresses
+                    </span>
+                  </div>
+
+                  {/* Image Viewport */}
+                  <div
+                    onMouseEnter={() => setHoveredBanner('dresses_collection_url')}
+                    onMouseLeave={() => setHoveredBanner(null)}
+                    style={{
+                      position: 'relative',
+                      width: '100%',
+                      aspectRatio: '1/1',
+                      borderRadius: '10px',
+                      overflow: 'hidden',
+                      backgroundColor: '#1b1c1a',
+                      border: '1px solid #e8ded8',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    {uploadingBannerField === 'dresses_collection_url' ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#ffffff' }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '32px', animation: 'spin 1s linear infinite' }}>sync</span>
+                        <span style={{ fontSize: '12px', fontWeight: 600 }}>Publishing Dresses Card...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <img
+                          src={form.dresses_collection_url || "https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?auto=format&fit=crop&w=900&q=80"}
+                          alt="Dresses Collection Card"
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          onError={(e) => {
+                            const target = e.currentTarget as HTMLImageElement;
+                            const src = target.src;
+                            if (!target.dataset.retried && src.includes('supabase.co')) {
+                              target.dataset.retried = 'true';
+                              setTimeout(() => {
+                                target.src = `${src}${src.includes('?') ? '&' : '?'}retry=${Date.now()}`;
+                              }, 1200);
+                            }
+                          }}
+                        />
+
+                        {/* Hover Overlay */}
+                        <div style={{
+                          position: 'absolute',
+                          top: 0, left: 0, width: '100%', height: '100%',
+                          backgroundColor: 'rgba(27, 28, 26, 0.45)',
+                          backdropFilter: 'blur(2px)',
+                          opacity: hoveredBanner === 'dresses_collection_url' ? 1 : 0,
+                          transition: 'opacity 0.2s ease',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          zIndex: 5
+                        }}>
+                          <label style={{
+                            padding: '8px 14px',
+                            backgroundColor: '#ffffff',
+                            borderRadius: '6px',
+                            fontWeight: 600,
+                            fontSize: '12px',
+                            color: '#432821',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>upload</span>
+                            Change
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleBannerFileChange(e, 'dresses_collection_url', 1 / 1)}
+                              style={{ display: 'none' }}
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => handleReCropBanner('dresses_collection_url', 1 / 1, form.dresses_collection_url)}
+                            style={{
+                              padding: '8px 14px',
+                              backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                              backdropFilter: 'blur(6px)',
+                              border: '1px solid rgba(255,255,255,0.4)',
+                              borderRadius: '6px',
+                              fontWeight: 600,
+                              fontSize: '12px',
+                              color: '#ffffff',
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>crop</span>
+                            Adjust
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Card Bottom Toolbar */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '4px', flexWrap: 'wrap', gap: '8px' }}>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      <label style={{
+                        padding: '8px 14px',
+                        minHeight: '38px',
+                        backgroundColor: '#f6f1ec',
+                        border: '1px solid #ebdcd5',
+                        borderRadius: '6px',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        color: '#432821',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>upload</span>
+                        Change Photo
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleBannerFileChange(e, 'dresses_collection_url', 1 / 1)}
+                          style={{ display: 'none' }}
+                        />
+                      </label>
+                      {form.dresses_collection_url && (
+                        <button
+                          type="button"
+                          onClick={() => handleReCropBanner('dresses_collection_url', 1 / 1, form.dresses_collection_url)}
+                          style={{
+                            padding: '8px 12px',
+                            minHeight: '38px',
+                            backgroundColor: '#ffffff',
+                            border: '1px solid #d9cbbf',
+                            borderRadius: '6px',
+                            fontSize: '12px',
+                            fontWeight: 600,
+                            color: '#5c3e36',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px'
+                          }}
+                          title="Re-adjust crop"
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>crop</span>
+                          Adjust
+                        </button>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleResetBanner('dresses_collection_url', 'https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?auto=format&fit=crop&w=900&q=80', 'Dresses Card')}
+                      style={{
+                        background: '#ffffff',
+                        border: '1px solid #ebdcd5',
+                        borderRadius: '6px',
+                        color: '#827470',
+                        cursor: 'pointer',
+                        padding: '8px',
+                        minHeight: '38px',
+                        minWidth: '38px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                      title="Reset to default photo"
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>restart_alt</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Collection Card 2: Cakes */}
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #ebdcd5',
+                  borderRadius: '14px',
+                  padding: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                  boxShadow: '0 2px 8px rgba(67, 40, 33, 0.04)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap' }}>
+                    <div style={{ minWidth: '0' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#8a6552', flexShrink: 0 }}>cake</span>
+                        <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#432821' }}>
+                          Celebration Cakes Collection
+                        </h4>
+                      </div>
+                      <span style={{ fontSize: '11px', color: '#8a6552', fontWeight: 600 }}>
+                        1:1 Square • 800 × 800px
+                      </span>
+                    </div>
+                    <span style={{
+                      fontSize: '11px',
+                      color: '#5c3e36',
+                      backgroundColor: '#f8f4f0',
+                      padding: '3px 8px',
+                      borderRadius: '6px',
+                      fontWeight: 600,
+                      flexShrink: 0
+                    }}>
+                      /cakes
+                    </span>
+                  </div>
+
+                  {/* Image Viewport */}
+                  <div
+                    onMouseEnter={() => setHoveredBanner('cakes_collection_url')}
+                    onMouseLeave={() => setHoveredBanner(null)}
+                    style={{
+                      position: 'relative',
+                      width: '100%',
+                      aspectRatio: '1/1',
+                      borderRadius: '10px',
+                      overflow: 'hidden',
+                      backgroundColor: '#1b1c1a',
+                      border: '1px solid #e8ded8',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    {uploadingBannerField === 'cakes_collection_url' ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#ffffff' }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '32px', animation: 'spin 1s linear infinite' }}>sync</span>
+                        <span style={{ fontSize: '12px', fontWeight: 600 }}>Publishing Cakes Card...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <img
+                          src={(form.cakes_collection_url && !form.cakes_collection_url.includes('photo-1535141192574')) ? form.cakes_collection_url : "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=900&q=80"}
+                          alt="Cakes Collection Card"
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          onError={(e) => {
+                            const target = e.currentTarget as HTMLImageElement;
+                            const src = target.src;
+                            if (!target.dataset.retried && src.includes('supabase.co')) {
+                              target.dataset.retried = 'true';
+                              setTimeout(() => {
+                                target.src = `${src}${src.includes('?') ? '&' : '?'}retry=${Date.now()}`;
+                              }, 1200);
+                            }
+                          }}
+                        />
+
+                        {/* Hover Overlay */}
+                        <div style={{
+                          position: 'absolute',
+                          top: 0, left: 0, width: '100%', height: '100%',
+                          backgroundColor: 'rgba(27, 28, 26, 0.45)',
+                          backdropFilter: 'blur(2px)',
+                          opacity: hoveredBanner === 'cakes_collection_url' ? 1 : 0,
+                          transition: 'opacity 0.2s ease',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          zIndex: 5
+                        }}>
+                          <label style={{
+                            padding: '8px 14px',
+                            backgroundColor: '#ffffff',
+                            borderRadius: '6px',
+                            fontWeight: 600,
+                            fontSize: '12px',
+                            color: '#432821',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>upload</span>
+                            Change
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleBannerFileChange(e, 'cakes_collection_url', 1 / 1)}
+                              style={{ display: 'none' }}
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => handleReCropBanner('cakes_collection_url', 1 / 1, form.cakes_collection_url)}
+                            style={{
+                              padding: '8px 14px',
+                              backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                              backdropFilter: 'blur(6px)',
+                              border: '1px solid rgba(255,255,255,0.4)',
+                              borderRadius: '6px',
+                              fontWeight: 600,
+                              fontSize: '12px',
+                              color: '#ffffff',
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>crop</span>
+                            Adjust
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Card Bottom Toolbar */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '4px', flexWrap: 'wrap', gap: '8px' }}>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      <label style={{
+                        padding: '8px 14px',
+                        minHeight: '38px',
+                        backgroundColor: '#f6f1ec',
+                        border: '1px solid #ebdcd5',
+                        borderRadius: '6px',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        color: '#432821',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>upload</span>
+                        Change Photo
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleBannerFileChange(e, 'cakes_collection_url', 1 / 1)}
+                          style={{ display: 'none' }}
+                        />
+                      </label>
+                      {form.cakes_collection_url && (
+                        <button
+                          type="button"
+                          onClick={() => handleReCropBanner('cakes_collection_url', 1 / 1, form.cakes_collection_url)}
+                          style={{
+                            padding: '8px 12px',
+                            minHeight: '38px',
+                            backgroundColor: '#ffffff',
+                            border: '1px solid #d9cbbf',
+                            borderRadius: '6px',
+                            fontSize: '12px',
+                            fontWeight: 600,
+                            color: '#5c3e36',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px'
+                          }}
+                          title="Re-adjust crop"
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>crop</span>
+                          Adjust
+                        </button>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleResetBanner('cakes_collection_url', 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=900&q=80', 'Cakes Card')}
+                      style={{
+                        background: '#ffffff',
+                        border: '1px solid #ebdcd5',
+                        borderRadius: '6px',
+                        color: '#827470',
+                        cursor: 'pointer',
+                        padding: '8px',
+                        minHeight: '38px',
+                        minWidth: '38px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                      title="Reset to default photo"
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>restart_alt</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* =================================================================== */}
         {/* SECTION 2: PAYMENT & BKASH ADVANCE SETTINGS                         */}
         {/* =================================================================== */}
         <section id="section-bkash" style={styles.sectionCard}>
@@ -1138,23 +2091,235 @@ export const AdminSettings: React.FC = () => {
               <span className="material-symbols-outlined" style={styles.sectionIcon}>
                 straighten
               </span>
-              <h2 style={styles.sectionCardTitle}>Product Defaults & Sizing</h2>
+              <div>
+                <h2 style={styles.sectionCardTitle}>Product Defaults & Size Guide</h2>
+                <span style={styles.publicProfileTag}>
+                  Customizable size chart, measurements & catalog presets
+                </span>
+              </div>
             </div>
-            <span style={styles.publicProfileTag}>Preset Catalog Matrix</span>
+            <button
+              type="button"
+              onClick={handleResetSizeChart}
+              style={styles.addTagToggleBtn}
+              title="Reset size chart to standard boutique measurements"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>
+                restart_alt
+              </span>
+              <span>Reset Size Chart Defaults</span>
+            </button>
           </div>
 
           <div style={styles.sectionBody}>
-            {/* Pre-configured Dress Sizes */}
-            <div>
+            {/* Girls' Dress Size Chart Editor */}
+            <div style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #ebdcd5',
+              borderRadius: '12px',
+              padding: '20px',
+              boxShadow: '0 2px 8px rgba(67, 40, 33, 0.04)',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#432821', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#8c5e51' }}>
+                      checkroom
+                    </span>
+                    Girls’ Dress Size Guide & Measurements Editor
+                  </h3>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#827470' }}>
+                    Directly configures the Size Guide popup on dress pages. Edit sizes, chest, length, and age ranges.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddSizeChartRow}
+                  style={{
+                    padding: '8px 14px',
+                    backgroundColor: '#5c3e36',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                    add
+                  </span>
+                  Add Size Row
+                </button>
+              </div>
+
+              {/* Size Guide Intro Note */}
+              <div style={{ marginBottom: '16px' }}>
+                <label style={styles.label}>Size Guide Modal Note / Subtitle</label>
+                <input
+                  type="text"
+                  value={form.size_guide_intro || ''}
+                  onChange={(e) => setForm({ ...form, size_guide_intro: e.target.value })}
+                  placeholder="e.g. Measurements in inches. Handcrafted garments have a relaxed silhouette for ease and growing room."
+                  style={styles.input}
+                />
+              </div>
+
+              {/* Size Chart Table Editor */}
+              <div style={{ overflowX: 'auto', border: '1px solid #ebdcd5', borderRadius: '8px' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'left' }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#f9f6f2', borderBottom: '1px solid #ebdcd5' }}>
+                      <th style={{ padding: '10px 12px', fontWeight: 700, color: '#432821' }}>Size Label</th>
+                      <th style={{ padding: '10px 12px', fontWeight: 700, color: '#432821' }}>Chest (Inches)</th>
+                      <th style={{ padding: '10px 12px', fontWeight: 700, color: '#432821' }}>Length (Inches)</th>
+                      <th style={{ padding: '10px 12px', fontWeight: 700, color: '#432821' }}>Typical Age Range</th>
+                      <th style={{ padding: '10px 12px', fontWeight: 700, color: '#432821', textAlign: 'right', minWidth: '100px' }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(form.size_chart || DEFAULT_SIZE_CHART).map((row, idx) => (
+                      <tr key={row.id || idx} style={{ borderBottom: '1px solid #f2ece7', backgroundColor: idx % 2 === 0 ? '#ffffff' : '#fdfcfa' }}>
+                        <td style={{ padding: '8px 12px' }}>
+                          <input
+                            type="text"
+                            value={row.size}
+                            onChange={(e) => handleSizeChartChange(idx, 'size', e.target.value)}
+                            style={{
+                              width: '90px',
+                              padding: '6px 8px',
+                              border: '1px solid #d9cbbf',
+                              borderRadius: '6px',
+                              fontSize: '13px',
+                              fontWeight: 700,
+                              color: '#432821',
+                            }}
+                            placeholder="e.g. 2-3Y"
+                          />
+                        </td>
+                        <td style={{ padding: '8px 12px' }}>
+                          <input
+                            type="text"
+                            value={row.chest}
+                            onChange={(e) => handleSizeChartChange(idx, 'chest', e.target.value)}
+                            style={{
+                              width: '100px',
+                              padding: '6px 8px',
+                              border: '1px solid #d9cbbf',
+                              borderRadius: '6px',
+                              fontSize: '13px',
+                              color: '#432821',
+                            }}
+                            placeholder='e.g. 21.5"'
+                          />
+                        </td>
+                        <td style={{ padding: '8px 12px' }}>
+                          <input
+                            type="text"
+                            value={row.length}
+                            onChange={(e) => handleSizeChartChange(idx, 'length', e.target.value)}
+                            style={{
+                              width: '100px',
+                              padding: '6px 8px',
+                              border: '1px solid #d9cbbf',
+                              borderRadius: '6px',
+                              fontSize: '13px',
+                              color: '#432821',
+                            }}
+                            placeholder='e.g. 19"'
+                          />
+                        </td>
+                        <td style={{ padding: '8px 12px' }}>
+                          <input
+                            type="text"
+                            value={row.typical_age}
+                            onChange={(e) => handleSizeChartChange(idx, 'typical_age', e.target.value)}
+                            style={{
+                              width: '100%',
+                              minWidth: '140px',
+                              padding: '6px 8px',
+                              border: '1px solid #d9cbbf',
+                              borderRadius: '6px',
+                              fontSize: '13px',
+                              color: '#432821',
+                            }}
+                            placeholder="e.g. 2–3 Years"
+                          />
+                        </td>
+                        <td style={{ padding: '8px 12px', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                          <button
+                            type="button"
+                            onClick={() => handleMoveSizeChartRow(idx, 'up')}
+                            disabled={idx === 0}
+                            style={{
+                              padding: '4px 6px',
+                              border: '1px solid #ebdcd5',
+                              backgroundColor: '#ffffff',
+                              borderRadius: '4px',
+                              cursor: idx === 0 ? 'default' : 'pointer',
+                              opacity: idx === 0 ? 0.3 : 1,
+                              marginRight: '4px',
+                            }}
+                            title="Move row up"
+                          >
+                            ▲
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleMoveSizeChartRow(idx, 'down')}
+                            disabled={idx === (form.size_chart || DEFAULT_SIZE_CHART).length - 1}
+                            style={{
+                              padding: '4px 6px',
+                              border: '1px solid #ebdcd5',
+                              backgroundColor: '#ffffff',
+                              borderRadius: '4px',
+                              cursor: idx === (form.size_chart || DEFAULT_SIZE_CHART).length - 1 ? 'default' : 'pointer',
+                              opacity: idx === (form.size_chart || DEFAULT_SIZE_CHART).length - 1 ? 0.3 : 1,
+                              marginRight: '6px',
+                            }}
+                            title="Move row down"
+                          >
+                            ▼
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveSizeChartRow(idx)}
+                            style={{
+                              padding: '4px 6px',
+                              border: '1px solid #fecaca',
+                              backgroundColor: '#fef2f2',
+                              color: '#dc2626',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                            }}
+                            title="Remove size row"
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>
+                              delete
+                            </span>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Pre-configured Dress Sizes Preset Badges */}
+            <div style={{ marginTop: '16px' }}>
               <div style={styles.tagHeaderRow}>
-                <label style={styles.label}>Pre-configured Dress Sizes</label>
+                <label style={styles.label}>Active Catalog Size Options</label>
                 {!showAddSize ? (
                   <button
                     type="button"
                     onClick={() => setShowAddSize(true)}
                     style={styles.addTagToggleBtn}
                   >
-                    + Add Custom Size
+                    + Add Size Option
                   </button>
                 ) : (
                   <div style={styles.inlineAddGroup}>
@@ -1192,7 +2357,7 @@ export const AdminSettings: React.FC = () => {
             </div>
 
             {/* Pre-configured Cake Weights */}
-            <div>
+            <div style={{ marginTop: '16px' }}>
               <div style={styles.tagHeaderRow}>
                 <label style={styles.label}>Pre-configured Cake Weights</label>
                 {!showAddWeight ? (
@@ -1239,7 +2404,7 @@ export const AdminSettings: React.FC = () => {
             </div>
 
             {/* Product Categories & Default Status */}
-            <div style={styles.formGrid2}>
+            <div style={{ ...styles.formGrid2, marginTop: '16px' }}>
               <div>
                 <label style={styles.label}>Primary Product Categories</label>
                 <input
@@ -1479,6 +2644,50 @@ export const AdminSettings: React.FC = () => {
         </section>
       </main>
 
+      {/* =================================================================== */}
+      {/* SECTION 7: DATA EXPORT & BACKUP                                     */}
+      {/* =================================================================== */}
+      <section id="section-export" style={styles.sectionCard}>
+        <div style={styles.sectionCardHeader}>
+          <div style={styles.sectionHeaderLeft}>
+            <span className="material-symbols-outlined" style={styles.sectionIcon}>
+              download
+            </span>
+            <h2 style={styles.sectionCardTitle}>Data Export & Backup</h2>
+          </div>
+          <span style={styles.ownerBadge}>Excel / CSV Format</span>
+        </div>
+
+        <div style={styles.sectionBody}>
+          <p style={{ ...styles.secDesc, margin: '6px 0 16px 0' }}>
+            Download complete records of your store's data in CSV format, natively compatible with Microsoft Excel and Google Sheets.
+          </p>
+          <div style={styles.formGrid2}>
+            <button
+              type="button"
+              onClick={() => handleExportData('orders')}
+              style={styles.changePasswordBtn}
+            >
+              Export Orders
+            </button>
+            <button
+              type="button"
+              onClick={() => handleExportData('products')}
+              style={styles.changePasswordBtn}
+            >
+              Export Products
+            </button>
+            <button
+              type="button"
+              onClick={() => handleExportData('customers')}
+              style={styles.changePasswordBtn}
+            >
+              Export Customers
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* Sticky Bottom Save Bar (Visible when there are unsaved changes) */}
       {hasUnsavedChanges && (
         <aside style={styles.stickyBar}>
@@ -1626,7 +2835,8 @@ export const AdminSettings: React.FC = () => {
                       }}
                       style={{
                         fontSize: '11px',
-                        padding: '4px 8px',
+                        padding: '6px 10px',
+                        minHeight: '32px',
                         backgroundColor: '#ffffff',
                         border: '1px solid #d9cbbf',
                         borderRadius: '4px',
@@ -1697,28 +2907,129 @@ export const AdminSettings: React.FC = () => {
               </div>
 
               <div style={styles.modalFieldGroup}>
-                <label style={styles.label}>Screenshot Image URL *</label>
-                <input
-                  type="url"
-                  value={reviewForm.screenshot_url}
-                  onChange={(e) => setReviewForm({ ...reviewForm, screenshot_url: e.target.value })}
-                  placeholder="https://... screenshot image url"
-                  required
-                  style={styles.input}
-                />
-                {reviewForm.screenshot_url && (
-                  <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <img
-                      src={reviewForm.screenshot_url}
-                      alt="Preview"
-                      style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #d4c3bf' }}
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
-                    <span style={{ fontSize: '11px', color: '#065f46' }}>✓ Screenshot preview linked</span>
-                  </div>
-                )}
+                <label style={styles.label}>Customer Screenshot Image *</label>
+                
+                {/* Device Upload Area */}
+                <div style={{
+                  border: '2px dashed #d9cbbf',
+                  borderRadius: '10px',
+                  backgroundColor: '#faf7f3',
+                  padding: '14px 16px',
+                  textAlign: 'center',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  marginBottom: '10px'
+                }}>
+                  {isUploadingScreenshot ? (
+                    <div style={{ padding: '16px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#8a6552' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '32px', animation: 'spin 1s linear infinite' }}>sync</span>
+                      <span style={{ fontSize: '13px', fontWeight: 600 }}>Uploading screenshot to cloud storage...</span>
+                    </div>
+                  ) : reviewForm.screenshot_url ? (
+                    <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '12px', textAlign: 'left' }}>
+                      <img
+                        src={reviewForm.screenshot_url}
+                        alt="Screenshot Preview"
+                        style={{
+                          width: '72px',
+                          height: '72px',
+                          objectFit: 'cover',
+                          borderRadius: '8px',
+                          border: '1px solid #d4c3bf',
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
+                          flexShrink: 0
+                        }}
+                      />
+                      <div style={{ flex: '1 1 200px', minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#065f46', fontSize: '12px', fontWeight: 600, marginBottom: '8px' }}>
+                          <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>check_circle</span>
+                          Screenshot Attached
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                          <label style={{
+                            padding: '8px 12px',
+                            minHeight: '38px',
+                            backgroundColor: '#ffffff',
+                            border: '1px solid #d9cbbf',
+                            borderRadius: '6px',
+                            fontSize: '12px',
+                            fontWeight: 600,
+                            color: '#432821',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>upload</span>
+                            Change Image
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleScreenshotFileChange}
+                              style={{ display: 'none' }}
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => setReviewForm({ ...reviewForm, screenshot_url: '' })}
+                            style={{
+                              padding: '8px 12px',
+                              minHeight: '38px',
+                              backgroundColor: '#fee2e2',
+                              border: '1px solid #fecaca',
+                              borderRadius: '6px',
+                              fontSize: '12px',
+                              fontWeight: 600,
+                              color: '#991b1b',
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center'
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <label style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '8px',
+                      cursor: 'pointer',
+                      padding: '12px 8px'
+                    }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '36px', color: '#8a6552' }}>
+                        add_photo_alternate
+                      </span>
+                      <span style={{ fontSize: '13px', fontWeight: 600, color: '#432821' }}>
+                        Click to Upload Screenshot from Device
+                      </span>
+                      <span style={{ fontSize: '11px', color: '#7e726b' }}>
+                        Supports WhatsApp, Facebook, or Instagram chat screenshots (PNG, JPG, WEBP)
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleScreenshotFileChange}
+                        style={{ display: 'none' }}
+                      />
+                    </label>
+                  )}
+                </div>
+
+                {/* Optional manual URL input */}
+                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                  <span style={{ fontSize: '11px', color: '#7e726b', whiteSpace: 'nowrap' }}>Or paste image link:</span>
+                  <input
+                    type="url"
+                    value={reviewForm.screenshot_url}
+                    onChange={(e) => setReviewForm({ ...reviewForm, screenshot_url: e.target.value })}
+                    placeholder="https://... direct image link"
+                    style={{ ...styles.input, flex: '1 1 200px', minWidth: '150px', padding: '8px 10px', fontSize: '12px' }}
+                  />
+                </div>
               </div>
 
               <div style={styles.modalFieldGroup}>
@@ -1751,6 +3062,16 @@ export const AdminSettings: React.FC = () => {
             </form>
           </div>
         </div>
+      )}
+      {/* Cropper Modal */}
+      {croppingField && (
+        <ImageCropper
+          imageFile={croppingField.file}
+          imageSrc={croppingField.imageSrc}
+          aspectRatio={croppingField.aspect}
+          onCrop={handleCroppedImage}
+          onCancel={() => setCroppingField(null)}
+        />
       )}
     </div>
   );
@@ -1901,6 +3222,8 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '12px',
     borderBottom: '1px solid #eae8e4',
     paddingBottom: '14px',
     marginBottom: '20px',
@@ -1953,7 +3276,8 @@ const styles: Record<string, React.CSSProperties> = {
   },
   crestCard: {
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    flexWrap: 'wrap',
     gap: '16px',
     backgroundColor: '#f5f3ef',
     border: '1px solid #eae8e4',
@@ -2293,6 +3617,8 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '12px',
     border: '1px solid #eae8e4',
     borderRadius: '6px',
     padding: '14px 16px',
@@ -2643,6 +3969,7 @@ const styles: Record<string, React.CSSProperties> = {
   modalFooter: {
     display: 'flex',
     justifyContent: 'flex-end',
+    flexWrap: 'wrap',
     gap: '10px',
     marginTop: '6px',
     paddingTop: '12px',

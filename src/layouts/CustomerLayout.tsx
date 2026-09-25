@@ -16,18 +16,29 @@ export const CustomerLayout: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [secretToast, setSecretToast] = useState<string | null>(null);
   const [storeSettings, setStoreSettings] = useState<StoreSettings | null>(null);
+  const [logoImgError, setLogoImgError] = useState(false);
   const { isAdmin } = useAuth();
   const { itemCount, isBagBouncing } = useCart();
   const navigate = useNavigate();
 
   useEffect(() => {
-    settingsService.getSettings().then((s) => setStoreSettings(s));
+    settingsService.getSettings().then((s) => {
+      setStoreSettings(s);
+      setLogoImgError(false);
+    });
     const handleSettingsUpdated = (e: any) => {
-      if (e.detail) setStoreSettings(e.detail);
+      if (e.detail) {
+        setStoreSettings(e.detail);
+        setLogoImgError(false);
+      }
     };
     window.addEventListener('store_settings_updated', handleSettingsUpdated);
     return () => window.removeEventListener('store_settings_updated', handleSettingsUpdated);
   }, []);
+
+  useEffect(() => {
+    setLogoImgError(false);
+  }, [storeSettings?.logo_url]);
 
   const secretTapCountRef = useRef(0);
   const secretTapTimerRef = useRef<any>(null);
@@ -172,24 +183,22 @@ export const CustomerLayout: React.FC = () => {
 
           {/* Center: Brand Identity (Mathematically centered across viewports) */}
           <div style={styles.brandCenter} className="customer-brand-center">
-            <Link to="/" style={{ ...styles.brandLink, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-              {storeSettings?.logo_url ? (
+            <Link to="/" style={styles.brandLink}>
+              {storeSettings?.logo_url && !logoImgError && (
                 <img
                   src={storeSettings.logo_url}
-                  alt="Ababil’s Attire"
-                  style={{
-                    maxHeight: '38px',
-                    maxWidth: '180px',
-                    objectFit: 'contain',
-                    display: 'block',
-                  }}
+                  alt="Ababil’s Attire Logo"
+                  onError={() => setLogoImgError(true)}
+                  style={styles.brandLogoImg}
                 />
-              ) : (
-                <span style={styles.brandTitle}>Ababil’s Attire</span>
               )}
+              <span style={styles.brandTitle} className="customer-brand-title">
+                {storeSettings?.store_name || "Ababil’s Attire"}
+              </span>
             </Link>
             <span
               style={styles.brandSubtitle}
+              className="customer-brand-subtitle"
               onClick={handleSecretTap}
               title="Ababil’s Attire by Sanjida Bethi"
               role="button"
@@ -202,7 +211,12 @@ export const CustomerLayout: React.FC = () => {
           {/* Right: Actions Cluster (Track Order, Bag, Admin) */}
           <div style={styles.rightGroup} className="customer-right-group">
             {isAdmin && (
-              <Link to="/admin" style={styles.adminBadgeLink} title="Studio Admin Suite">
+              <Link
+                to="/admin"
+                style={styles.adminBadgeLink}
+                className="customer-header-admin-badge"
+                title="Studio Admin Suite"
+              >
                 <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
                   shield_person
                 </span>
@@ -606,10 +620,10 @@ const styles: Record<string, React.CSSProperties> = {
     transition: 'all 0.2s ease',
   },
   headerInner: {
-    height: '56px',
+    minHeight: '64px',
     maxWidth: '1200px',
     margin: '0 auto',
-    padding: '0 16px',
+    padding: '8px 16px',
     display: 'grid',
     gridTemplateColumns: '1fr auto 1fr',
     alignItems: 'center',
@@ -665,10 +679,24 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     textAlign: 'center',
     justifySelf: 'center',
+    maxWidth: '60vw',
+    gap: '2px',
   },
   brandLink: {
     textDecoration: 'none',
     color: 'inherit',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
+  },
+  brandLogoImg: {
+    height: '28px',
+    width: 'auto',
+    maxWidth: '36px',
+    objectFit: 'contain',
+    display: 'block',
+    flexShrink: 0,
   },
   brandTitle: {
     fontFamily: "var(--font-serif, 'Bodoni Moda', serif)",
@@ -677,6 +705,7 @@ const styles: Record<string, React.CSSProperties> = {
     color: '#5c3e36',
     letterSpacing: '0.02em',
     lineHeight: 1.1,
+    whiteSpace: 'nowrap',
   },
   brandSubtitle: {
     fontFamily: "var(--font-sans, 'Plus Jakarta Sans', sans-serif)",
@@ -684,9 +713,13 @@ const styles: Record<string, React.CSSProperties> = {
     letterSpacing: '0.12em',
     color: '#8c5e51',
     textTransform: 'uppercase',
-    marginTop: '1px',
     cursor: 'default',
     userSelect: 'none',
+    lineHeight: 1.2,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    maxWidth: '100%',
   },
   rightGroup: {
     display: 'flex',

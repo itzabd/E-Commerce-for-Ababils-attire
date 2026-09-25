@@ -336,4 +336,49 @@ export const storageService = {
 
     return publicUrl;
   },
+
+  /**
+   * Upload general image (like banners or review screenshots) to Supabase Storage or Data URL
+   */
+  async uploadGeneralImage(file: File, folder: 'banners' | 'reviews' = 'banners'): Promise<string> {
+    const validation = this.validateImageFile(file);
+    if (!validation.valid) {
+      throw new Error(validation.error);
+    }
+
+    let publicUrl = '';
+    const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
+    const timestamp = Date.now();
+    const filePath = `${folder}/${timestamp}.${ext}`;
+
+    try {
+      const { data, error } = await supabase.storage
+        .from(BUCKET_NAME)
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true,
+          contentType: file.type || (ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : ext === 'webp' ? 'image/webp' : 'image/png'),
+        });
+
+      if (!error && data?.path) {
+        const { data: publicData } = supabase.storage
+          .from(BUCKET_NAME)
+          .getPublicUrl(data.path);
+        publicUrl = publicData.publicUrl;
+      }
+    } catch (err) {
+      console.warn(`Supabase storage upload failed for ${folder}, falling back to base64:`, err);
+    }
+
+    if (!publicUrl) {
+      publicUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (e) => reject(e);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    return publicUrl;
+  },
 };

@@ -19,7 +19,7 @@ interface ProductFormModalProps {
   onSaved: () => void;
 }
 
-const DRESS_SIZE_OPTIONS = ['6M', '12M', '18M', '2T', '3T', '4T'];
+const DRESS_SIZE_OPTIONS = ['6M', '12M', '18M', '2-3Y', '3-4Y', '4-5Y'];
 const CAKE_WEIGHT_PRESETS = [
   { weight: '0.5 lb Bento', price: 1650 },
   { weight: '1.5 lb', price: 3800 },

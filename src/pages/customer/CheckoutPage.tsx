@@ -101,6 +101,9 @@ export const CheckoutPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  // Security: Honeypot field to catch dumb spam bots
+  const [honeypot, setHoneypot] = useState('');
+
   // Financial Computations
   const dressFee = hasDress ? 120 : 0;
   const cakeFee = hasCake ? 250 : 0;
@@ -150,6 +153,18 @@ export const CheckoutPage: React.FC = () => {
     setSubmitError(null);
 
     try {
+      // 🛡️ SPAM PREVENTION (HONEYPOT)
+      // If a bot fills this hidden field, silently mock success
+      if (honeypot) {
+        console.warn('Bot detected by honeypot.');
+        setIsSubmitting(true);
+        setTimeout(() => {
+          clearCart();
+          navigate('/order-confirmed/AB-BOT-DETECTED', { replace: true });
+        }, 1200);
+        return;
+      }
+
       const cleanPhone = cleanPhoneNumber(phoneNumber);
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -219,7 +234,7 @@ export const CheckoutPage: React.FC = () => {
       console.error('Checkout failed:', err);
       setSubmitError(
         err.message ||
-          'Failed to record your order. Please check your network connection and bKash details.'
+        'Failed to record your order. Please check your network connection and bKash details.'
       );
     } finally {
       setIsSubmitting(false);
@@ -392,6 +407,20 @@ export const CheckoutPage: React.FC = () => {
             </div>
 
             <div style={styles.formFields}>
+              {/* SPAM HONEYPOT - Invisible to humans */}
+              <div style={{ display: 'none', position: 'absolute', left: '-9999px' }} aria-hidden="true">
+                <label htmlFor="website_url_honey">Website URL (Leave blank)</label>
+                <input
+                  type="text"
+                  id="website_url_honey"
+                  name="website_url_honey"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
+              </div>
+
               {/* Full Name */}
               <div style={styles.fieldGroup}>
                 <label htmlFor={fullNameId} style={styles.fieldLabel}>

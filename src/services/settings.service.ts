@@ -12,6 +12,9 @@ const STORAGE_SETTINGS_KEY = 'ababil_admin_store_settings';
 export const DEFAULT_STORE_SETTINGS: StoreSettings = {
   store_name: 'Ababil’s Attire by Sanjida Bethi',
   logo_url: null,
+  hero_banner_url: 'https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=1200&q=80',
+  dresses_collection_url: 'https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?auto=format&fit=crop&w=900&q=80',
+  cakes_collection_url: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=900&q=80',
   business_email: 'sanjida@ababilsattire.com',
   contact_phone: '+880 1712-345678',
   whatsapp_number: '+880 1712-345678',
@@ -51,11 +54,22 @@ export const DEFAULT_STORE_SETTINGS: StoreSettings = {
   dress_lead_time_days: 7,
   cancellation_policy: 'Advance non-refundable once cake baking or fabric cutting commences.',
 
-  preconfigured_sizes: ['0-3M', '3-6M', '6-12M', '12-18M', '2-3Y', '3-4Y', '4-5Y', 'Custom Sizing'],
+  preconfigured_sizes: ['6M', '12M', '18M', '2-3Y', '3-4Y', '4-5Y', 'Custom Sizing'],
   preconfigured_cake_weights: ['0.5 lb Bento', '1.0 lb', '1.5 lb', '2.0 lb', '3.0 lb Tiered'],
   product_categories: ['Handmade Dresses', 'Celebration Cakes', 'Custom Keepsakes'],
   default_product_status: 'draft',
+  size_chart: [
+    { id: 'sz_1', size: '6M', chest: '18"', length: '14"', typical_age: '3–6 Months' },
+    { id: 'sz_2', size: '12M', chest: '19.5"', length: '16"', typical_age: '6–12 Months' },
+    { id: 'sz_3', size: '18M', chest: '20.5"', length: '17.5"', typical_age: '12–18 Months' },
+    { id: 'sz_4', size: '2-3Y', chest: '21.5"', length: '19"', typical_age: '2–3 Years' },
+    { id: 'sz_5', size: '3-4Y', chest: '22.5"', length: '21"', typical_age: '3–4 Years' },
+    { id: 'sz_6', size: '4-5Y', chest: '23.5"', length: '23"', typical_age: '4–5 Years' },
+  ],
+  size_guide_intro: 'Measurements in inches. Handcrafted garments have a relaxed silhouette for ease and growing room.',
 };
+
+export const DEFAULT_SIZE_CHART = DEFAULT_STORE_SETTINGS.size_chart!;
 
 function getLocalSettings(): StoreSettings {
   try {
@@ -85,7 +99,7 @@ export const settingsService = {
   async getSettings(): Promise<StoreSettings> {
     const local = getLocalSettings();
     const storedLogo = typeof window !== 'undefined' ? localStorage.getItem('ababil_store_logo') : null;
-    const fallbackLogo = storedLogo || local.logo_url || 'https://tufmjeeodmfnrubkkqya.supabase.co/storage/v1/object/public/product-images/branding/store_logo.png';
+    const fallbackLogo = storedLogo || local.logo_url || null;
 
     if (isSupabaseConfigured()) {
       try {
@@ -95,6 +109,9 @@ export const settingsService = {
             ...DEFAULT_STORE_SETTINGS,
             ...data,
             logo_url: data.logo_url || fallbackLogo,
+            hero_banner_url: data.hero_banner_url || local.hero_banner_url || DEFAULT_STORE_SETTINGS.hero_banner_url,
+            dresses_collection_url: data.dresses_collection_url || local.dresses_collection_url || DEFAULT_STORE_SETTINGS.dresses_collection_url,
+            cakes_collection_url: data.cakes_collection_url || local.cakes_collection_url || DEFAULT_STORE_SETTINGS.cakes_collection_url,
             minimum_advance_amount: Number(data.minimum_advance_amount ?? 500),
             delivery_inside_dhaka: Number(data.delivery_inside_dhaka ?? 80),
             delivery_outside_dhaka: Number(data.delivery_outside_dhaka ?? 150),
@@ -153,6 +170,9 @@ export const settingsService = {
             ...DEFAULT_STORE_SETTINGS,
             ...data,
             logo_url: merged.logo_url,
+            hero_banner_url: merged.hero_banner_url,
+            dresses_collection_url: merged.dresses_collection_url,
+            cakes_collection_url: merged.cakes_collection_url,
             minimum_advance_amount: Number(data.minimum_advance_amount ?? merged.minimum_advance_amount),
             delivery_inside_dhaka: Number(data.delivery_inside_dhaka ?? merged.delivery_inside_dhaka),
             delivery_outside_dhaka: Number(data.delivery_outside_dhaka ?? merged.delivery_outside_dhaka),
