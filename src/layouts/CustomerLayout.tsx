@@ -20,6 +20,7 @@ export const CustomerLayout: React.FC = () => {
   const { isAdmin } = useAuth();
   const { itemCount, isBagBouncing } = useCart();
   const navigate = useNavigate();
+  const [desktopSearch, setDesktopSearch] = useState('');
 
   useEffect(() => {
     settingsService.getSettings().then((s) => {
@@ -94,6 +95,9 @@ export const CustomerLayout: React.FC = () => {
   // Determine clean brand title and subtitle without duplicating "by Sanjida Bethi"
   const rawStoreName = (storeSettings?.store_name || "Ababil’s Attire by Sanjida Bethi").trim();
   const hasAuthorInName = /by\s+Sanjida\s+Bethi/i.test(rawStoreName);
+  const mainBrandName = hasAuthorInName
+    ? rawStoreName.replace(/by\s+Sanjida\s+Bethi/i, '').trim()
+    : rawStoreName;
   const headerSubtitleText = hasAuthorInName
     ? "Handmade Dresses & Homemade Cakes"
     : "Handmade Dresses & Homemade Cakes • by Sanjida Bethi";
@@ -132,39 +136,151 @@ export const CustomerLayout: React.FC = () => {
         </div>
       )}
 
-      {/* Editorial Announcement Ribbon (Desktop POV) */}
-      <div className="desktop-announcement-bar">
-        <div className="desktop-announcement-inner">
-          <div className="announcement-left">
-            <span className="material-symbols-outlined" style={{ fontSize: '15px', color: '#d9a59f' }}>
-              auto_awesome
-            </span>
-            <span>Dhaka Atelier • Sweet Handcrafted Dresses & Celebration Cakes</span>
+      {/* ================================================================= */}
+      {/* 1A. STITCH DESKTOP 2-ROW HEADER (Visible >= 960px)                */}
+      {/* Faithfully implements Stitch Project 13092249108045248978 PC View */}
+      {/* ================================================================= */}
+      <header className="stitch-desktop-header">
+        <div className="stitch-desktop-header-inner">
+          {/* Row 1: Brand & Atelier Action Cluster */}
+          <div className="stitch-desktop-header-top-row">
+            <div className="stitch-desktop-brand-wrapper">
+              <Link to="/" className="stitch-desktop-brand-link">
+                <span className="stitch-desktop-brand-title">
+                  {mainBrandName || "Ababil’s Attire"}{' '}
+                  <span className="stitch-desktop-brand-author">by Sanjida Bethi</span>
+                </span>
+                <span className="stitch-desktop-brand-subtitle">
+                  HANDMADE DRESSES &amp; FRESH CELEBRATION CAKES
+                </span>
+              </Link>
+            </div>
+
+            <div className="stitch-desktop-header-actions">
+              {/* Search Atelier Pill */}
+              <div className="stitch-desktop-search-pill">
+                <span className="material-symbols-outlined stitch-desktop-search-icon">search</span>
+                <input
+                  type="text"
+                  placeholder="Search atelier..."
+                  value={desktopSearch}
+                  onChange={(e) => setDesktopSearch(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      const q = desktopSearch.trim();
+                      navigate(q ? `/dresses?search=${encodeURIComponent(q)}` : '/dresses');
+                    }
+                  }}
+                  className="stitch-desktop-search-input"
+                  aria-label="Search atelier"
+                />
+              </div>
+
+              {/* Currency */}
+              <div className="stitch-desktop-currency">
+                <span>BDT ৳</span>
+              </div>
+
+              {/* WhatsApp Concierge */}
+              <a
+                href={getStudioWhatsAppUrl('Assalamu Alaikum Sanjida Apu, I would like to inquire about an order.')}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="stitch-desktop-concierge-pill"
+                title="Chat with Atelier Concierge"
+              >
+                <span className="material-symbols-outlined stitch-desktop-concierge-icon">chat</span>
+                <span>CONCIERGE</span>
+              </a>
+
+              {/* My Bag */}
+              <Link
+                to="/bag"
+                className={`stitch-desktop-bag-pill ${isBagBouncing ? 'bag-bounce-active' : ''}`}
+                title={`Shopping Bag (${itemCount} items)`}
+              >
+                <span className="material-symbols-outlined stitch-desktop-bag-icon">shopping_bag</span>
+                <span className="stitch-desktop-bag-text">MY BAG</span>
+                <span className="stitch-desktop-bag-count">{itemCount}</span>
+              </Link>
+
+              {/* User / Admin Access */}
+              <Link
+                to={isAdmin ? "/admin" : "/admin/login"}
+                className="stitch-desktop-user-btn"
+                title={isAdmin ? "Studio Admin Suite" : "Atelier Access"}
+                onClick={() => {
+                  handleSecretTap();
+                }}
+              >
+                <span className="material-symbols-outlined stitch-desktop-user-icon">
+                  {isAdmin ? 'shield_person' : 'person'}
+                </span>
+              </Link>
+            </div>
           </div>
-          <div className="announcement-right">
-            <span>bKash Advance Reservation: ৳{storeSettings?.minimum_advance_amount || 500}</span>
-            <span className="announcement-divider">•</span>
-            <a
-              href={getStudioWhatsAppUrl('Assalamu Alaikum Sanjida Apu, I would like to inquire about an order.')}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="announcement-whatsapp-link"
+
+          {/* Row 2: Centered Horizontal Nav */}
+          <nav className="stitch-desktop-nav-row" aria-label="Desktop Navigation">
+            <NavLink
+              to="/"
+              end
+              className={({ isActive }) =>
+                `stitch-desktop-nav-link ${isActive ? 'active' : ''}`
+              }
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
-                chat
-              </span>
-              <span>WhatsApp Atelier</span>
-            </a>
-          </div>
+              HOME
+            </NavLink>
+            <NavLink
+              to="/dresses"
+              className={({ isActive }) =>
+                `stitch-desktop-nav-link ${isActive ? 'active' : ''}`
+              }
+            >
+              HANDMADE DRESSES
+            </NavLink>
+            <NavLink
+              to="/cakes"
+              className={({ isActive }) =>
+                `stitch-desktop-nav-link ${isActive ? 'active' : ''}`
+              }
+            >
+              CELEBRATION CAKES
+            </NavLink>
+            <NavLink
+              to="/track-order"
+              className={({ isActive }) =>
+                `stitch-desktop-nav-link ${isActive ? 'active' : ''}`
+              }
+            >
+              TRACK ORDER
+            </NavLink>
+            <NavLink
+              to="/about"
+              className={({ isActive }) =>
+                `stitch-desktop-nav-link ${isActive ? 'active' : ''}`
+              }
+            >
+              ABOUT ARTISAN
+            </NavLink>
+            <NavLink
+              to="/contact"
+              className={({ isActive }) =>
+                `stitch-desktop-nav-link ${isActive ? 'active' : ''}`
+              }
+            >
+              CONTACT
+            </NavLink>
+          </nav>
         </div>
-      </div>
+      </header>
 
       {/* ================================================================= */}
-      {/* 1. STICKY BOUTIQUE HEADER (TopAppBar Anchor Component)            */}
+      {/* 1B. PROTECTED MOBILE HEADER (Visible < 960px)                     */}
       {/* ================================================================= */}
-      <header style={styles.header}>
+      <header style={styles.header} className="stitch-mobile-header">
         <div style={styles.headerInner} className="customer-header-inner">
-          {/* Left: Mobile Drawer Toggle & Desktop Nav */}
+          {/* Left: Mobile Drawer Toggle */}
           <div style={styles.leftGroup}>
             <button
               type="button"
@@ -178,41 +294,6 @@ export const CustomerLayout: React.FC = () => {
                 menu
               </span>
             </button>
-
-            {/* Desktop Navigation Links */}
-            <nav style={styles.desktopNav} className="customer-desktop-nav" aria-label="Main Navigation">
-              <NavLink
-                to="/"
-                end
-                style={({ isActive }) => (isActive ? styles.desktopNavLinkActive : styles.desktopNavLink)}
-              >
-                Home
-              </NavLink>
-              <NavLink
-                to="/dresses"
-                style={({ isActive }) => (isActive ? styles.desktopNavLinkActive : styles.desktopNavLink)}
-              >
-                Dresses
-              </NavLink>
-              <NavLink
-                to="/cakes"
-                style={({ isActive }) => (isActive ? styles.desktopNavLinkActive : styles.desktopNavLink)}
-              >
-                Cakes
-              </NavLink>
-              <NavLink
-                to="/about"
-                style={({ isActive }) => (isActive ? styles.desktopNavLinkActive : styles.desktopNavLink)}
-              >
-                Our Story
-              </NavLink>
-              <NavLink
-                to="/contact"
-                style={({ isActive }) => (isActive ? styles.desktopNavLinkActive : styles.desktopNavLink)}
-              >
-                Custom Orders & Contact
-              </NavLink>
-            </nav>
           </div>
 
           {/* Center: Brand Identity (Mathematically centered across viewports) */}

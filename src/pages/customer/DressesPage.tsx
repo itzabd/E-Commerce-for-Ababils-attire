@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { productsService } from '../../services/products.service';
 import type { ProductWithDetails } from '../../types';
 import { DressCard } from '../../components/customer/DressCard';
@@ -13,14 +13,22 @@ type FilterTab = 'all' | 'new' | 'ready_to_ship' | 'made_to_order';
 type SortOption = 'popular' | 'price_low' | 'price_high' | 'newest';
 
 export const DressesPage: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const queryParam = searchParams.get('search') || searchParams.get('q') || '';
   const [products, setProducts] = useState<ProductWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Search & Filter state
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(queryParam);
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
   const [sortBy, setSortBy] = useState<SortOption>('popular');
+
+  useEffect(() => {
+    if (queryParam) {
+      setSearchTerm(queryParam);
+    }
+  }, [queryParam]);
 
   const fetchDresses = async () => {
     try {
