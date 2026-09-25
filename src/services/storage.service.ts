@@ -67,36 +67,23 @@ export const storageService = {
     let imageUrl = '';
 
     // 1. Upload to Supabase Storage with explicit contentType
-    try {
-      const { error: uploadError } = await supabase.storage
-        .from(BUCKET_NAME)
-        .upload(storagePath, file, {
-          cacheControl: '3600',
-          upsert: true,
-          contentType: file.type || 'image/jpeg',
-        });
-
-      if (!uploadError) {
-        const { data: publicUrlData } = supabase.storage
-          .from(BUCKET_NAME)
-          .getPublicUrl(storagePath);
-        imageUrl = publicUrlData.publicUrl;
-      } else {
-        console.warn('Supabase storage upload error, falling back to data URL:', uploadError);
-      }
-    } catch (uploadErr) {
-      console.warn('Storage exception, falling back to data URL:', uploadErr);
-    }
-
-    // Resilient fallback: if remote upload did not provide URL, convert to Base64 Data URL
-    if (!imageUrl) {
-      imageUrl = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = (e) => reject(e);
-        reader.readAsDataURL(file);
+    const { error: uploadError } = await supabase.storage
+      .from(BUCKET_NAME)
+      .upload(storagePath, file, {
+        cacheControl: '3600',
+        upsert: true,
+        contentType: file.type || 'image/jpeg',
       });
+
+    if (uploadError) {
+      console.error('[Storage] Upload failed:', uploadError);
+      throw new Error(`Image upload failed: ${uploadError.message}`);
     }
+
+    const { data: publicUrlData } = supabase.storage
+      .from(BUCKET_NAME)
+      .getPublicUrl(storagePath);
+    imageUrl = publicUrlData.publicUrl;
 
     // 2. Insert record in product_images table
     const { data: imageRow, error: dbError } = await (supabase as any)
@@ -175,35 +162,23 @@ export const storageService = {
     let newUrl = '';
 
     // Upload new image with contentType
-    try {
-      const { error: uploadError } = await supabase.storage
-        .from(BUCKET_NAME)
-        .upload(newStoragePath, file, {
-          cacheControl: '3600',
-          upsert: true,
-          contentType: file.type || 'image/jpeg',
-        });
-
-      if (!uploadError) {
-        const { data: publicUrlData } = supabase.storage
-          .from(BUCKET_NAME)
-          .getPublicUrl(newStoragePath);
-        newUrl = publicUrlData.publicUrl;
-      } else {
-        console.warn('Supabase storage replace upload error, falling back to data URL:', uploadError);
-      }
-    } catch (e) {
-      console.warn('Storage replace exception, falling back to data URL:', e);
-    }
-
-    if (!newUrl) {
-      newUrl = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = (err) => reject(err);
-        reader.readAsDataURL(file);
+    const { error: uploadError } = await supabase.storage
+      .from(BUCKET_NAME)
+      .upload(newStoragePath, file, {
+        cacheControl: '3600',
+        upsert: true,
+        contentType: file.type || 'image/jpeg',
       });
+
+    if (uploadError) {
+      console.error('[Storage] Replace upload failed:', uploadError);
+      throw new Error(`Image replace failed: ${uploadError.message}`);
     }
+
+    const { data: publicUrlData } = supabase.storage
+      .from(BUCKET_NAME)
+      .getPublicUrl(newStoragePath);
+    newUrl = publicUrlData.publicUrl;
 
     // Update database record
     const { error: updateError } = await (supabase as any)
@@ -285,7 +260,7 @@ export const storageService = {
   },
 
   /**
-   * Upload store brand logo image to Supabase Storage or generate a Data URL
+   * Upload store brand logo image to Supabase Storage
    */
   async uploadLogoImage(file: File): Promise<string> {
     const validation = this.validateImageFile(file);
@@ -293,38 +268,26 @@ export const storageService = {
       throw new Error(validation.error);
     }
 
-    let publicUrl = '';
     const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
     const filePath = `branding/store_logo.${ext}`;
 
-    try {
-      const { data, error } = await supabase.storage
-        .from(BUCKET_NAME)
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: true,
-          contentType: file.type || 'image/png',
-        });
-
-      if (!error && data?.path) {
-        const { data: publicData } = supabase.storage
-          .from(BUCKET_NAME)
-          .getPublicUrl(data.path);
-        publicUrl = publicData.publicUrl;
-      }
-    } catch (err) {
-      console.warn('Supabase storage upload failed, falling back to base64 Data URL:', err);
-    }
-
-    // Resilient fallback: convert to base64 Data URL so it previews and saves reliably
-    if (!publicUrl) {
-      publicUrl = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = (e) => reject(e);
-        reader.readAsDataURL(file);
+    const { data, error } = await supabase.storage
+      .from(BUCKET_NAME)
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: true,
+        contentType: file.type || 'image/png',
       });
+
+    if (error || !data?.path) {
+      console.error('[Storage] Logo upload failed:', error);
+      throw new Error(`Logo upload failed: ${error?.message ?? 'unknown error'}`);
     }
+
+    const { data: publicData } = supabase.storage
+      .from(BUCKET_NAME)
+      .getPublicUrl(data.path);
+    const publicUrl = publicData.publicUrl;
 
     if (typeof window !== 'undefined') {
       try {
@@ -338,7 +301,7 @@ export const storageService = {
   },
 
   /**
-   * Upload general image (like banners or review screenshots) to Supabase Storage or Data URL
+   * Upload general image (like banners or review screenshots) to Supabase Storage
    */
   async uploadGeneralImage(file: File, folder: 'banners' | 'reviews' = 'banners'): Promise<string> {
     const validation = this.validateImageFile(file);
@@ -346,39 +309,27 @@ export const storageService = {
       throw new Error(validation.error);
     }
 
-    let publicUrl = '';
     const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
     const timestamp = Date.now();
     const filePath = `${folder}/${timestamp}.${ext}`;
+    const contentType = file.type || (ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : ext === 'webp' ? 'image/webp' : 'image/png');
 
-    try {
-      const { data, error } = await supabase.storage
-        .from(BUCKET_NAME)
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: true,
-          contentType: file.type || (ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : ext === 'webp' ? 'image/webp' : 'image/png'),
-        });
-
-      if (!error && data?.path) {
-        const { data: publicData } = supabase.storage
-          .from(BUCKET_NAME)
-          .getPublicUrl(data.path);
-        publicUrl = publicData.publicUrl;
-      }
-    } catch (err) {
-      console.warn(`Supabase storage upload failed for ${folder}, falling back to base64:`, err);
-    }
-
-    if (!publicUrl) {
-      publicUrl = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = (e) => reject(e);
-        reader.readAsDataURL(file);
+    const { data, error } = await supabase.storage
+      .from(BUCKET_NAME)
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: true,
+        contentType,
       });
+
+    if (error || !data?.path) {
+      console.error(`[Storage] ${folder} upload failed:`, error);
+      throw new Error(`${folder} image upload failed: ${error?.message ?? 'unknown error'}`);
     }
 
-    return publicUrl;
+    const { data: publicData } = supabase.storage
+      .from(BUCKET_NAME)
+      .getPublicUrl(data.path);
+    return publicData.publicUrl;
   },
 };
