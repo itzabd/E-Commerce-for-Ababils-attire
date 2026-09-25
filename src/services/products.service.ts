@@ -70,10 +70,13 @@ export const productsService = {
    * Fetch single product with all details by product code or UUID
    */
   async getProductByCode(codeOrId: string): Promise<ProductWithDetails | null> {
-    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(codeOrId);
+    if (!codeOrId) return null;
+    const clean = decodeURIComponent(codeOrId).trim();
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(clean);
 
     try {
-      const query = (supabase as any)
+      // 1. Primary lookup by UUID id or case-insensitive product_code
+      const primaryQuery = (supabase as any)
         .from('products')
         .select(`
           *,
@@ -83,19 +86,38 @@ export const productsService = {
         `);
 
       const { data, error } = isUuid
-        ? await query.eq('id', codeOrId).single()
-        : await query.eq('product_code', codeOrId).single();
+        ? await primaryQuery.eq('id', clean).maybeSingle()
+        : await primaryQuery.ilike('product_code', clean).maybeSingle();
 
       if (!error && data) {
         return normalizeProduct(data);
+      }
+
+      // 2. Secondary check if codeOrId was swapped or partial match
+      const secondaryQuery = (supabase as any)
+        .from('products')
+        .select(`
+          *,
+          images:product_images(*),
+          dress_details(*),
+          cake_details(*)
+        `);
+
+      const { data: secondData, error: secondError } = isUuid
+        ? await secondaryQuery.ilike('product_code', clean).maybeSingle()
+        : await secondaryQuery.eq('id', clean).maybeSingle();
+
+      if (!secondError && secondData) {
+        return normalizeProduct(secondData);
       }
     } catch (err) {
       console.warn('Supabase getProductByCode failed, checking local catalog:', err);
     }
 
-    // Fallback search
+    // Fallback search across local static products
+    const lowerClean = clean.toLowerCase();
     const found = FALLBACK_PRODUCTS.find(
-      (p) => p.id === codeOrId || p.product_code.toLowerCase() === codeOrId.toLowerCase()
+      (p) => p.id.toLowerCase() === lowerClean || p.product_code.toLowerCase() === lowerClean
     );
     return found || null;
   },

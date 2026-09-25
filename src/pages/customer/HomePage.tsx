@@ -64,41 +64,45 @@ export const HomePage: React.FC = () => {
       {/* ================================================================= */}
       {/* 2. HERO SECTION                                                   */}
       {/* ================================================================= */}
-      <section style={styles.heroSection}>
+      {/* ================================================================= */}
+      {/* 2. HERO SECTION                                                   */}
+      {/* ================================================================= */}
+      <section style={styles.heroSection} className="home-hero-section">
         {/* Ambient Image Arch */}
-        <div style={styles.heroImageWrapper}>
+        <div style={styles.heroImageWrapper} className="home-hero-image-wrapper">
           <img
             src={storeSettings?.hero_banner_url || "https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=1200&q=80"}
             alt="Handmade baby dress and celebration cake in sunlit studio"
             style={styles.heroImage}
+            className="home-hero-image"
           />
           <div style={styles.heroImageGradient} />
-          <div style={styles.heroBadgeRow}>
+          <div style={styles.heroBadgeRow} className="home-hero-badge-row">
             <span style={styles.heroTopBadge}>Handmade with Love</span>
             <span style={styles.heroBottomBadge}>Custom Orders & Worldwide Delivery</span>
           </div>
         </div>
 
         {/* Hero Typography */}
-        <div style={styles.heroTextWrapper}>
+        <div style={styles.heroTextWrapper} className="home-hero-text-wrapper">
           <p style={styles.heroEyebrow}>MADE WITH LOVE BY SANJIDA BETHI</p>
-          <h1 style={styles.heroHeadline}>
+          <h1 style={styles.heroHeadline} className="home-hero-headline">
             Handmade Dresses & Homemade Cakes, Crafted with Care
           </h1>
-          <p style={styles.heroDescription}>
+          <p style={styles.heroDescription} className="home-hero-description">
             Sweet handmade dresses for little girls and delicious homemade cakes, baked and sewn
             with love for your special family celebrations in Dhaka.
           </p>
-        </div>
 
-        {/* Action Button Group */}
-        <div style={styles.heroActionGroup}>
-          <Link to="/dresses" style={styles.heroPrimaryBtn}>
-            Explore Dresses
-          </Link>
-          <Link to="/cakes" style={styles.heroSecondaryBtn}>
-            Explore Cakes
-          </Link>
+          {/* Action Button Group */}
+          <div style={styles.heroActionGroup} className="home-hero-action-group">
+            <Link to="/dresses" style={styles.heroPrimaryBtn} className="home-hero-btn-primary">
+              Explore Dresses
+            </Link>
+            <Link to="/cakes" style={styles.heroSecondaryBtn} className="home-hero-btn-secondary">
+              Explore Cakes
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -111,9 +115,9 @@ export const HomePage: React.FC = () => {
           <h2 style={styles.sectionTitle}>Shop by Collection</h2>
         </div>
 
-        <div style={styles.dualCollectionGrid}>
+        <div style={styles.dualCollectionGrid} className="home-dual-collection-grid">
           {/* Collection 1: Dresses */}
-          <article style={styles.collectionCard}>
+          <article style={styles.collectionCard} className="home-collection-card">
             <div style={styles.collectionImageWrapper}>
               <img
                 src={storeSettings?.dresses_collection_url || "https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?auto=format&fit=crop&w=900&q=80"}
@@ -140,7 +144,7 @@ export const HomePage: React.FC = () => {
           </article>
 
           {/* Collection 2: Cakes */}
-          <article style={styles.collectionCard}>
+          <article style={styles.collectionCard} className="home-collection-card">
             <div style={styles.collectionImageWrapper}>
               <img
                 src={storeSettings?.cakes_collection_url || "https://images.unsplash.com/photo-1535141192574-5d4897c13136?auto=format&fit=crop&w=900&q=80"}
@@ -186,13 +190,13 @@ export const HomePage: React.FC = () => {
         </div>
 
         {loading ? (
-          <div style={styles.loadingGrid}>
+          <div style={styles.loadingGrid} className="home-products-grid">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} style={styles.skeletonCard} />
             ))}
           </div>
         ) : (
-          <div style={styles.productsGrid}>
+          <div style={styles.productsGrid} className="home-products-grid">
             {featuredDresses.map((dress) => (
               <DressCard key={dress.id} product={dress} />
             ))}
@@ -218,13 +222,13 @@ export const HomePage: React.FC = () => {
         </div>
 
         {loading ? (
-          <div style={styles.loadingGrid}>
+          <div style={styles.loadingGrid} className="home-products-grid">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} style={styles.skeletonCard} />
             ))}
           </div>
         ) : (
-          <div style={styles.productsGrid}>
+          <div style={styles.productsGrid} className="home-products-grid">
             {featuredCakes.map((cake) => (
               <CakeCard key={cake.id} product={cake} />
             ))}
@@ -235,7 +239,7 @@ export const HomePage: React.FC = () => {
       {/* ================================================================= */}
       {/* 6. MEET SANJIDA BETHI (Artisan Story Pillars)                     */}
       {/* ================================================================= */}
-      <section style={styles.artisanSection} id="artisan-story">
+      <section style={styles.artisanSection} className="home-artisan-section" id="artisan-story">
         <div style={styles.sectionHeaderCenter}>
           <span style={styles.makerBadge}>A NOTE FROM THE MAKER</span>
           <h2 style={styles.sectionTitle}>Meet Sanjida Bethi</h2>
@@ -245,7 +249,7 @@ export const HomePage: React.FC = () => {
           </p>
         </div>
 
-        <div style={styles.pillarsGrid}>
+        <div style={styles.pillarsGrid} className="home-pillars-grid">
           {/* Pillar 1 */}
           <div style={styles.pillarCard}>
             <div style={styles.pillarIconWrapper}>

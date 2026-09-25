@@ -1,0 +1,184 @@
+- generic [ref=f1e6]:
+  - banner [ref=f1e7]:
+    - generic [ref=f1e8]:
+      - navigation "Main Navigation" [ref=f1e10]:
+        - link "Home" [ref=f1e11] [cursor=pointer]:
+          - /url: /
+        - link "Dresses" [ref=f1e12] [cursor=pointer]:
+          - /url: /dresses
+        - link "Cakes" [ref=f1e13] [cursor=pointer]:
+          - /url: /cakes
+        - link "Our Story" [ref=f1e14] [cursor=pointer]:
+          - /url: /about
+        - link "Custom Orders & Contact" [ref=f1e15] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f1e16]:
+        - link "Ababil’s Attire by Sanjida Bethi" [ref=f1e17] [cursor=pointer]:
+          - /url: /
+        - button "Handmade Dresses & Homemade Cakes by Sanjida Bethi" [ref=f1e19]
+      - generic [ref=f1e20]:
+        - link "shield_person Admin" [ref=f1e21] [cursor=pointer]:
+          - /url: /admin
+          - generic [ref=f1e22]: shield_person
+          - generic [ref=f1e23]: Admin
+        - link "Track Order" [ref=f1e24] [cursor=pointer]:
+          - /url: /track-order
+          - generic [ref=f1e25]: local_shipping
+        - link "Shopping Bag (0 items)" [ref=f1e26] [cursor=pointer]:
+          - /url: /bag
+          - generic [ref=f1e27]: shopping_bag
+  - complementary [ref=f1e28]:
+    - generic [ref=f1e29]:
+      - generic [ref=f1e30]:
+        - heading "Ababil’s Attire" [level=2] [ref=f1e31]
+        - paragraph [ref=f1e32]: by Sanjida Bethi
+        - generic [ref=f1e33]: Handmade Dresses & Homemade Cakes
+      - button "Close menu" [ref=f1e34] [cursor=pointer]:
+        - generic [ref=f1e35]: close
+    - navigation [ref=f1e36]:
+      - link "storefront Home" [ref=f1e37] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f1e38]: storefront
+        - generic [ref=f1e39]: Home
+      - link "checkroom Handmade Dresses" [ref=f1e40] [cursor=pointer]:
+        - /url: /dresses
+        - generic [ref=f1e41]: checkroom
+        - generic [ref=f1e42]: Handmade Dresses
+      - link "cake Fresh Cakes" [ref=f1e43] [cursor=pointer]:
+        - /url: /cakes
+        - generic [ref=f1e44]: cake
+        - generic [ref=f1e45]: Fresh Cakes
+      - link "shopping_bag My Bag" [ref=f1e46] [cursor=pointer]:
+        - /url: /bag
+        - generic [ref=f1e47]: shopping_bag
+        - generic [ref=f1e48]: My Bag
+      - link "auto_stories Our Story" [ref=f1e49] [cursor=pointer]:
+        - /url: /about
+        - generic [ref=f1e50]: auto_stories
+        - generic [ref=f1e51]: Our Story
+      - link "edit_calendar Custom Orders & Contact" [ref=f1e52] [cursor=pointer]:
+        - /url: /contact
+        - generic [ref=f1e53]: edit_calendar
+        - generic [ref=f1e54]: Custom Orders & Contact
+      - link "local_shipping Track Order" [ref=f1e55] [cursor=pointer]:
+        - /url: /track-order
+        - generic [ref=f1e56]: local_shipping
+        - generic [ref=f1e57]: Track Order
+      - link "admin_panel_settings Admin Suite" [ref=f1e58] [cursor=pointer]:
+        - /url: /admin
+        - generic [ref=f1e59]: admin_panel_settings
+        - generic [ref=f1e60]: Admin Suite
+    - generic [ref=f1e61]:
+      - paragraph [ref=f1e62]: "\"Stitched with love, baked with care.\""
+      - generic [ref=f1e63]:
+        - paragraph [ref=f1e64]: Banani Studio • Dhaka, Bangladesh
+        - button "Studio Lock" [ref=f1e65] [cursor=pointer]:
+          - generic [ref=f1e66]: lock
+  - main [ref=f1e67]:
+    - generic [ref=f1e68]:
+      - navigation "Breadcrumb" [ref=f1e69]:
+        - link "Home" [ref=f1e70] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f1e71]: /
+        - link "Cakes" [ref=f1e72] [cursor=pointer]:
+          - /url: /cakes
+        - generic [ref=f1e73]: /
+        - generic [ref=f1e74]: Vintage Lambeth Ruffle Bento Cake
+      - generic [ref=f1e75]:
+        - generic [ref=f1e77]:
+          - img "Vintage Lambeth Ruffle Bento Cake" [ref=f1e78]
+          - generic [ref=f1e79]:
+            - generic [ref=f1e80]: auto_awesome
+            - generic [ref=f1e81]: Baked Fresh to Order
+          - generic [ref=f1e82]: 1 / 1
+          - button "Expand photo" [ref=f1e83] [cursor=pointer]:
+            - generic [ref=f1e84]: zoom_in
+        - generic [ref=f1e85]:
+          - generic [ref=f1e87]:
+            - generic [ref=f1e88]: schedule
+            - text: 24h Studio Notice Required
+          - heading "Vintage Lambeth Ruffle Bento Cake" [level=1] [ref=f1e89]
+          - generic [ref=f1e90]:
+            - generic [ref=f1e91]: ৳ 1,650
+            - generic [ref=f1e92]: for 0.5 lb Bento (1-2)
+          - generic [ref=f1e93]:
+            - generic [ref=f1e94]: restaurant
+            - generic [ref=f1e95]: Salted Caramel Vanilla
+          - paragraph [ref=f1e96]: Handcrafted Victorian Lambeth piped bento cake in dusty blush and ivory cream. Perfect for intimate milestone celebrations, baby announcements, and birthdays.
+          - generic [ref=f1e97]:
+            - generic [ref=f1e98]: alarm
+            - generic [ref=f1e99]:
+              - paragraph [ref=f1e100]: Notice time for fresh baking
+              - paragraph [ref=f1e101]: Please order at least 24 hours before your celebration so Sanjida can bake and chill your cake fresh in our studio.
+          - separator [ref=f1e102]
+          - generic [ref=f1e103]:
+            - generic [ref=f1e104]: "Choose Your Cake:"
+            - generic [ref=f1e105]:
+              - generic [ref=f1e106] [cursor=pointer]:
+                - generic [ref=f1e109]:
+                  - generic [ref=f1e110]: 0.5 lb Bento
+                  - generic [ref=f1e111]: 1-2
+                - generic [ref=f1e112]: ৳ 1,650
+              - generic [ref=f1e113] [cursor=pointer]:
+                - generic [ref=f1e115]:
+                  - generic [ref=f1e116]: 1.0 lb Petite
+                  - generic [ref=f1e117]: 4-6
+                - generic [ref=f1e118]: ৳ 2,850
+          - generic [ref=f1e119]:
+            - generic [ref=f1e120]: "Select Flavor Profile:"
+            - generic [ref=f1e121]:
+              - button "Salted Caramel Vanilla" [ref=f1e122] [cursor=pointer]
+              - button "Rich Dark Chocolate Truffle" [ref=f1e123] [cursor=pointer]
+              - button "Red Velvet Cream Cheese" [ref=f1e124] [cursor=pointer]
+          - generic [ref=f1e125]:
+            - generic [ref=f1e126]: "Custom Piped Message (Optional):"
+            - textbox "e.g. Happy 1st Birthday Ayla!" [ref=f1e127]
+            - generic [ref=f1e128]: Hand-piped in cocoa umber or blush cursive script (max 40 chars).
+          - generic [ref=f1e129]:
+            - button "cake Add to Bag • ৳ 1,650" [ref=f1e130] [cursor=pointer]:
+              - generic [ref=f1e131]: cake
+              - generic [ref=f1e132]: Add to Bag • ৳ 1,650
+            - link "chat Message Sanjida" [ref=f1e133] [cursor=pointer]:
+              - /url: https://wa.me/8801712345678?text=Assalamu%20Alaikum%20Sanjida%20Apu%2C%20I%20would%20like%20to%20order%20the%20Vintage%20Lambeth%20Ruffle%20Bento%20Cake%20(0.5%20lb%20Bento%20%E2%80%A2%20Salted%20Caramel%20Vanilla).%20Could%20you%20confirm%20date%20availability%3F
+              - generic [ref=f1e134]: chat
+              - generic [ref=f1e135]: Message Sanjida
+          - generic [ref=f1e136]:
+            - generic [ref=f1e137]:
+              - generic [ref=f1e138]: kitchen
+              - generic [ref=f1e139]:
+                - paragraph [ref=f1e140]: Storage & Handling Instructions
+                - paragraph [ref=f1e141]: Store in cool refrigerated box. Best consumed within 48 hours of studio delivery.
+            - generic [ref=f1e142]:
+              - generic [ref=f1e143]: ac_unit
+              - generic [ref=f1e144]:
+                - paragraph [ref=f1e145]: Chilled Cake Delivery
+                - paragraph [ref=f1e146]: Delivered across Dhaka in temperature-managed chilled delivery transport to preserve frosting and intricate piping. Mandatory ৳ 500 bKash advance required.
+  - contentinfo [ref=f1e147]:
+    - generic [ref=f1e148]:
+      - generic [ref=f1e149]:
+        - heading "Ababil’s Attire" [level=2] [ref=f1e150]
+        - paragraph [ref=f1e151]: by Sanjida Bethi
+        - paragraph [ref=f1e152]: Sweet handmade dresses for little girls and delicious homemade cakes for your family celebrations.
+      - generic [ref=f1e153]:
+        - link "WhatsApp" [ref=f1e154] [cursor=pointer]:
+          - /url: https://wa.me/8801712345678?text=Assalamu%20Alaikum%20Sanjida%20Apu%2C%20I%20would%20like%20to%20inquire%20about%20placing%20an%20order%20at%20Ababil%E2%80%99s%20Attire.
+          - generic [ref=f1e155]: chat
+        - link "Instagram" [ref=f1e156] [cursor=pointer]:
+          - /url: https://instagram.com/ababils.attire
+          - generic [ref=f1e157]: photo_camera
+        - link "Email Studio" [ref=f1e158] [cursor=pointer]:
+          - /url: mailto:concierge@ababilsattire.com
+          - generic [ref=f1e159]: mail
+      - generic [ref=f1e160]:
+        - link "Dresses Collection" [ref=f1e161] [cursor=pointer]:
+          - /url: /dresses
+        - link "Cake Ordering Guide" [ref=f1e162] [cursor=pointer]:
+          - /url: /cakes
+        - link "Track Your Order" [ref=f1e163] [cursor=pointer]:
+          - /url: /track-order
+        - link "Custom Orders" [ref=f1e164] [cursor=pointer]:
+          - /url: /contact
+        - link "Our Story" [ref=f1e165] [cursor=pointer]:
+          - /url: /about
+        - generic "Dhaka Studio Atelier" [ref=f1e166]: Dhaka Atelier
+      - paragraph [ref=f1e168]: © 2026 Ababil’s Attire by Sanjida Bethi. All Rights Reserved. Handmade Dresses & Homemade Cakes • Banani, Dhaka.
