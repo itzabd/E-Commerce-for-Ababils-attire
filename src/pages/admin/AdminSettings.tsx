@@ -842,7 +842,7 @@ export const AdminSettings: React.FC = () => {
           </div>
           
           <div style={styles.sectionBody}>
-            <p style={styles.secDesc} style={{ marginBottom: '16px' }}>Upload and crop images directly for your storefront banners. Images are automatically cropped to the perfect size.</p>
+            <p style={{ ...styles.secDesc, marginBottom: '16px' }}>Upload and crop images directly for your storefront banners. Images are automatically cropped to the perfect size.</p>
             
             <div style={styles.formGrid2}>
               {(() => {
@@ -1691,7 +1691,7 @@ export const AdminSettings: React.FC = () => {
         </div>
 
         <div style={styles.sectionBody}>
-          <p style={styles.secDesc} style={{ marginBottom: '16px' }}>
+          <p style={{ ...styles.secDesc, marginBottom: '16px' }}>
             Download complete records of your store's data in CSV format, natively compatible with Microsoft Excel and Google Sheets.
           </p>
           <div style={styles.formGrid2}>
