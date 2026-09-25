@@ -168,7 +168,7 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({
         return () => {
           URL.revokeObjectURL(objectUrl);
         };
-      } catch (err: any) {
+      } catch {
         setLoadError('Failed to read image file. Please try another image.');
         setIsLoadingMedia(false);
       }

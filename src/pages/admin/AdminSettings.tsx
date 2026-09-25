@@ -173,9 +173,13 @@ export const AdminSettings: React.FC = () => {
 
   const handleCroppedImage = async (croppedBlob: Blob | File) => {
     if (!croppingField || !form) return;
-    const { field, file } = croppingField;
+    const { field } = croppingField;
     setCroppingField(null);
     setUploadingBannerField(field);
+
+    // Create optimistic local preview so user sees the new crop instantly with 0ms loading lag
+    const localPreviewUrl = URL.createObjectURL(croppedBlob);
+    setForm((prev) => (prev ? { ...prev, [field]: localPreviewUrl } : prev));
 
     try {
       const croppedFile = croppedBlob instanceof File 
@@ -191,7 +195,11 @@ export const AdminSettings: React.FC = () => {
     } catch (err: any) {
       console.error('Banner upload error:', err);
       showToast(`Upload failed: ${err.message || 'Error uploading banner'}`);
+      if (initialSettings) {
+        setForm((prev) => (prev ? { ...prev, [field]: initialSettings[field] } : prev));
+      }
     } finally {
+      URL.revokeObjectURL(localPreviewUrl);
       setUploadingBannerField(null);
     }
   };
@@ -842,7 +850,7 @@ export const AdminSettings: React.FC = () => {
           </div>
           
           <div style={styles.sectionBody}>
-            <p style={{ ...styles.secDesc, marginBottom: '16px' }}>Upload and crop images directly for your storefront banners. Images are automatically cropped to the perfect size.</p>
+            <p style={{ ...styles.secDesc, margin: '6px 0 16px 0' }}>Upload and crop images directly for your storefront banners. Images are automatically cropped to the perfect size.</p>
             
             <div style={styles.formGrid2}>
               {(() => {
@@ -1691,7 +1699,7 @@ export const AdminSettings: React.FC = () => {
         </div>
 
         <div style={styles.sectionBody}>
-          <p style={{ ...styles.secDesc, marginBottom: '16px' }}>
+          <p style={{ ...styles.secDesc, margin: '6px 0 16px 0' }}>
             Download complete records of your store's data in CSV format, natively compatible with Microsoft Excel and Google Sheets.
           </p>
           <div style={styles.formGrid2}>
