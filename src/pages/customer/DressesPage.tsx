@@ -72,7 +72,7 @@ export const DressesPage: React.FC = () => {
   }, [products, searchTerm, activeTab, sortBy]);
 
   return (
-    <div style={styles.container}>
+    <div style={styles.container} className="customer-page-container">
       {/* ================================================================= */}
       {/* 1. BREADCRUMB BAR                                                 */}
       {/* ================================================================= */}
@@ -238,7 +238,7 @@ export const DressesPage: React.FC = () => {
           </button>
         </div>
       ) : (
-        <div style={styles.productsGrid}>
+        <div style={styles.productsGrid} className="customer-products-grid">
           {filteredProducts.map((product) => (
             <DressCard key={product.id} product={product} />
           ))}

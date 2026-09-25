@@ -35,7 +35,7 @@ export const CakeCard: React.FC<CakeCardProps> = ({ product }) => {
       : product.description?.split('.')[0] || 'Handcrafted fresh to order';
 
   return (
-    <article style={styles.card}>
+    <article style={styles.card} className="atelier-product-card">
       {/* 1:1 Square Image Container */}
       <Link to={`/cakes/${product.id}`} style={styles.imageLink}>
         <div style={styles.imageWrapper}>

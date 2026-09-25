@@ -60,7 +60,7 @@ export const HomePage: React.FC = () => {
   };
 
   return (
-    <div style={styles.container}>
+    <div style={styles.container} className="customer-page-container home-page-container">
       {/* ================================================================= */}
       {/* 2. HERO SECTION                                                   */}
       {/* ================================================================= */}

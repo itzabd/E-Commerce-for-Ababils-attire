@@ -164,7 +164,7 @@ export const CakeDetailPage: React.FC = () => {
   const noticeHours = product.minimum_notice_hours || 48;
 
   return (
-    <div style={styles.pageWrapper}>
+    <div style={styles.pageWrapper} className="customer-page-container pdp-page-container">
       {/* Breadcrumb Navigation */}
       <nav aria-label="Breadcrumb" style={styles.breadcrumb}>
         <Link to="/" style={styles.crumbLink}>
@@ -179,11 +179,11 @@ export const CakeDetailPage: React.FC = () => {
       </nav>
 
       {/* Main Details Grid: Left Gallery + Right Information */}
-      <div style={styles.detailsGrid}>
+      <div style={styles.detailsGrid} className="pdp-details-grid">
         {/* =============================================================== */}
         {/* LEFT: Photo Gallery Section                                     */}
         {/* =============================================================== */}
-        <section style={styles.gallerySection}>
+        <section style={styles.gallerySection} className="pdp-gallery-section">
           {/* Main 1:1 Square Image */}
           <div style={styles.mainImageContainer}>
             <img
@@ -246,7 +246,7 @@ export const CakeDetailPage: React.FC = () => {
         {/* =============================================================== */}
         {/* RIGHT: Cake Information, Size & Ordering                         */}
         {/* =============================================================== */}
-        <section style={styles.infoSection}>
+        <section style={styles.infoSection} className="pdp-info-section">
           {/* Notice Alert Badge */}
           <div style={styles.statusRow}>
             <span style={styles.noticeBadge}>
@@ -258,7 +258,7 @@ export const CakeDetailPage: React.FC = () => {
           </div>
 
           {/* Cake Title */}
-          <h1 style={styles.productTitle}>{product.name}</h1>
+          <h1 style={styles.productTitle} className="pdp-title">{product.name}</h1>
 
           {/* Price */}
           <div style={styles.priceRow}>

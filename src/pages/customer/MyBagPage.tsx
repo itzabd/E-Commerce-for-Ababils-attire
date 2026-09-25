@@ -68,7 +68,7 @@ export const MyBagPage: React.FC = () => {
         </div>
       </div>
 
-      <div style={styles.mainCanvas}>
+      <div style={styles.mainCanvas} className="customer-page-container cart-page-container">
         {/* Breadcrumb & Navigation */}
         <nav aria-label="Breadcrumb" style={styles.breadcrumbBar}>
           <Link to="/dresses" style={styles.backLink}>
@@ -147,7 +147,7 @@ export const MyBagPage: React.FC = () => {
           /* ============================================================= */
           /* MAIN TWO-COLUMN LAYOUT (Items Stream + Order Summary)         */
           /* ============================================================= */
-          <div style={styles.cartGrid}>
+          <div style={styles.cartGrid} className="cart-grid-desktop">
             {/* Left Column: Cart Items Stream */}
             <section style={styles.itemsStream}>
               {items.map((item) => (
@@ -304,7 +304,7 @@ export const MyBagPage: React.FC = () => {
             </section>
 
             {/* Right Column: Order Summary & Checkout Sidebar */}
-            <aside style={styles.summarySidebar}>
+            <aside style={styles.summarySidebar} className="cart-summary-desktop">
               <div style={styles.summaryCard}>
                 <h2 style={styles.summaryTitle}>Order Summary</h2>
 

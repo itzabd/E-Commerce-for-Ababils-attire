@@ -142,7 +142,7 @@ export const DressDetailPage: React.FC = () => {
   const isMadeToOrder = product.status === 'made_to_order';
 
   return (
-    <div style={styles.pageWrapper}>
+    <div style={styles.pageWrapper} className="customer-page-container pdp-page-container">
       {/* Breadcrumb Navigation */}
       <nav aria-label="Breadcrumb" style={styles.breadcrumb}>
         <Link to="/" style={styles.crumbLink}>
@@ -157,11 +157,11 @@ export const DressDetailPage: React.FC = () => {
       </nav>
 
       {/* Main Details Grid: Left Gallery + Right Information */}
-      <div style={styles.detailsGrid}>
+      <div style={styles.detailsGrid} className="pdp-details-grid">
         {/* =============================================================== */}
         {/* LEFT: Photo Gallery Section                                     */}
         {/* =============================================================== */}
-        <section style={styles.gallerySection}>
+        <section style={styles.gallerySection} className="pdp-gallery-section">
           {/* Main 3:4 Aspect Ratio Image */}
           <div style={styles.mainImageContainer}>
             <img
@@ -216,7 +216,7 @@ export const DressDetailPage: React.FC = () => {
         {/* =============================================================== */}
         {/* RIGHT: Product Information, Size & Ordering                     */}
         {/* =============================================================== */}
-        <section style={styles.infoSection}>
+        <section style={styles.infoSection} className="pdp-info-section">
           {/* Status & Availability Tag */}
           <div style={styles.statusRow}>
             {isOutOfStock ? (
@@ -244,7 +244,7 @@ export const DressDetailPage: React.FC = () => {
           </div>
 
           {/* Product Title */}
-          <h1 style={styles.productTitle}>{product.name}</h1>
+          <h1 style={styles.productTitle} className="pdp-title">{product.name}</h1>
 
           {/* Price */}
           <div style={styles.priceRow}>

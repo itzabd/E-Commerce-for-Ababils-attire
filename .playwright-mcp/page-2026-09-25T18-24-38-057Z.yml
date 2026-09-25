@@ -1,0 +1,183 @@
+- generic [ref=f5e6]:
+  - generic [ref=f5e8]:
+    - generic [ref=f5e9]:
+      - generic [ref=f5e10]: auto_awesome
+      - generic [ref=f5e11]: Dhaka Atelier • Sweet Handcrafted Dresses & Celebration Cakes
+    - generic [ref=f5e12]:
+      - generic [ref=f5e13]: "bKash Advance Reservation: ৳500"
+      - generic [ref=f5e14]: •
+      - link "chat WhatsApp Atelier" [ref=f5e15] [cursor=pointer]:
+        - /url: https://wa.me/8801712345678?text=Assalamu%20Alaikum%20Sanjida%20Apu%2C%20I%20would%20like%20to%20inquire%20about%20an%20order.
+        - generic [ref=f5e16]: chat
+        - generic [ref=f5e17]: WhatsApp Atelier
+  - banner [ref=f5e18]:
+    - generic [ref=f5e19]:
+      - navigation "Main Navigation" [ref=f5e21]:
+        - link "Home" [ref=f5e22] [cursor=pointer]:
+          - /url: /
+        - link "Dresses" [ref=f5e23] [cursor=pointer]:
+          - /url: /dresses
+        - link "Cakes" [ref=f5e24] [cursor=pointer]:
+          - /url: /cakes
+        - link "Our Story" [ref=f5e25] [cursor=pointer]:
+          - /url: /about
+        - link "Custom Orders & Contact" [ref=f5e26] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f5e27]:
+        - link "Ababil’s Attire by Sanjida Bethi" [ref=f5e28] [cursor=pointer]:
+          - /url: /
+        - button "Handmade Dresses & Homemade Cakes by Sanjida Bethi" [ref=f5e30]
+      - generic [ref=f5e31]:
+        - link "shield_person Admin" [ref=f5e32] [cursor=pointer]:
+          - /url: /admin
+          - generic [ref=f5e33]: shield_person
+          - generic [ref=f5e34]: Admin
+        - link "Track Order" [ref=f5e35] [cursor=pointer]:
+          - /url: /track-order
+          - generic [ref=f5e36]: local_shipping
+        - link "Shopping Bag (0 items)" [ref=f5e37] [cursor=pointer]:
+          - /url: /bag
+          - generic [ref=f5e38]: shopping_bag
+  - complementary [ref=f5e39]:
+    - generic [ref=f5e40]:
+      - generic [ref=f5e41]:
+        - heading "Ababil’s Attire" [level=2] [ref=f5e42]
+        - paragraph [ref=f5e43]: by Sanjida Bethi
+        - generic [ref=f5e44]: Handmade Dresses & Homemade Cakes
+      - button "Close menu" [ref=f5e45] [cursor=pointer]:
+        - generic [ref=f5e46]: close
+    - navigation [ref=f5e47]:
+      - link "storefront Home" [ref=f5e48] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f5e49]: storefront
+        - generic [ref=f5e50]: Home
+      - link "checkroom Handmade Dresses" [ref=f5e51] [cursor=pointer]:
+        - /url: /dresses
+        - generic [ref=f5e52]: checkroom
+        - generic [ref=f5e53]: Handmade Dresses
+      - link "cake Fresh Cakes" [ref=f5e54] [cursor=pointer]:
+        - /url: /cakes
+        - generic [ref=f5e55]: cake
+        - generic [ref=f5e56]: Fresh Cakes
+      - link "shopping_bag My Bag" [ref=f5e57] [cursor=pointer]:
+        - /url: /bag
+        - generic [ref=f5e58]: shopping_bag
+        - generic [ref=f5e59]: My Bag
+      - link "auto_stories Our Story" [ref=f5e60] [cursor=pointer]:
+        - /url: /about
+        - generic [ref=f5e61]: auto_stories
+        - generic [ref=f5e62]: Our Story
+      - link "edit_calendar Custom Orders & Contact" [ref=f5e63] [cursor=pointer]:
+        - /url: /contact
+        - generic [ref=f5e64]: edit_calendar
+        - generic [ref=f5e65]: Custom Orders & Contact
+      - link "local_shipping Track Order" [ref=f5e66] [cursor=pointer]:
+        - /url: /track-order
+        - generic [ref=f5e67]: local_shipping
+        - generic [ref=f5e68]: Track Order
+      - link "admin_panel_settings Admin Suite" [ref=f5e69] [cursor=pointer]:
+        - /url: /admin
+        - generic [ref=f5e70]: admin_panel_settings
+        - generic [ref=f5e71]: Admin Suite
+    - generic [ref=f5e72]:
+      - paragraph [ref=f5e73]: "\"Stitched with love, baked with care.\""
+      - generic [ref=f5e74]:
+        - paragraph [ref=f5e75]: Banani Studio • Dhaka, Bangladesh
+        - button "Studio Lock" [ref=f5e76] [cursor=pointer]:
+          - generic [ref=f5e77]: lock
+  - main [ref=f5e78]:
+    - generic [ref=f5e79]:
+      - navigation "Breadcrumb" [ref=f5e80]:
+        - link "Home" [ref=f5e81] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f5e82]: /
+        - link "Girls’ Dresses" [ref=f5e83] [cursor=pointer]:
+          - /url: /dresses
+        - generic [ref=f5e84]: /
+        - generic [ref=f5e85]: Vintage Rose Smocked Cotton Dress
+      - generic [ref=f5e86]:
+        - generic [ref=f5e87]:
+          - generic [ref=f5e88]:
+            - img "Vintage Rose Smocked Cotton Dress" [ref=f5e89]
+            - generic [ref=f5e90]: 1 / 2
+            - button "Expand image" [ref=f5e91] [cursor=pointer]:
+              - generic [ref=f5e92]: fullscreen
+          - generic [ref=f5e93]:
+            - button [ref=f5e94] [cursor=pointer]:
+              - img "Thumbnail 1" [ref=f5e95]
+            - button [ref=f5e96] [cursor=pointer]:
+              - img "Thumbnail 2" [ref=f5e97]
+        - generic [ref=f5e98]:
+          - generic [ref=f5e100]:
+            - generic [ref=f5e101]: cancel
+            - text: Currently Sold Out
+          - heading "Vintage Rose Smocked Cotton Dress" [level=1] [ref=f5e102]
+          - generic [ref=f5e103]:
+            - generic [ref=f5e104]: ৳ 3,800
+            - generic [ref=f5e105]: Tax included • bKash Advance Eligible
+          - generic [ref=f5e106]:
+            - generic [ref=f5e107]: eco
+            - generic [ref=f5e108]: 100% Organic Soft Voile Cotton with French cotton lace trim and hand-smocked silk thread.
+          - paragraph [ref=f5e109]: Delicate hand-smocked heirloom dress tailored in soft organic cotton. Features intricate rosebud hand-embroidery along the bodice and ruffled Peter Pan collar.
+          - separator [ref=f5e110]
+          - generic [ref=f5e111]:
+            - generic [ref=f5e112]:
+              - generic [ref=f5e113]:
+                - generic [ref=f5e114]: "Choose Your Size:"
+                - generic [ref=f5e115]: 0-3M
+              - button "Size Guide & Measurements" [ref=f5e116] [cursor=pointer]
+            - generic [ref=f5e117]:
+              - button "0-3M" [ref=f5e118] [cursor=pointer]
+              - button "3-6M" [ref=f5e119] [cursor=pointer]
+              - button "6-12M" [ref=f5e120] [cursor=pointer]
+              - button "12-18M" [ref=f5e121] [cursor=pointer]
+              - button "2-3Y" [ref=f5e122] [cursor=pointer]
+              - button "3-4Y" [ref=f5e123] [cursor=pointer]
+          - generic [ref=f5e124]:
+            - button "shopping_bag Out of Stock" [disabled] [ref=f5e125]:
+              - generic [ref=f5e126]: shopping_bag
+              - generic [ref=f5e127]: Out of Stock
+            - link "chat Message Sanjida" [ref=f5e128] [cursor=pointer]:
+              - /url: https://wa.me/8801712345678?text=Assalamu%20Alaikum%20Sanjida%20Apu%2C%20I'm%20interested%20in%20ordering%20the%20Vintage%20Rose%20Smocked%20Cotton%20Dress%20(Size%3A%200-3M).%20Could%20you%20share%20more%20details%3F
+              - generic [ref=f5e129]: chat
+              - generic [ref=f5e130]: Message Sanjida
+          - generic [ref=f5e131]:
+            - generic [ref=f5e132]:
+              - generic [ref=f5e133]: dry_cleaning
+              - generic [ref=f5e134]:
+                - paragraph [ref=f5e135]: Care Instructions
+                - paragraph [ref=f5e136]: Gentle cold hand-wash with mild baby-safe detergent. Do not wring or tumble dry. Dry flat in shade. Cool iron on reverse.
+            - generic [ref=f5e137]:
+              - generic [ref=f5e138]: local_shipping
+              - generic [ref=f5e139]:
+                - paragraph [ref=f5e140]: Shipping & Delivery
+                - paragraph [ref=f5e141]: Dhaka delivery within 2–3 business days. Nationwide courier within 3–5 days. Mandatory ৳ 500 bKash advance secures tailoring reservation.
+  - contentinfo [ref=f5e142]:
+    - generic [ref=f5e143]:
+      - generic [ref=f5e144]:
+        - heading "Ababil’s Attire" [level=2] [ref=f5e145]
+        - paragraph [ref=f5e146]: by Sanjida Bethi
+        - paragraph [ref=f5e147]: Sweet handmade dresses for little girls and delicious homemade cakes for your family celebrations.
+      - generic [ref=f5e148]:
+        - link "WhatsApp" [ref=f5e149] [cursor=pointer]:
+          - /url: https://wa.me/8801712345678?text=Assalamu%20Alaikum%20Sanjida%20Apu%2C%20I%20would%20like%20to%20inquire%20about%20placing%20an%20order%20at%20Ababil%E2%80%99s%20Attire.
+          - generic [ref=f5e150]: chat
+        - link "Instagram" [ref=f5e151] [cursor=pointer]:
+          - /url: https://instagram.com/ababils.attire
+          - generic [ref=f5e152]: photo_camera
+        - link "Email Studio" [ref=f5e153] [cursor=pointer]:
+          - /url: mailto:concierge@ababilsattire.com
+          - generic [ref=f5e154]: mail
+      - generic [ref=f5e155]:
+        - link "Dresses Collection" [ref=f5e156] [cursor=pointer]:
+          - /url: /dresses
+        - link "Cake Ordering Guide" [ref=f5e157] [cursor=pointer]:
+          - /url: /cakes
+        - link "Track Your Order" [ref=f5e158] [cursor=pointer]:
+          - /url: /track-order
+        - link "Custom Orders" [ref=f5e159] [cursor=pointer]:
+          - /url: /contact
+        - link "Our Story" [ref=f5e160] [cursor=pointer]:
+          - /url: /about
+        - generic "Dhaka Studio Atelier" [ref=f5e161]: Dhaka Atelier
+      - paragraph [ref=f5e163]: © 2026 Ababil’s Attire by Sanjida Bethi. All Rights Reserved. Handmade Dresses & Homemade Cakes • Banani, Dhaka.

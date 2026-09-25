@@ -125,6 +125,33 @@ export const CustomerLayout: React.FC = () => {
         </div>
       )}
 
+      {/* Editorial Announcement Ribbon (Desktop POV) */}
+      <div className="desktop-announcement-bar">
+        <div className="desktop-announcement-inner">
+          <div className="announcement-left">
+            <span className="material-symbols-outlined" style={{ fontSize: '15px', color: '#d9a59f' }}>
+              auto_awesome
+            </span>
+            <span>Dhaka Atelier • Sweet Handcrafted Dresses & Celebration Cakes</span>
+          </div>
+          <div className="announcement-right">
+            <span>bKash Advance Reservation: ৳{storeSettings?.minimum_advance_amount || 500}</span>
+            <span className="announcement-divider">•</span>
+            <a
+              href={getStudioWhatsAppUrl('Assalamu Alaikum Sanjida Apu, I would like to inquire about an order.')}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="announcement-whatsapp-link"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
+                chat
+              </span>
+              <span>WhatsApp Atelier</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
       {/* ================================================================= */}
       {/* 1. STICKY BOUTIQUE HEADER (TopAppBar Anchor Component)            */}
       {/* ================================================================= */}

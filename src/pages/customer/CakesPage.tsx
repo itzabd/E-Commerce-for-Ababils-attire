@@ -90,7 +90,7 @@ export const CakesPage: React.FC = () => {
   }, [products, searchTerm, activeTab, sortBy]);
 
   return (
-    <div style={styles.container}>
+    <div style={styles.container} className="customer-page-container">
       {/* ================================================================= */}
       {/* 1. BREADCRUMB BAR                                                 */}
       {/* ================================================================= */}
@@ -263,7 +263,7 @@ export const CakesPage: React.FC = () => {
           </button>
         </div>
       ) : (
-        <div style={styles.productsGrid}>
+        <div style={styles.productsGrid} className="customer-products-grid">
           {filteredProducts.map((product) => (
             <CakeCard key={product.id} product={product} />
           ))}
