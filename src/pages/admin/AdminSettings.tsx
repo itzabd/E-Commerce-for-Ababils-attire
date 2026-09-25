@@ -41,6 +41,7 @@ export const AdminSettings: React.FC = () => {
   const [reviews, setReviews] = useState<CustomerReview[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [showAddReviewModal, setShowAddReviewModal] = useState(false);
+  const [isUploadingScreenshot, setIsUploadingScreenshot] = useState(false);
   const [reviewForm, setReviewForm] = useState({
     customer_name: '',
     customer_area: '',
@@ -63,7 +64,7 @@ export const AdminSettings: React.FC = () => {
     },
     {
       label: 'Vintage Lambeth Cake (Facebook)',
-      url: 'https://images.unsplash.com/photo-1535141192574-5d4897c13136?auto=format&fit=crop&w=900&q=80',
+      url: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=900&q=80',
       product: 'Vintage Lambeth Celebration Cake',
       platform: 'facebook' as const,
       quote: '“Cake was heavenly, arrived safely in chilled van right on time!”',
@@ -154,7 +155,8 @@ export const AdminSettings: React.FC = () => {
 
   // Image Upload States
   const [uploadingBannerField, setUploadingBannerField] = useState<string | null>(null);
-  const [croppingField, setCroppingField] = useState<{ field: keyof StoreSettings, file: File, aspect: number } | null>(null);
+  const [croppingField, setCroppingField] = useState<{ field: keyof StoreSettings; file?: File | null; imageSrc?: string | null; aspect: number } | null>(null);
+  const [hoveredBanner, setHoveredBanner] = useState<string | null>(null);
 
   const handleBannerFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof StoreSettings, aspect: number) => {
     const file = e.target.files?.[0];
@@ -168,6 +170,27 @@ export const AdminSettings: React.FC = () => {
     // Clear input so re-selecting same image triggers onChange
     if (e.target) {
       e.target.value = '';
+    }
+  };
+
+  const handleReCropBanner = (field: keyof StoreSettings, aspect: number, currentUrl?: string | null) => {
+    if (!currentUrl) return;
+    setCroppingField({ field, file: null, imageSrc: currentUrl, aspect });
+  };
+
+  const handleResetBanner = async (field: keyof StoreSettings, defaultUrl: string, name: string) => {
+    if (window.confirm(`Reset "${name}" to the signature boutique default photo?`)) {
+      setUploadingBannerField(field);
+      try {
+        const updated = await settingsService.updateSettings({ [field]: defaultUrl });
+        setInitialSettings(updated);
+        setForm(JSON.parse(JSON.stringify(updated)));
+        showToast(`"${name}" restored to boutique default.`);
+      } catch (err: any) {
+        showToast(`Reset failed: ${err.message || 'Error'}`);
+      } finally {
+        setUploadingBannerField(null);
+      }
     }
   };
 
@@ -190,16 +213,30 @@ export const AdminSettings: React.FC = () => {
       // Auto-save immediately to store settings so it's live across the storefront right away
       const updated = await settingsService.updateSettings({ [field]: publicUrl });
       setInitialSettings(updated);
-      setForm(JSON.parse(JSON.stringify(updated)));
       showToast(`${field.replace(/_/g, ' ')} uploaded and published live!`);
+
+      // Preload remote URL in background before revoking local blob to prevent CDN edge propagation blink
+      const preloader = new Image();
+      preloader.src = publicUrl;
+      preloader.onload = () => {
+        setForm((prev) => (prev ? { ...prev, [field]: publicUrl } : prev));
+        URL.revokeObjectURL(localPreviewUrl);
+      };
+      preloader.onerror = () => {
+        // If CDN edge has slight propagation delay, retry after 1.5s in background
+        setTimeout(() => {
+          setForm((prev) => (prev ? { ...prev, [field]: `${publicUrl}?v=${Date.now()}` } : prev));
+          URL.revokeObjectURL(localPreviewUrl);
+        }, 1500);
+      };
     } catch (err: any) {
       console.error('Banner upload error:', err);
       showToast(`Upload failed: ${err.message || 'Error uploading banner'}`);
       if (initialSettings) {
         setForm((prev) => (prev ? { ...prev, [field]: initialSettings[field] } : prev));
       }
-    } finally {
       URL.revokeObjectURL(localPreviewUrl);
+    } finally {
       setUploadingBannerField(null);
     }
   };
@@ -426,6 +463,34 @@ export const AdminSettings: React.FC = () => {
         console.error('Delete review error:', err);
         showToast('Failed to delete review.');
       }
+    }
+  };
+
+  // Upload Customer Review Screenshot from Local Device
+  const handleScreenshotFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      showToast('Please select a valid image file (PNG, JPG, WEBP).');
+      return;
+    }
+
+    setIsUploadingScreenshot(true);
+    // Instant optimistic preview so user sees screenshot immediately
+    const localUrl = URL.createObjectURL(file);
+    setReviewForm((prev) => ({ ...prev, screenshot_url: localUrl }));
+
+    try {
+      const uploadedUrl = await storageService.uploadGeneralImage(file, 'reviews');
+      setReviewForm((prev) => ({ ...prev, screenshot_url: uploadedUrl }));
+      showToast('Screenshot uploaded and ready!');
+    } catch (err: any) {
+      console.error('Screenshot upload error:', err);
+      showToast(`Upload failed: ${err.message || 'Error uploading screenshot'}`);
+    } finally {
+      setIsUploadingScreenshot(false);
+      if (e.target) e.target.value = '';
     }
   };
 
@@ -837,110 +902,728 @@ export const AdminSettings: React.FC = () => {
         </section>
 
         {/* =================================================================== */}
-        {/* SECTION 1.5: HOME PAGE BANNERS                                      */}
+        {/* SECTION 1.5: HOME PAGE BANNERS & VISUAL MERCHANDISING               */}
         {/* =================================================================== */}
-        <section id="section-banners" style={styles.sectionCard}>
-          <div style={styles.sectionCardHeader}>
-            <div style={styles.sectionHeaderLeft}>
-              <span className="material-symbols-outlined" style={styles.sectionIcon}>
-                image
+        <section id="section-banners" style={{ ...styles.sectionCard, padding: 'clamp(14px, 3.5vw, 24px)' }}>
+          <div style={{ ...styles.sectionCardHeader, alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+            <div style={{ ...styles.sectionHeaderLeft, alignItems: 'flex-start', flex: '1 1 240px', minWidth: '0' }}>
+              <span className="material-symbols-outlined" style={{ ...styles.sectionIcon, marginTop: '2px', flexShrink: 0 }}>
+                photo_library
               </span>
-              <h2 style={styles.sectionCardTitle}>Home Page Banners</h2>
+              <div style={{ minWidth: '0' }}>
+                <h2 style={{ ...styles.sectionCardTitle, wordBreak: 'break-word', fontSize: 'clamp(16px, 4vw, 18px)' }}>
+                  Home Page Banners & Visual Merchandising
+                </h2>
+                <span style={{ ...styles.publicProfileTag, display: 'block', marginTop: '4px', lineHeight: '1.4' }}>
+                  Curate the signature imagery featured across your storefront top hero arch and collection discovery cards
+                </span>
+              </div>
+            </div>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 14px',
+              backgroundColor: '#ecfdf5',
+              border: '1px solid #a7f3d0',
+              borderRadius: '20px',
+              fontSize: '12px',
+              fontWeight: 600,
+              color: '#065f46',
+              flexShrink: 0,
+              alignSelf: 'flex-start'
+            }}>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981', display: 'inline-block' }} />
+              Live on Storefront
             </div>
           </div>
           
           <div style={styles.sectionBody}>
-            <p style={{ ...styles.secDesc, margin: '6px 0 16px 0' }}>Upload and crop images directly for your storefront banners. Images are automatically cropped to the perfect size.</p>
-            
-            <div style={styles.formGrid2}>
-              {(() => {
-                const renderBannerUpload = (
-                  field: keyof StoreSettings,
-                  label: string,
-                  aspectRatio: number,
-                  imageUrl?: string | null,
-                ) => {
-                  const isUploading = uploadingBannerField === field;
-                  return (
-                    <div>
-                      <label style={styles.label}>{label}</label>
-                      <div style={{
-                        position: 'relative',
-                        width: '100%',
-                        aspectRatio: `${aspectRatio}`,
+            {/* --- 1. TOP HERO BANNER (PRIMARY SHOWCASE) --- */}
+            <div style={{
+              backgroundColor: '#faf7f4',
+              border: '1px solid #ebdcd5',
+              borderRadius: '16px',
+              padding: 'clamp(14px, 3vw, 20px)',
+              marginBottom: '28px',
+              boxShadow: '0 2px 8px rgba(67, 40, 33, 0.04)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', flex: '1 1 220px', minWidth: '0' }}>
+                  <span className="material-symbols-outlined" style={{
+                    fontSize: '20px',
+                    color: '#8a6552',
+                    backgroundColor: '#ffffff',
+                    padding: '6px',
+                    borderRadius: '8px',
+                    border: '1px solid #ebdcd5',
+                    flexShrink: 0
+                  }}>
+                    view_carousel
+                  </span>
+                  <div style={{ minWidth: '0' }}>
+                    <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#432821', wordBreak: 'break-word' }}>
+                      Storefront Top Hero Banner
+                    </h3>
+                    <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
+                      <span style={{
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        color: '#8a6552',
+                        backgroundColor: '#f1e6df',
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        3:2 Aspect Ratio • 1500 × 1000px
+                      </span>
+                      <span style={{ fontSize: '11px', color: '#7e726b', whiteSpace: 'nowrap' }}>
+                        Primary Homepage Arch
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Hero Action Buttons */}
+                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                  {form.hero_banner_url && (
+                    <button
+                      type="button"
+                      onClick={() => handleReCropBanner('hero_banner_url', 3 / 2, form.hero_banner_url)}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '8px 14px',
+                        minHeight: '38px',
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #d9cbbf',
                         borderRadius: '8px',
-                        border: '2px dashed #d9cbbf',
-                        backgroundColor: '#faf7f3',
-                        overflow: 'hidden',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        color: '#432821',
+                        cursor: 'pointer'
+                      }}
+                      title="Re-adjust framing or zoom on existing photo"
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>crop</span>
+                      Adjust / Crop
+                    </button>
+                  )}
+                  <label style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 14px',
+                    minHeight: '38px',
+                    backgroundColor: '#432821',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    color: '#ffffff',
+                    cursor: uploadingBannerField === 'hero_banner_url' ? 'not-allowed' : 'pointer',
+                    boxShadow: '0 2px 6px rgba(67, 40, 33, 0.2)'
+                  }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>upload</span>
+                    {form.hero_banner_url ? 'Change Photo' : 'Upload Banner'}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleBannerFileChange(e, 'hero_banner_url', 3 / 2)}
+                      style={{ display: 'none' }}
+                      disabled={uploadingBannerField === 'hero_banner_url'}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => handleResetBanner('hero_banner_url', 'https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=1200&q=80', 'Hero Banner')}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '8px',
+                      minHeight: '38px',
+                      minWidth: '38px',
+                      backgroundColor: '#ffffff',
+                      border: '1px solid #ebdcd5',
+                      borderRadius: '8px',
+                      color: '#827470',
+                      cursor: 'pointer'
+                    }}
+                    title="Reset to signature default photo"
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>restart_alt</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Hero Visual Viewport */}
+              <div 
+                onMouseEnter={() => setHoveredBanner('hero_banner_url')}
+                onMouseLeave={() => setHoveredBanner(null)}
+                style={{
+                  position: 'relative',
+                  width: '100%',
+                  aspectRatio: '3/2',
+                  maxHeight: '380px',
+                  borderRadius: '12px',
+                  overflow: 'hidden',
+                  backgroundColor: '#1b1c1a',
+                  border: '1px solid #ebdcd5',
+                  boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                {uploadingBannerField === 'hero_banner_url' ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', color: '#ffffff', zIndex: 10 }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '36px', animation: 'spin 1s linear infinite' }}>sync</span>
+                    <span style={{ fontSize: '13px', fontWeight: 600 }}>Optimizing & Publishing Hero Banner...</span>
+                  </div>
+                ) : (
+                  <>
+                    <img
+                      src={form.hero_banner_url || "https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=1200&q=80"}
+                      alt="Top Hero Banner"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => {
+                        const target = e.currentTarget as HTMLImageElement;
+                        const src = target.src;
+                        if (!target.dataset.retried && src.includes('supabase.co')) {
+                          target.dataset.retried = 'true';
+                          setTimeout(() => {
+                            target.src = `${src}${src.includes('?') ? '&' : '?'}retry=${Date.now()}`;
+                          }, 1200);
+                        }
+                      }}
+                    />
+
+                    {/* Storefront Ambient Badge Mockup */}
+                    <div style={{
+                      position: 'absolute',
+                      bottom: '12px',
+                      left: '12px',
+                      maxWidth: 'calc(100% - 24px)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '5px 12px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.92)',
+                      backdropFilter: 'blur(8px)',
+                      borderRadius: '30px',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                      pointerEvents: 'none',
+                      zIndex: 3
+                    }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#8a6552', flexShrink: 0 }}>favorite</span>
+                      <span style={{ fontSize: '11px', fontWeight: 700, color: '#432821', letterSpacing: '0.02em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        Handmade with Love • Dhaka Atelier
+                      </span>
+                    </div>
+
+                    {/* Hover Overlay */}
+                    <div style={{
+                      position: 'absolute',
+                      top: 0, left: 0, width: '100%', height: '100%',
+                      backgroundColor: 'rgba(27, 28, 26, 0.45)',
+                      backdropFilter: 'blur(2px)',
+                      opacity: hoveredBanner === 'hero_banner_url' ? 1 : 0,
+                      transition: 'opacity 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '12px',
+                      zIndex: 5
+                    }}>
+                      <label style={{
+                        padding: '10px 18px',
+                        backgroundColor: '#ffffff',
+                        borderRadius: '8px',
+                        fontWeight: 600,
+                        fontSize: '13px',
+                        color: '#432821',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                      }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>upload</span>
+                        Change Image
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleBannerFileChange(e, 'hero_banner_url', 3 / 2)}
+                          style={{ display: 'none' }}
+                        />
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => handleReCropBanner('hero_banner_url', 3 / 2, form.hero_banner_url)}
+                        style={{
+                          padding: '10px 18px',
+                          backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                          backdropFilter: 'blur(6px)',
+                          border: '1px solid rgba(255,255,255,0.4)',
+                          borderRadius: '8px',
+                          fontWeight: 600,
+                          fontSize: '13px',
+                          color: '#ffffff',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>crop</span>
+                        Adjust Framing
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* --- 2. SHOP BY COLLECTION CARDS (DUAL SQUARES) --- */}
+            <div>
+              <div style={{ marginBottom: '14px' }}>
+                <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#432821' }}>
+                  Shop by Collection Discovery Cards
+                </h3>
+                <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#7e726b', lineHeight: '1.4' }}>
+                  Dual 1:1 square category promotion banners featured in the homepage collection navigation section.
+                </p>
+              </div>
+
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))',
+                gap: '16px'
+              }}>
+                {/* Collection Card 1: Dresses */}
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #ebdcd5',
+                  borderRadius: '14px',
+                  padding: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                  boxShadow: '0 2px 8px rgba(67, 40, 33, 0.04)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap' }}>
+                    <div style={{ minWidth: '0' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#8a6552', flexShrink: 0 }}>checkroom</span>
+                        <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#432821' }}>
+                          Girls' Handmade Dresses
+                        </h4>
+                      </div>
+                      <span style={{ fontSize: '11px', color: '#8a6552', fontWeight: 600 }}>
+                        1:1 Square • 800 × 800px
+                      </span>
+                    </div>
+                    <span style={{
+                      fontSize: '11px',
+                      color: '#5c3e36',
+                      backgroundColor: '#f8f4f0',
+                      padding: '3px 8px',
+                      borderRadius: '6px',
+                      fontWeight: 600,
+                      flexShrink: 0
+                    }}>
+                      /dresses
+                    </span>
+                  </div>
+
+                  {/* Image Viewport */}
+                  <div
+                    onMouseEnter={() => setHoveredBanner('dresses_collection_url')}
+                    onMouseLeave={() => setHoveredBanner(null)}
+                    style={{
+                      position: 'relative',
+                      width: '100%',
+                      aspectRatio: '1/1',
+                      borderRadius: '10px',
+                      overflow: 'hidden',
+                      backgroundColor: '#1b1c1a',
+                      border: '1px solid #e8ded8',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    {uploadingBannerField === 'dresses_collection_url' ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#ffffff' }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '32px', animation: 'spin 1s linear infinite' }}>sync</span>
+                        <span style={{ fontSize: '12px', fontWeight: 600 }}>Publishing Dresses Card...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <img
+                          src={form.dresses_collection_url || "https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?auto=format&fit=crop&w=900&q=80"}
+                          alt="Dresses Collection Card"
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          onError={(e) => {
+                            const target = e.currentTarget as HTMLImageElement;
+                            const src = target.src;
+                            if (!target.dataset.retried && src.includes('supabase.co')) {
+                              target.dataset.retried = 'true';
+                              setTimeout(() => {
+                                target.src = `${src}${src.includes('?') ? '&' : '?'}retry=${Date.now()}`;
+                              }, 1200);
+                            }
+                          }}
+                        />
+
+                        {/* Hover Overlay */}
+                        <div style={{
+                          position: 'absolute',
+                          top: 0, left: 0, width: '100%', height: '100%',
+                          backgroundColor: 'rgba(27, 28, 26, 0.45)',
+                          backdropFilter: 'blur(2px)',
+                          opacity: hoveredBanner === 'dresses_collection_url' ? 1 : 0,
+                          transition: 'opacity 0.2s ease',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          zIndex: 5
+                        }}>
+                          <label style={{
+                            padding: '8px 14px',
+                            backgroundColor: '#ffffff',
+                            borderRadius: '6px',
+                            fontWeight: 600,
+                            fontSize: '12px',
+                            color: '#432821',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>upload</span>
+                            Change
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleBannerFileChange(e, 'dresses_collection_url', 1 / 1)}
+                              style={{ display: 'none' }}
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => handleReCropBanner('dresses_collection_url', 1 / 1, form.dresses_collection_url)}
+                            style={{
+                              padding: '8px 14px',
+                              backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                              backdropFilter: 'blur(6px)',
+                              border: '1px solid rgba(255,255,255,0.4)',
+                              borderRadius: '6px',
+                              fontWeight: 600,
+                              fontSize: '12px',
+                              color: '#ffffff',
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>crop</span>
+                            Adjust
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Card Bottom Toolbar */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '4px', flexWrap: 'wrap', gap: '8px' }}>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      <label style={{
+                        padding: '8px 14px',
+                        minHeight: '38px',
+                        backgroundColor: '#f6f1ec',
+                        border: '1px solid #ebdcd5',
+                        borderRadius: '6px',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        color: '#432821',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>upload</span>
+                        Change Photo
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleBannerFileChange(e, 'dresses_collection_url', 1 / 1)}
+                          style={{ display: 'none' }}
+                        />
+                      </label>
+                      {form.dresses_collection_url && (
+                        <button
+                          type="button"
+                          onClick={() => handleReCropBanner('dresses_collection_url', 1 / 1, form.dresses_collection_url)}
+                          style={{
+                            padding: '8px 12px',
+                            minHeight: '38px',
+                            backgroundColor: '#ffffff',
+                            border: '1px solid #d9cbbf',
+                            borderRadius: '6px',
+                            fontSize: '12px',
+                            fontWeight: 600,
+                            color: '#5c3e36',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px'
+                          }}
+                          title="Re-adjust crop"
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>crop</span>
+                          Adjust
+                        </button>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleResetBanner('dresses_collection_url', 'https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?auto=format&fit=crop&w=900&q=80', 'Dresses Card')}
+                      style={{
+                        background: '#ffffff',
+                        border: '1px solid #ebdcd5',
+                        borderRadius: '6px',
+                        color: '#827470',
+                        cursor: 'pointer',
+                        padding: '8px',
+                        minHeight: '38px',
+                        minWidth: '38px',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: isUploading ? 'not-allowed' : 'pointer',
-                        transition: 'all 0.2s',
-                        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)',
-                      }}>
-                        {isUploading ? (
-                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#8a6552' }}>
-                            <span className="material-symbols-outlined" style={{ animation: 'spin 1s linear infinite' }}>sync</span>
-                            <span style={{ fontSize: '13px', fontWeight: 600 }}>Processing...</span>
-                          </div>
-                        ) : (
-                          <>
-                            {imageUrl ? (
-                              <img src={imageUrl} alt={label} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            ) : (
-                              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#a68a7c' }}>
-                                <span className="material-symbols-outlined" style={{ fontSize: '32px' }}>add_photo_alternate</span>
-                                <span style={{ fontSize: '13px', fontWeight: 500 }}>Click to Upload</span>
-                              </div>
-                            )}
-                            <input 
-                              type="file" 
-                              accept="image/*" 
-                              onChange={(e) => handleBannerFileChange(e, field, aspectRatio)} 
-                              style={{
-                                position: 'absolute',
-                                top: 0, left: 0, width: '100%', height: '100%',
-                                opacity: 0, cursor: 'pointer',
-                                zIndex: 10
-                              }}
-                              title={imageUrl ? "Change Image" : "Upload Image"}
-                            />
-                            {imageUrl && (
-                              <div style={{
-                                position: 'absolute',
-                                bottom: 0, left: 0, width: '100%',
-                                padding: '12px 8px 8px',
-                                background: 'linear-gradient(transparent, rgba(67, 40, 33, 0.7))',
-                                color: '#fff',
-                                fontSize: '12px',
-                                fontWeight: 500,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '6px',
-                                pointerEvents: 'none',
-                                zIndex: 5
-                              }}>
-                                <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>edit</span>
-                                Click to Change Image
-                              </div>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  );
-                };
+                        justifyContent: 'center'
+                      }}
+                      title="Reset to default photo"
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>restart_alt</span>
+                    </button>
+                  </div>
+                </div>
 
-                return (
-                  <>
-                    {renderBannerUpload('hero_banner_url', 'Top Hero Banner (3:2 Ratio)', 3/2, form.hero_banner_url)}
-                    {renderBannerUpload('dresses_collection_url', 'Dresses Collection Card (1:1 Ratio)', 1/1, form.dresses_collection_url)}
-                    {renderBannerUpload('cakes_collection_url', 'Cakes Collection Card (1:1 Ratio)', 1/1, form.cakes_collection_url)}
-                  </>
-                );
-              })()}
+                {/* Collection Card 2: Cakes */}
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #ebdcd5',
+                  borderRadius: '14px',
+                  padding: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                  boxShadow: '0 2px 8px rgba(67, 40, 33, 0.04)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap' }}>
+                    <div style={{ minWidth: '0' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#8a6552', flexShrink: 0 }}>cake</span>
+                        <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#432821' }}>
+                          Celebration Cakes Collection
+                        </h4>
+                      </div>
+                      <span style={{ fontSize: '11px', color: '#8a6552', fontWeight: 600 }}>
+                        1:1 Square • 800 × 800px
+                      </span>
+                    </div>
+                    <span style={{
+                      fontSize: '11px',
+                      color: '#5c3e36',
+                      backgroundColor: '#f8f4f0',
+                      padding: '3px 8px',
+                      borderRadius: '6px',
+                      fontWeight: 600,
+                      flexShrink: 0
+                    }}>
+                      /cakes
+                    </span>
+                  </div>
+
+                  {/* Image Viewport */}
+                  <div
+                    onMouseEnter={() => setHoveredBanner('cakes_collection_url')}
+                    onMouseLeave={() => setHoveredBanner(null)}
+                    style={{
+                      position: 'relative',
+                      width: '100%',
+                      aspectRatio: '1/1',
+                      borderRadius: '10px',
+                      overflow: 'hidden',
+                      backgroundColor: '#1b1c1a',
+                      border: '1px solid #e8ded8',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    {uploadingBannerField === 'cakes_collection_url' ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#ffffff' }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '32px', animation: 'spin 1s linear infinite' }}>sync</span>
+                        <span style={{ fontSize: '12px', fontWeight: 600 }}>Publishing Cakes Card...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <img
+                          src={(form.cakes_collection_url && !form.cakes_collection_url.includes('photo-1535141192574')) ? form.cakes_collection_url : "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=900&q=80"}
+                          alt="Cakes Collection Card"
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          onError={(e) => {
+                            const target = e.currentTarget as HTMLImageElement;
+                            const src = target.src;
+                            if (!target.dataset.retried && src.includes('supabase.co')) {
+                              target.dataset.retried = 'true';
+                              setTimeout(() => {
+                                target.src = `${src}${src.includes('?') ? '&' : '?'}retry=${Date.now()}`;
+                              }, 1200);
+                            }
+                          }}
+                        />
+
+                        {/* Hover Overlay */}
+                        <div style={{
+                          position: 'absolute',
+                          top: 0, left: 0, width: '100%', height: '100%',
+                          backgroundColor: 'rgba(27, 28, 26, 0.45)',
+                          backdropFilter: 'blur(2px)',
+                          opacity: hoveredBanner === 'cakes_collection_url' ? 1 : 0,
+                          transition: 'opacity 0.2s ease',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          zIndex: 5
+                        }}>
+                          <label style={{
+                            padding: '8px 14px',
+                            backgroundColor: '#ffffff',
+                            borderRadius: '6px',
+                            fontWeight: 600,
+                            fontSize: '12px',
+                            color: '#432821',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>upload</span>
+                            Change
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleBannerFileChange(e, 'cakes_collection_url', 1 / 1)}
+                              style={{ display: 'none' }}
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => handleReCropBanner('cakes_collection_url', 1 / 1, form.cakes_collection_url)}
+                            style={{
+                              padding: '8px 14px',
+                              backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                              backdropFilter: 'blur(6px)',
+                              border: '1px solid rgba(255,255,255,0.4)',
+                              borderRadius: '6px',
+                              fontWeight: 600,
+                              fontSize: '12px',
+                              color: '#ffffff',
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>crop</span>
+                            Adjust
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Card Bottom Toolbar */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '4px', flexWrap: 'wrap', gap: '8px' }}>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      <label style={{
+                        padding: '8px 14px',
+                        minHeight: '38px',
+                        backgroundColor: '#f6f1ec',
+                        border: '1px solid #ebdcd5',
+                        borderRadius: '6px',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        color: '#432821',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>upload</span>
+                        Change Photo
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleBannerFileChange(e, 'cakes_collection_url', 1 / 1)}
+                          style={{ display: 'none' }}
+                        />
+                      </label>
+                      {form.cakes_collection_url && (
+                        <button
+                          type="button"
+                          onClick={() => handleReCropBanner('cakes_collection_url', 1 / 1, form.cakes_collection_url)}
+                          style={{
+                            padding: '8px 12px',
+                            minHeight: '38px',
+                            backgroundColor: '#ffffff',
+                            border: '1px solid #d9cbbf',
+                            borderRadius: '6px',
+                            fontSize: '12px',
+                            fontWeight: 600,
+                            color: '#5c3e36',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px'
+                          }}
+                          title="Re-adjust crop"
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>crop</span>
+                          Adjust
+                        </button>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleResetBanner('cakes_collection_url', 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=900&q=80', 'Cakes Card')}
+                      style={{
+                        background: '#ffffff',
+                        border: '1px solid #ebdcd5',
+                        borderRadius: '6px',
+                        color: '#827470',
+                        cursor: 'pointer',
+                        padding: '8px',
+                        minHeight: '38px',
+                        minWidth: '38px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                      title="Reset to default photo"
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>restart_alt</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -1953,28 +2636,124 @@ export const AdminSettings: React.FC = () => {
               </div>
 
               <div style={styles.modalFieldGroup}>
-                <label style={styles.label}>Screenshot Image URL *</label>
-                <input
-                  type="url"
-                  value={reviewForm.screenshot_url}
-                  onChange={(e) => setReviewForm({ ...reviewForm, screenshot_url: e.target.value })}
-                  placeholder="https://... screenshot image url"
-                  required
-                  style={styles.input}
-                />
-                {reviewForm.screenshot_url && (
-                  <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <img
-                      src={reviewForm.screenshot_url}
-                      alt="Preview"
-                      style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #d4c3bf' }}
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
-                    <span style={{ fontSize: '11px', color: '#065f46' }}>✓ Screenshot preview linked</span>
-                  </div>
-                )}
+                <label style={styles.label}>Customer Screenshot Image *</label>
+                
+                {/* Device Upload Area */}
+                <div style={{
+                  border: '2px dashed #d9cbbf',
+                  borderRadius: '10px',
+                  backgroundColor: '#faf7f3',
+                  padding: '14px 16px',
+                  textAlign: 'center',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  marginBottom: '10px'
+                }}>
+                  {isUploadingScreenshot ? (
+                    <div style={{ padding: '16px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#8a6552' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '32px', animation: 'spin 1s linear infinite' }}>sync</span>
+                      <span style={{ fontSize: '13px', fontWeight: 600 }}>Uploading screenshot to cloud storage...</span>
+                    </div>
+                  ) : reviewForm.screenshot_url ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', textAlign: 'left' }}>
+                      <img
+                        src={reviewForm.screenshot_url}
+                        alt="Screenshot Preview"
+                        style={{
+                          width: '72px',
+                          height: '72px',
+                          objectFit: 'cover',
+                          borderRadius: '8px',
+                          border: '1px solid #d4c3bf',
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.08)'
+                        }}
+                      />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#065f46', fontSize: '12px', fontWeight: 600, marginBottom: '6px' }}>
+                          <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>check_circle</span>
+                          Screenshot Attached
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <label style={{
+                            padding: '6px 12px',
+                            backgroundColor: '#ffffff',
+                            border: '1px solid #d9cbbf',
+                            borderRadius: '6px',
+                            fontSize: '12px',
+                            fontWeight: 600,
+                            color: '#432821',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>upload</span>
+                            Change Image
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleScreenshotFileChange}
+                              style={{ display: 'none' }}
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => setReviewForm({ ...reviewForm, screenshot_url: '' })}
+                            style={{
+                              padding: '6px 10px',
+                              backgroundColor: '#fee2e2',
+                              border: '1px solid #fecaca',
+                              borderRadius: '6px',
+                              fontSize: '12px',
+                              fontWeight: 600,
+                              color: '#991b1b',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <label style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '8px',
+                      cursor: 'pointer',
+                      padding: '12px 8px'
+                    }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '36px', color: '#8a6552' }}>
+                        add_photo_alternate
+                      </span>
+                      <span style={{ fontSize: '13px', fontWeight: 600, color: '#432821' }}>
+                        Click to Upload Screenshot from Device
+                      </span>
+                      <span style={{ fontSize: '11px', color: '#7e726b' }}>
+                        Supports WhatsApp, Facebook, or Instagram chat screenshots (PNG, JPG, WEBP)
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleScreenshotFileChange}
+                        style={{ display: 'none' }}
+                      />
+                    </label>
+                  )}
+                </div>
+
+                {/* Optional manual URL input */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '11px', color: '#7e726b', whiteSpace: 'nowrap' }}>Or paste image link:</span>
+                  <input
+                    type="url"
+                    value={reviewForm.screenshot_url}
+                    onChange={(e) => setReviewForm({ ...reviewForm, screenshot_url: e.target.value })}
+                    placeholder="https://... direct image link"
+                    style={{ ...styles.input, flex: 1, padding: '6px 10px', fontSize: '12px' }}
+                  />
+                </div>
               </div>
 
               <div style={styles.modalFieldGroup}>
@@ -2012,6 +2791,7 @@ export const AdminSettings: React.FC = () => {
       {croppingField && (
         <ImageCropper
           imageFile={croppingField.file}
+          imageSrc={croppingField.imageSrc}
           aspectRatio={croppingField.aspect}
           onCrop={handleCroppedImage}
           onCancel={() => setCroppingField(null)}

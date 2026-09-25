@@ -357,7 +357,7 @@ export const storageService = {
         .upload(filePath, file, {
           cacheControl: '3600',
           upsert: true,
-          contentType: file.type || 'image/png',
+          contentType: file.type || (ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : ext === 'webp' ? 'image/webp' : 'image/png'),
         });
 
       if (!error && data?.path) {

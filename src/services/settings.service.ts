@@ -14,7 +14,7 @@ export const DEFAULT_STORE_SETTINGS: StoreSettings = {
   logo_url: null,
   hero_banner_url: 'https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=1200&q=80',
   dresses_collection_url: 'https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?auto=format&fit=crop&w=900&q=80',
-  cakes_collection_url: 'https://images.unsplash.com/photo-1535141192574-5d4897c13136?auto=format&fit=crop&w=900&q=80',
+  cakes_collection_url: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=900&q=80',
   business_email: 'sanjida@ababilsattire.com',
   contact_phone: '+880 1712-345678',
   whatsapp_number: '+880 1712-345678',
