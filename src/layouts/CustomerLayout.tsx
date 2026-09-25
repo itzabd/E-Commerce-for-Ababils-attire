@@ -418,7 +418,7 @@ export const CustomerLayout: React.FC = () => {
         <div style={styles.drawerFooter}>
           <p style={styles.drawerQuote}>"Stitched with love, baked with care."</p>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-            <p style={styles.drawerDhaka}>Banani Studio • Dhaka, Bangladesh</p>
+            <p style={styles.drawerDhaka}>{storeSettings?.workshop_address || "Studio • Dhaka, Bangladesh"}</p>
             <button
               type="button"
               onClick={() => {
@@ -461,47 +461,75 @@ export const CustomerLayout: React.FC = () => {
         <div style={styles.footerInner}>
           {/* Brand Header */}
           <div style={styles.footerBrandSection}>
-            <h2 style={styles.footerTitle}>Ababil’s Attire</h2>
+            <h2 style={styles.footerTitle}>{storeSettings?.store_name || "Ababil’s Attire"}</h2>
             <p style={styles.footerAuthor}>by Sanjida Bethi</p>
             <p style={styles.footerTagline}>
-              Sweet handmade dresses for little girls and delicious homemade cakes for your family celebrations.
+              {storeSettings?.store_description || "Sweet handmade dresses for little girls and delicious homemade cakes for your family celebrations."}
             </p>
           </div>
 
           {/* Concierge Communication Buttons */}
           <div style={styles.footerConcierge}>
             <a
-              href={getStudioWhatsAppUrl()}
+              href={getStudioWhatsAppUrl(undefined, storeSettings?.whatsapp_number || storeSettings?.contact_phone)}
               target="_blank"
               rel="noopener noreferrer"
               style={styles.conciergeIconBtn}
               aria-label="WhatsApp"
-              title="Message Sanjida on WhatsApp"
+              title={`WhatsApp: ${storeSettings?.whatsapp_number || storeSettings?.contact_phone || 'Direct Line'}`}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                 chat
               </span>
             </a>
             <a
-              href={STUDIO_CONFIG.instagramUrl}
+              href={storeSettings?.instagram_handle
+                ? (storeSettings.instagram_handle.startsWith('http')
+                    ? storeSettings.instagram_handle
+                    : `https://instagram.com/${storeSettings.instagram_handle.replace(/^@/, '')}`)
+                : STUDIO_CONFIG.instagramUrl}
               target="_blank"
               rel="noopener noreferrer"
               style={styles.conciergeIconBtn}
               aria-label="Instagram"
-              title="Follow @ababils.attire on Instagram"
+              title="Follow on Instagram"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                 photo_camera
               </span>
             </a>
+            {storeSettings?.facebook_url && (
+              <a
+                href={storeSettings.facebook_url.startsWith('http') ? storeSettings.facebook_url : `https://${storeSettings.facebook_url}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={styles.conciergeIconBtn}
+                aria-label="Facebook"
+                title="Follow on Facebook"
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                  thumb_up
+                </span>
+              </a>
+            )}
             <a
-              href={`mailto:${STUDIO_CONFIG.conciergeEmail}`}
+              href={`mailto:${storeSettings?.business_email || STUDIO_CONFIG.conciergeEmail}`}
               style={styles.conciergeIconBtn}
               aria-label="Email Studio"
               title="Email Studio Concierge"
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                 mail
+              </span>
+            </a>
+            <a
+              href={`tel:${(storeSettings?.contact_phone || storeSettings?.whatsapp_number || STUDIO_CONFIG.phone).replace(/\s+/g, '')}`}
+              style={styles.conciergeIconBtn}
+              aria-label="Call Studio"
+              title="Call Studio Directly"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                call
               </span>
             </a>
           </div>
@@ -528,8 +556,42 @@ export const CustomerLayout: React.FC = () => {
               style={{ ...styles.footerLink, cursor: 'default', userSelect: 'none' }}
               title="Dhaka Studio Atelier"
             >
-              Dhaka Atelier
+              {storeSettings?.workshop_address ? storeSettings.workshop_address.split(',')[0] : "Dhaka Atelier"}
             </span>
+          </div>
+
+          {/* Studio Physical Details Banner */}
+          <div style={{
+            marginTop: '20px',
+            paddingTop: '16px',
+            borderTop: '1px solid rgba(223, 216, 206, 0.4)',
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '16px',
+            fontSize: '12px',
+            color: '#7e726b',
+            textAlign: 'center'
+          }}>
+            {storeSettings?.workshop_address && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#8a6552' }}>location_on</span>
+                {storeSettings.workshop_address}
+              </span>
+            )}
+            {storeSettings?.studio_hours && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#8a6552' }}>schedule</span>
+                {storeSettings.studio_hours}
+              </span>
+            )}
+            {(storeSettings?.whatsapp_number || storeSettings?.contact_phone) && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#8a6552' }}>phone_in_talk</span>
+                Direct: {storeSettings.whatsapp_number || storeSettings.contact_phone}
+              </span>
+            )}
           </div>
 
           {/* Copyright (Triple-tap to enter Studio Admin) */}
@@ -539,7 +601,7 @@ export const CustomerLayout: React.FC = () => {
               onClick={handleSecretTap}
               title="Ababil’s Attire by Sanjida Bethi (Triple-tap for Atelier admin)"
             >
-              © 2026 Ababil’s Attire by Sanjida Bethi. All Rights Reserved. Handmade Dresses & Homemade Cakes • Banani, Dhaka.
+              © {new Date().getFullYear()} {storeSettings?.store_name || "Ababil’s Attire by Sanjida Bethi"}. All Rights Reserved. • {storeSettings?.workshop_address || "Dhaka, Bangladesh"}
             </p>
           </div>
         </div>
