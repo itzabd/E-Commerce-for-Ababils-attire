@@ -30,9 +30,9 @@ export const ContactPage: React.FC = () => {
   };
 
   return (
-    <div style={styles.container}>
+    <div style={styles.container} className="customer-page-container contact-page-container">
       {/* Header */}
-      <section style={styles.headerSection}>
+      <section style={styles.headerSection} className="contact-header-section">
         <span style={styles.eyebrow}>CONTACT &amp; CUSTOM INQUIRIES</span>
         <h1 style={styles.title}>Let’s Plan Your Celebration</h1>
         <p style={styles.subtitle}>
@@ -41,7 +41,7 @@ export const ContactPage: React.FC = () => {
         </p>
       </section>
 
-      <div style={styles.contentGrid}>
+      <div style={styles.contentGrid} className="contact-grid-desktop">
         {/* Left: Atelier Contact & Policy Info */}
         <div style={styles.infoCol}>
           {/* Quick WhatsApp Concierge Card */}

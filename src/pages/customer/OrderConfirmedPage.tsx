@@ -194,9 +194,9 @@ export const OrderConfirmedPage: React.FC = () => {
       {/* ===================================================================== */}
       {/* MAIN ORDER CONFIRMATION CANVAS                                        */}
       {/* ===================================================================== */}
-      <main style={styles.mainCanvas}>
+      <main style={styles.mainCanvas} className="customer-page-container order-confirmed-page-canvas">
         {/* 1. SUCCESS HERO CARD */}
-        <section style={styles.heroCard}>
+        <section style={styles.heroCard} className="order-confirmed-hero-card">
           <div style={styles.heroGlow} />
 
           {/* Celebratory Checkmark Badge */}
@@ -249,8 +249,13 @@ export const OrderConfirmedPage: React.FC = () => {
           </div>
         </section>
 
-        {/* 2. VISUAL ORDER STATUS TIMELINE (Stitch Spec) */}
-        <section style={styles.cardSection}>
+        {/* ===================================================================== */}
+        {/* 2-COLUMN DESKTOP SPLIT LAYOUT                                         */}
+        {/* ===================================================================== */}
+        <div className="order-confirmed-grid-desktop">
+          <div className="order-confirmed-left-col">
+            {/* 2. VISUAL ORDER STATUS TIMELINE (Stitch Spec) */}
+            <section style={styles.cardSection}>
           <div style={styles.cardHeader}>
             <h2 style={styles.cardTitle}>Order Status Tracker</h2>
             <span style={styles.liveBadge}>Live Order Status</span>
@@ -412,7 +417,9 @@ export const OrderConfirmedPage: React.FC = () => {
             </div>
           </div>
         </section>
+      </div>
 
+      <div className="order-confirmed-right-col">
         {/* 4. ORDERED ITEMS SUMMARY (COMPACT REVIEW) */}
         {((stateItems && stateItems.length > 0) || (trackingData?.items && trackingData.items.length > 0)) && (
           <section style={styles.cardSection}>
@@ -538,7 +545,9 @@ export const OrderConfirmedPage: React.FC = () => {
             Continue Shopping
           </Link>
         </div>
-      </main>
+      </div>
+    </div>
+  </main>
     </div>
   );
 };

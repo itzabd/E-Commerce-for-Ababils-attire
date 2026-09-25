@@ -8,9 +8,9 @@ import { Link } from 'react-router-dom';
 
 export const AboutPage: React.FC = () => {
   return (
-    <div style={styles.container}>
+    <div style={styles.container} className="customer-page-container about-page-container">
       {/* Editorial Header */}
-      <section style={styles.headerSection}>
+      <section style={styles.headerSection} className="about-header-section">
         <span style={styles.eyebrow}>OUR STORY</span>
         <h1 style={styles.title}>Handmade Dresses &amp; Cakes, Stitched &amp; Baked with Love</h1>
         <p style={styles.subtitle}>
@@ -20,7 +20,7 @@ export const AboutPage: React.FC = () => {
       </section>
 
       {/* Meet Sanjida Story Card */}
-      <section style={styles.storyCard}>
+      <section style={styles.storyCard} className="about-story-grid">
         <div style={styles.storyImageWrapper}>
           <img
             src="https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?auto=format&fit=crop&w=1200&q=80"
@@ -47,7 +47,7 @@ export const AboutPage: React.FC = () => {
       </section>
 
       {/* Dual Disciplines Exhibition */}
-      <section style={styles.disciplinesSection}>
+      <section style={styles.disciplinesSection} className="about-disciplines-grid">
         {/* Discipline 1: Handmade Tailoring */}
         <div style={styles.disciplineCard}>
           <div style={styles.disciplineIconWrapper}>
@@ -92,7 +92,7 @@ export const AboutPage: React.FC = () => {
           <h2 style={styles.valuesTitle}>Why Families Cherish Us</h2>
         </div>
 
-        <div style={styles.valuesGrid}>
+        <div style={styles.valuesGrid} className="about-values-grid">
           <div style={styles.valueItem}>
             <span style={styles.valueNumber}>01</span>
             <h4 style={styles.valueHeading}>No Shortcuts</h4>
@@ -120,7 +120,7 @@ export const AboutPage: React.FC = () => {
       </section>
 
       {/* CTA Box */}
-      <section style={styles.ctaBox}>
+      <section style={styles.ctaBox} className="about-cta-box">
         <h3 style={styles.ctaTitle}>Planning an Upcoming Celebration?</h3>
         <p style={styles.ctaText}>
           Reach out to discuss custom sizing or request a signature celebration cake.

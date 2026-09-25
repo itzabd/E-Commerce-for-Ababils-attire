@@ -279,11 +279,11 @@ export const TrackOrderPage: React.FC = () => {
         </div>
       </div>
 
-      <div style={styles.contentWrapper}>
+      <div style={styles.contentWrapper} className="customer-page-container track-page-container">
         {/* ===================================================================== */}
         {/* 2. ORDER SEARCH / LOOKUP HERO CARD                                    */}
         {/* ===================================================================== */}
-        <section style={styles.searchCard}>
+        <section style={styles.searchCard} className="track-search-card">
           <div style={styles.searchHeader}>
             <div style={styles.searchIconBox}>
               <span className="material-symbols-outlined" style={{ fontSize: '28px', color: '#5c3e36' }}>
@@ -751,8 +751,11 @@ export const TrackOrderPage: React.FC = () => {
               </div>
             </div>
 
-            {/* ORDERED ITEMS BREAKDOWN */}
-            <div style={styles.itemsCard}>
+            {/* 2-COLUMN DESKTOP SPLIT: ITEMS ON LEFT, PAYMENT & CONCIERGE ON RIGHT */}
+            <div className="track-bottom-grid-desktop">
+              <div className="track-bottom-left-col">
+                {/* ORDERED ITEMS BREAKDOWN */}
+                <div style={styles.itemsCard}>
               <div style={styles.sectionHeader}>
                 <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#5c3e36' }}>
                   inventory_2
@@ -832,7 +835,9 @@ export const TrackOrderPage: React.FC = () => {
                 ))}
               </div>
             </div>
+          </div>
 
+          <div className="track-bottom-right-col">
             {/* PAYMENT SUMMARY */}
             <div style={styles.paymentCard}>
               <div style={styles.sectionHeader}>
@@ -925,7 +930,9 @@ export const TrackOrderPage: React.FC = () => {
               </div>
             </div>
           </div>
-        )}
+        </div>
+      </div>
+    )}
 
         {/* ===================================================================== */}
         {/* 6. INITIAL EMPTY STATE                                                */}

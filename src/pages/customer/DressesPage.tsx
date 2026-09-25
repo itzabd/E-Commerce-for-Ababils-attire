@@ -96,7 +96,7 @@ export const DressesPage: React.FC = () => {
       {/* ================================================================= */}
       {/* 2. EDITORIAL HEADER SECTION                                       */}
       {/* ================================================================= */}
-      <section style={styles.editorialHeader}>
+      <section style={styles.editorialHeader} className="catalog-editorial-header">
         <h1 style={styles.pageTitle}>Handmade Girls’ Dresses</h1>
         <p style={styles.pageDescription}>
           Delicate handmade dresses handcrafted with natural cotton, pure linen, and intricate
@@ -120,9 +120,9 @@ export const DressesPage: React.FC = () => {
       {/* ================================================================= */}
       {/* 3. SEARCH AND QUICK FILTER CHIPS                                  */}
       {/* ================================================================= */}
-      <section style={styles.controlsSection}>
+      <section style={styles.controlsSection} className="catalog-controls-section">
         {/* Search Bar */}
-        <div style={styles.searchWrapper}>
+        <div style={styles.searchWrapper} className="catalog-search-wrapper">
           <span className="material-symbols-outlined" style={styles.searchIcon}>
             search
           </span>
@@ -148,7 +148,7 @@ export const DressesPage: React.FC = () => {
         </div>
 
         {/* Horizontal Quick Filter Chips */}
-        <div style={styles.filterRow} className="no-scrollbar">
+        <div style={styles.filterRow} className="catalog-filter-row no-scrollbar">
           <button
             type="button"
             onClick={() => setActiveTab('all')}

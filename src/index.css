@@ -549,6 +549,242 @@ input, select, textarea {
   }
 }
 
+/* 10. Mobile Protection Rules (Mobile Viewports < 960px: Unaltered Stack Flow) */
+@media (max-width: 959px) {
+  .checkout-desktop-left-col,
+  .checkout-desktop-right-col,
+  .order-confirmed-grid-desktop,
+  .order-confirmed-left-col,
+  .order-confirmed-right-col,
+  .track-bottom-grid-desktop,
+  .track-bottom-left-col,
+  .track-bottom-right-col {
+    display: contents !important;
+  }
+  .desktop-checkout-submit-btn {
+    display: none !important;
+  }
+}
+
+/* 11. Dresses & Cakes Catalog Toolbar & Header (Desktop >= 1024px) */
+@media (min-width: 1024px) {
+  .catalog-editorial-header {
+    max-width: 1360px !important;
+    margin: 0 auto 16px auto !important;
+    text-align: left !important;
+    align-items: flex-start !important;
+  }
+  .catalog-editorial-header h1 {
+    font-size: 38px !important;
+    line-height: 1.2 !important;
+    letter-spacing: -0.015em !important;
+    font-family: 'Bodoni Moda', Georgia, serif !important;
+  }
+  .catalog-controls-section {
+    max-width: 1360px !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    background-color: #f5f3ef !important;
+    border-radius: 14px !important;
+    padding: 14px 20px !important;
+    border: 1px solid #dfd8ce !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 16px !important;
+    box-shadow: 0 2px 10px rgba(92, 62, 54, 0.03) !important;
+  }
+  .catalog-search-wrapper {
+    max-width: 340px !important;
+    width: 100% !important;
+  }
+  .catalog-filter-row {
+    flex: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
+    overflow-x: visible !important;
+    padding-bottom: 0 !important;
+  }
+}
+
+/* 12. Checkout 2-Column Split Layout (Desktop >= 960px) */
+@media (min-width: 960px) {
+  .checkout-page-canvas {
+    max-width: 1360px !important;
+    margin: 0 auto !important;
+    padding: 24px 3rem 64px 3rem !important;
+  }
+  .checkout-form-desktop-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.22fr) minmax(380px, 460px) !important;
+    gap: 48px !important;
+    align-items: start !important;
+  }
+  .checkout-desktop-left-col {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 28px !important;
+  }
+  .checkout-desktop-right-col {
+    position: sticky !important;
+    top: 96px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 28px !important;
+  }
+  .desktop-checkout-submit-btn {
+    display: block !important;
+  }
+  .mobile-checkout-sticky {
+    display: none !important;
+  }
+}
+
+/* 13. Order Confirmed 2-Column Split Layout (Desktop >= 960px) */
+@media (min-width: 960px) {
+  .order-confirmed-page-canvas {
+    max-width: 1360px !important;
+    margin: 0 auto !important;
+    padding: 24px 3rem 64px 3rem !important;
+  }
+  .order-confirmed-hero-card {
+    border-radius: 20px !important;
+    padding: 40px !important;
+    box-shadow: 0 16px 40px -12px rgba(67, 40, 33, 0.08) !important;
+  }
+  .order-confirmed-grid-desktop {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.22fr) minmax(380px, 460px) !important;
+    gap: 40px !important;
+    align-items: start !important;
+    margin-top: 32px !important;
+  }
+  .order-confirmed-left-col {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 24px !important;
+  }
+  .order-confirmed-right-col {
+    position: sticky !important;
+    top: 96px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 24px !important;
+  }
+}
+
+/* 14. Track Order Desktop Architecture (Desktop >= 960px) */
+@media (min-width: 960px) {
+  .track-page-container {
+    max-width: 1360px !important;
+    margin: 0 auto !important;
+    padding: 24px 3rem 64px 3rem !important;
+  }
+  .track-search-card {
+    max-width: 840px !important;
+    margin: 0 auto 36px auto !important;
+    border-radius: 20px !important;
+    padding: 36px !important;
+    box-shadow: 0 14px 36px -8px rgba(92, 62, 54, 0.08) !important;
+  }
+  .track-bottom-grid-desktop {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.2fr) minmax(360px, 440px) !important;
+    gap: 36px !important;
+    align-items: start !important;
+    margin-top: 24px !important;
+  }
+  .track-bottom-left-col {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 24px !important;
+  }
+  .track-bottom-right-col {
+    position: sticky !important;
+    top: 96px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 24px !important;
+  }
+}
+
+/* 15. About Page Editorial Architecture (Desktop >= 960px) */
+@media (min-width: 960px) {
+  .about-page-container {
+    max-width: 1360px !important;
+    margin: 0 auto !important;
+    padding: 32px 3rem 64px 3rem !important;
+  }
+  .about-header-section {
+    max-width: 900px !important;
+    margin: 0 auto 40px auto !important;
+    text-align: center !important;
+  }
+  .about-story-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr) !important;
+    gap: 56px !important;
+    align-items: center !important;
+    margin-bottom: 56px !important;
+    padding: 40px !important;
+    border-radius: 20px !important;
+    background: #ffffff !important;
+    border: 1px solid #dfd8ce !important;
+  }
+  .about-disciplines-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 36px !important;
+    margin-bottom: 56px !important;
+  }
+  .about-values-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 32px !important;
+  }
+  .about-cta-box {
+    max-width: 880px !important;
+    margin: 48px auto 0 auto !important;
+    border-radius: 20px !important;
+    padding: 48px !important;
+    text-align: center !important;
+  }
+}
+
+/* 16. Contact Page Desktop Architecture (Desktop >= 960px) */
+@media (min-width: 960px) {
+  .contact-page-container {
+    max-width: 1360px !important;
+    margin: 0 auto !important;
+    padding: 32px 3rem 64px 3rem !important;
+  }
+  .contact-header-section {
+    max-width: 900px !important;
+    margin: 0 auto 40px auto !important;
+    text-align: center !important;
+  }
+  .contact-grid-desktop {
+    display: grid !important;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) !important;
+    gap: 48px !important;
+    align-items: start !important;
+  }
+}
+
+/* 17. Global Desktop Bottom Spacing Adjustment */
+@media (min-width: 768px) {
+  .customer-main-content {
+    padding-bottom: 0 !important;
+  }
+  .customer-footer {
+    padding: 56px 3rem 48px 3rem !important;
+  }
+}
+
+
 
 
 

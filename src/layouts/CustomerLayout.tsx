@@ -476,14 +476,14 @@ export const CustomerLayout: React.FC = () => {
       {/* ================================================================= */}
       {/* MAIN CONTENT OUTLET                                              */}
       {/* ================================================================= */}
-      <main style={styles.mainContent}>
+      <main style={styles.mainContent} className="customer-main-content">
         <Outlet />
       </main>
 
       {/* ================================================================= */}
       {/* ATELIER FOOTER (Anchor Implementation)                            */}
       {/* ================================================================= */}
-      <footer style={styles.footer}>
+      <footer style={styles.footer} className="customer-footer">
         <div style={styles.footerInner}>
           {/* Brand Header */}
           <div style={styles.footerBrandSection}>
