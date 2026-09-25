@@ -108,10 +108,10 @@ export const settingsService = {
           const remoteSettings: StoreSettings = {
             ...DEFAULT_STORE_SETTINGS,
             ...data,
-            logo_url: data.logo_url || fallbackLogo,
-            hero_banner_url: data.hero_banner_url || local.hero_banner_url || DEFAULT_STORE_SETTINGS.hero_banner_url,
-            dresses_collection_url: data.dresses_collection_url || local.dresses_collection_url || DEFAULT_STORE_SETTINGS.dresses_collection_url,
-            cakes_collection_url: data.cakes_collection_url || local.cakes_collection_url || DEFAULT_STORE_SETTINGS.cakes_collection_url,
+            logo_url: data.logo_url ?? fallbackLogo,
+            hero_banner_url: data.hero_banner_url || DEFAULT_STORE_SETTINGS.hero_banner_url,
+            dresses_collection_url: data.dresses_collection_url || DEFAULT_STORE_SETTINGS.dresses_collection_url,
+            cakes_collection_url: data.cakes_collection_url || DEFAULT_STORE_SETTINGS.cakes_collection_url,
             minimum_advance_amount: Number(data.minimum_advance_amount ?? 500),
             delivery_inside_dhaka: Number(data.delivery_inside_dhaka ?? 80),
             delivery_outside_dhaka: Number(data.delivery_outside_dhaka ?? 150),
@@ -165,14 +165,19 @@ export const settingsService = {
           p_settings: merged,
         });
 
-        if (!error && data) {
+        if (error) {
+          console.error('[Settings] update_store_settings RPC error:', error);
+          throw new Error(`Failed to persist settings to server: ${error.message}`);
+        }
+
+        if (data) {
           const updated: StoreSettings = {
             ...DEFAULT_STORE_SETTINGS,
             ...data,
-            logo_url: merged.logo_url,
-            hero_banner_url: merged.hero_banner_url,
-            dresses_collection_url: merged.dresses_collection_url,
-            cakes_collection_url: merged.cakes_collection_url,
+            logo_url: data.logo_url ?? merged.logo_url,
+            hero_banner_url: data.hero_banner_url ?? merged.hero_banner_url,
+            dresses_collection_url: data.dresses_collection_url ?? merged.dresses_collection_url,
+            cakes_collection_url: data.cakes_collection_url ?? merged.cakes_collection_url,
             minimum_advance_amount: Number(data.minimum_advance_amount ?? merged.minimum_advance_amount),
             delivery_inside_dhaka: Number(data.delivery_inside_dhaka ?? merged.delivery_inside_dhaka),
             delivery_outside_dhaka: Number(data.delivery_outside_dhaka ?? merged.delivery_outside_dhaka),
@@ -184,8 +189,9 @@ export const settingsService = {
           }
           return updated;
         }
-      } catch (err) {
-        console.warn('RPC update_store_settings failed, retained in localStorage:', err);
+      } catch (err: any) {
+        console.error('Settings update error:', err);
+        throw err;
       }
     }
 
