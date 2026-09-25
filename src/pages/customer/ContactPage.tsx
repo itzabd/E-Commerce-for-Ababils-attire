@@ -3,10 +3,18 @@
  * Contact & Custom Orders Page (Mirrors Stitch specifications)
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { STUDIO_CONFIG, getStudioWhatsAppUrl } from '../../lib/studio';
+import { settingsService } from '../../services/settings.service';
+import type { StoreSettings } from '../../types';
 
 export const ContactPage: React.FC = () => {
+  const [storeSettings, setStoreSettings] = useState<StoreSettings | null>(null);
+
+  useEffect(() => {
+    settingsService.getSettings().then((s) => setStoreSettings(s));
+  }, []);
+
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -51,7 +59,7 @@ export const ContactPage: React.FC = () => {
               Chat directly with Sanjida to share reference photos, ask for custom sizing, or verify cake availability.
             </p>
             <a
-              href={getStudioWhatsAppUrl('Assalamu Alaikum Sanjida Apu, I would like to inquire about a custom order.')}
+              href={getStudioWhatsAppUrl('Assalamu Alaikum Sanjida Apu, I would like to inquire about a custom order.', storeSettings?.whatsapp_number || storeSettings?.contact_phone)}
               target="_blank"
               rel="noopener noreferrer"
               style={styles.whatsAppBtn}
@@ -68,7 +76,7 @@ export const ContactPage: React.FC = () => {
               </span>
               <div>
                 <h4 style={styles.detailLabel}>Dhaka Workshop & Studio</h4>
-                <p style={styles.detailValue}>{STUDIO_CONFIG.workshopAddress}</p>
+                <p style={styles.detailValue}>{storeSettings?.workshop_address || STUDIO_CONFIG.workshopAddress}</p>
               </div>
             </div>
 
@@ -78,7 +86,7 @@ export const ContactPage: React.FC = () => {
               </span>
               <div>
                 <h4 style={styles.detailLabel}>Studio Hours</h4>
-                <p style={styles.detailValue}>{STUDIO_CONFIG.studioHours}</p>
+                <p style={styles.detailValue}>{storeSettings?.studio_hours || STUDIO_CONFIG.studioHours}</p>
               </div>
             </div>
 
@@ -88,9 +96,21 @@ export const ContactPage: React.FC = () => {
               </span>
               <div>
                 <h4 style={styles.detailLabel}>Electronic Inquiries</h4>
-                <p style={styles.detailValue}>{STUDIO_CONFIG.conciergeEmail}</p>
+                <p style={styles.detailValue}>{storeSettings?.business_email || STUDIO_CONFIG.conciergeEmail}</p>
               </div>
             </div>
+
+            {(storeSettings?.contact_phone || storeSettings?.whatsapp_number) && (
+              <div style={styles.detailItem}>
+                <span className="material-symbols-outlined" style={styles.detailIcon}>
+                  call
+                </span>
+                <div>
+                  <h4 style={styles.detailLabel}>Telephone & WhatsApp</h4>
+                  <p style={styles.detailValue}>{storeSettings.whatsapp_number || storeSettings.contact_phone}</p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Delivery & bKash Advance Policy Card */}
@@ -98,7 +118,7 @@ export const ContactPage: React.FC = () => {
             <h4 style={styles.policyTitle}>Important Ordering Notes:</h4>
             <ul style={styles.policyList}>
               <li>
-                <strong>৳ 500 bKash Advance:</strong> Required to confirm booking via personal bKash ({STUDIO_CONFIG.bkashNumber}). Remaining balance is settled via Cash on Delivery.
+                <strong>৳ {storeSettings?.minimum_advance_amount ?? 500} bKash Advance:</strong> Required to confirm booking via {storeSettings?.bkash_type === 'merchant' ? 'bKash merchant' : 'personal bKash'} ({storeSettings?.bkash_number || STUDIO_CONFIG.bkashNumber}). Remaining balance is settled via Cash on Delivery.
               </li>
               <li>
                 <strong>Chilled Delivery:</strong> All cakes are transported in air-conditioned delivery transport across Dhaka to ensure flawless presentation.

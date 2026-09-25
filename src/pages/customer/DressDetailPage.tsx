@@ -44,7 +44,9 @@ export const DressDetailPage: React.FC = () => {
         if (isMounted) {
           setProduct(productData);
           setStoreSettings(settingsData);
-          const sizes = productData?.dress_details?.available_sizes;
+          const normalizeSize = (s: string) => (s === '2T' ? '2-3Y' : s === '3T' ? '3-4Y' : s === '4T' ? '4-5Y' : s);
+          const rawSizes = productData?.dress_details?.available_sizes;
+          const sizes = rawSizes?.map(normalizeSize);
           if (sizes && sizes.length > 0) {
             setSelectedSize(sizes[0]);
           } else if (settingsData?.size_chart && settingsData.size_chart.length > 0) {
@@ -133,9 +135,10 @@ export const DressDetailPage: React.FC = () => {
   const sizeChart = storeSettings?.size_chart && storeSettings.size_chart.length > 0 
     ? storeSettings.size_chart 
     : DEFAULT_SIZE_CHART;
+  const normalizeSize = (s: string) => (s === '2T' ? '2-3Y' : s === '3T' ? '3-4Y' : s === '4T' ? '4-5Y' : s);
   const availableSizes =
     product.dress_details?.available_sizes && product.dress_details.available_sizes.length > 0
-      ? product.dress_details.available_sizes
+      ? product.dress_details.available_sizes.map(normalizeSize)
       : sizeChart.map((s) => s.size);
 
   const isOutOfStock = product.status === 'out_of_stock' || product.stock_quantity === 0;

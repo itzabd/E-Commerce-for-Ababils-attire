@@ -4,13 +4,14 @@
  * Mirrors Stitch project 1646646279704595948 (Screen 5707c6de91cc4a98aa4bbde8ec61aaea)
  */
 
-import React, { useState, useId } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../hooks/useCart';
 import { ordersService } from '../../services/orders.service';
-import type { CreateGuestOrderPayload, OrderItemInput } from '../../types';
+import { settingsService } from '../../services/settings.service';
+import type { CreateGuestOrderPayload, OrderItemInput, StoreSettings } from '../../types';
 
-const STUDIO_BKASH_NUMBER = import.meta.env.VITE_STUDIO_BKASH_NUMBER || '01712-345678';
+const STUDIO_BKASH_NUMBER = import.meta.env.VITE_STUDIO_BKASH_NUMBER || '01795-077102';
 const MINIMUM_ADVANCE_AMOUNT = Number(import.meta.env.VITE_MINIMUM_ADVANCE_AMOUNT) || 500;
 
 function cleanPhoneNumber(raw: string): string {
@@ -101,6 +102,18 @@ export const CheckoutPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  // Live Store Configuration
+  const [storeSettings, setStoreSettings] = useState<StoreSettings | null>(null);
+
+  useEffect(() => {
+    settingsService.getSettings().then((s) => {
+      setStoreSettings(s);
+    });
+  }, []);
+
+  const bkashNumber = storeSettings?.bkash_number || STUDIO_BKASH_NUMBER;
+  const minimumAdvance = storeSettings?.minimum_advance_amount ?? MINIMUM_ADVANCE_AMOUNT;
+
   // Security: Honeypot field to catch dumb spam bots
   const [honeypot, setHoneypot] = useState('');
 
@@ -109,7 +122,7 @@ export const CheckoutPage: React.FC = () => {
   const cakeFee = hasCake ? 250 : 0;
   const netDeliveryCharge = Math.max(0, dressFee + cakeFee - deliveryDiscount);
   const totalAmount = subtotal + netDeliveryCharge;
-  const advanceAmount = Math.min(MINIMUM_ADVANCE_AMOUNT, totalAmount);
+  const advanceAmount = Math.min(minimumAdvance, totalAmount);
   const cashDue = Math.max(0, totalAmount - advanceAmount);
 
   // Validation Flags
@@ -132,7 +145,7 @@ export const CheckoutPage: React.FC = () => {
     isRefNameValid;
 
   const handleCopyNumber = () => {
-    const rawNumber = STUDIO_BKASH_NUMBER.replace(/\D/g, '');
+    const rawNumber = bkashNumber.replace(/\D/g, '');
     if (navigator.clipboard) {
       navigator.clipboard.writeText(rawNumber);
       setCopiedNumber(true);
@@ -678,8 +691,7 @@ export const CheckoutPage: React.FC = () => {
                     <span style={styles.requiredPill}>Required</span>
                   </div>
                   <p style={styles.codDesc}>
-                    Send ৳ {advanceAmount} advance via bKash to confirm your order. The remaining ৳{' '}
-                    {cashDue.toLocaleString()} will be paid as Cash on Delivery upon receiving your package.
+                    {storeSettings?.remaining_balance_policy || `Send ৳ ${advanceAmount} advance via bKash to confirm your order. The remaining ৳ ${cashDue.toLocaleString()} will be paid as Cash on Delivery upon receiving your package.`}
                   </p>
                 </div>
               </div>
@@ -695,8 +707,10 @@ export const CheckoutPage: React.FC = () => {
               <div style={styles.bkashBoxHeader}>
                 <div>
                   <span style={styles.bkashSendLabel}>Send Advance via bKash</span>
-                  <span style={styles.bkashNumber}>{STUDIO_BKASH_NUMBER}</span>
-                  <span style={styles.bkashSubtype}>(bKash Personal / Send-Money)</span>
+                  <span style={styles.bkashNumber}>{bkashNumber}</span>
+                  <span style={styles.bkashSubtype}>
+                    {storeSettings?.bkash_type === 'merchant' ? '(bKash Merchant / Payment)' : '(bKash Personal / Send-Money)'}
+                  </span>
                 </div>
 
                 <button
@@ -725,7 +739,7 @@ export const CheckoutPage: React.FC = () => {
                     Open bKash App or dial *247# → Choose <strong>‘Send Money’</strong>
                   </li>
                   <li>
-                    Enter number <strong style={{ color: '#2d2421' }}>{STUDIO_BKASH_NUMBER}</strong> and
+                    Enter number <strong style={{ color: '#2d2421' }}>{bkashNumber}</strong> and
                     send exact amount <strong>৳ {advanceAmount}</strong>
                   </li>
                   <li>Copy the TrxID and fill in the 3 verification fields below</li>
