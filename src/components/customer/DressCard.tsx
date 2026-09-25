@@ -17,7 +17,9 @@ export const DressCard: React.FC<DressCardProps> = ({ product }) => {
       ? product.images.find((img) => img.sort_order === 0)?.image_url || product.images[0].image_url
       : 'https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=800&q=80';
 
-  const sizes = product.dress_details?.available_sizes || ['6M', '12M', '18M', '2T', '3T', '4T'];
+  const normalizeSize = (s: string) => s === '2T' ? '2-3Y' : s === '3T' ? '3-4Y' : s === '4T' ? '4-5Y' : s;
+  const rawSizes = product.dress_details?.available_sizes || ['6M', '12M', '18M', '2-3Y', '3-4Y', '4-5Y'];
+  const sizes = rawSizes.map(normalizeSize);
   const sizeRangeText = sizes.length > 0 ? `${sizes[0]}–${sizes[sizes.length - 1]}` : 'Custom Sizes';
 
   const isLowStock = product.stock_quantity > 0 && product.stock_quantity <= 2;

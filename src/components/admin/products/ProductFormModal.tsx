@@ -10,6 +10,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import type { ProductWithDetails, ProductCategory, ProductStatus } from '../../../types';
 import { productsService } from '../../../services/products.service';
 import { storageService } from '../../../services/storage.service';
+import { settingsService } from '../../../services/settings.service';
 
 interface ProductFormModalProps {
   isOpen: boolean;
@@ -58,6 +59,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   const [stockQuantity, setStockQuantity] = useState<number>(5);
 
   // Dress Specific
+  const [sizeOptions, setSizeOptions] = useState<string[]>(DRESS_SIZE_OPTIONS);
   const [selectedSizes, setSelectedSizes] = useState<string[]>(['6M', '12M', '18M']);
   const [fabricDetails, setFabricDetails] = useState('');
   const [careInstructions, setCareInstructions] = useState('');
@@ -91,6 +93,19 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   const replaceFileInputRef = useRef<HTMLInputElement>(null);
   const [replacingImageId, setReplacingImageId] = useState<string | null>(null);
 
+  // Load configured size chart options from store settings
+  useEffect(() => {
+    settingsService.getSettings().then((settings) => {
+      if (settings?.size_chart && settings.size_chart.length > 0) {
+        setSizeOptions(settings.size_chart.map((s) => s.size));
+      } else if (settings?.preconfigured_sizes && settings.preconfigured_sizes.length > 0) {
+        setSizeOptions(settings.preconfigured_sizes);
+      }
+    }).catch((err) => {
+      console.warn('Failed to load store size options:', err);
+    });
+  }, []);
+
   // Initialize form state when editing or opening
   useEffect(() => {
     if (productToEdit) {
@@ -107,7 +122,9 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       setMinimumNoticeHours(productToEdit.minimum_notice_hours || 48);
 
       if (productToEdit.category === 'dress' && productToEdit.dress_details) {
-        setSelectedSizes(productToEdit.dress_details.available_sizes || []);
+        const normalizeSize = (s: string) => (s === '2T' ? '2-3Y' : s === '3T' ? '3-4Y' : s === '4T' ? '4-5Y' : s);
+        const sizes = (productToEdit.dress_details.available_sizes || []).map(normalizeSize);
+        setSelectedSizes(sizes);
         setFabricDetails(productToEdit.dress_details.fabric_details || '');
         setCareInstructions(productToEdit.dress_details.care_instructions || '');
       }
@@ -580,9 +597,9 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
 
                   {/* Available Sizes */}
                   <div style={styles.field}>
-                    <label style={styles.label}>Available Sizes (6M, 12M, 18M, 2T, 3T, 4T)</label>
+                    <label style={styles.label}>Available Sizes ({sizeOptions.join(', ')})</label>
                     <div style={styles.chipsRow}>
-                      {DRESS_SIZE_OPTIONS.map((size) => {
+                      {sizeOptions.map((size) => {
                         const isChecked = selectedSizes.includes(size);
                         return (
                           <button
