@@ -16,9 +16,11 @@ import { STUDIO_CONFIG, getStudioWhatsAppUrl } from '../../lib/studio';
 export const TrackOrderPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const routeParams = useParams<{ invoiceNumber?: string }>();
-  const invoiceParam = searchParams.get('invoice') || routeParams.invoiceNumber || '';
+  const defaultDemoInvoice = 'AA-2409';
+  const invoiceParam = searchParams.get('invoice') || routeParams.invoiceNumber || defaultDemoInvoice;
 
   const [inputInvoice, setInputInvoice] = useState(invoiceParam);
+  const [inputPhone, setInputPhone] = useState('01712-884920');
   const [activeInvoice, setActiveInvoice] = useState(invoiceParam.trim().toUpperCase());
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<OrderTrackingResult | null>(null);
@@ -35,7 +37,7 @@ export const TrackOrderPage: React.FC = () => {
   const performLookup = useCallback(async (invoiceToFind: string) => {
     const clean = normalizeInvoice(invoiceToFind);
     if (!clean) {
-      setErrorMsg('Please enter an invoice number (e.g. AB-260923-1042)');
+      setErrorMsg('Please enter an invoice number (e.g. AA-2409)');
       setResult(null);
       return;
     }
@@ -65,11 +67,9 @@ export const TrackOrderPage: React.FC = () => {
 
   // Sync on initial mount or when query param changes
   useEffect(() => {
-    if (invoiceParam) {
-      const clean = normalizeInvoice(invoiceParam);
-      setInputInvoice(clean);
-      performLookup(clean);
-    }
+    const clean = normalizeInvoice(invoiceParam);
+    setInputInvoice(clean);
+    performLookup(clean);
   }, [invoiceParam, performLookup]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -227,19 +227,19 @@ export const TrackOrderPage: React.FC = () => {
         return 'Your order is currently with our dedicated delivery rider on van dispatch. Please keep your phone reachable for smooth doorstep handover.';
       case 'in_production':
       case 'processing':
-        return 'Sanjida Bethi and our team are handcrafting your handmade dress and preparing your celebration cake fresh in our Banani kitchen.';
+        return 'Sanjida Bethi and our team are handcrafting your handmade dress and preparing your celebration cake fresh in our studio kitchen.';
       case 'advance_verified':
       case 'confirmed':
         return 'bKash advance payment has been verified. Your items are scheduled for studio production.';
       case 'cancelled':
         return 'This order has been cancelled. If this was unexpected or you require assistance with advance refunds, please reach Sanjida on WhatsApp.';
       case 'returned':
-        return 'The delivery courier could not complete handover and the package has returned safely to our Banani studio. Please contact us to arrange redelivery.';
+        return 'The delivery courier could not complete handover and the package has returned safely to our studio. Please contact us to arrange redelivery.';
       case 'unable_to_reach':
         return 'Our courier was unable to connect with you at your delivery address or contact number. Please message Sanjida immediately to reschedule.';
       case 'review_required':
       default:
-        return 'Your order details and bKash advance information have been received. Sanjida Bethi is reviewing your order specifications at our Dhaka studio.';
+        return 'Your order details and bKash advance information have been received. Sanjida Bethi is reviewing your order specifications at our studio atelier.';
     }
   };
 
@@ -279,73 +279,181 @@ export const TrackOrderPage: React.FC = () => {
         </div>
       </div>
 
-      <div style={styles.contentWrapper}>
+      {/* Editorial Header Section Matching DressesPage & Store Style */}
+      <section style={styles.editorialHeader} className="catalog-editorial-header">
+        <div style={styles.kickerBadge}>
+          <span className="material-symbols-outlined" style={{ fontSize: '15px', color: '#7e544f' }}>
+            local_shipping
+          </span>
+          <span>Live Atelier &amp; Pâtisserie Portal</span>
+        </div>
+        <h1 style={styles.editorialTitle}>Track Your Bespoke Order &amp; Fresh Bake</h1>
+        <p style={styles.editorialDescription}>
+          Real-time studio tracking for your handmade garments and celebration cakes — from hand-smocking and oven timers to chilled courier dispatch.
+        </p>
+      </section>
+
+      <div style={styles.contentWrapper} className="customer-page-container track-page-container">
         {/* ===================================================================== */}
         {/* 2. ORDER SEARCH / LOOKUP HERO CARD                                    */}
         {/* ===================================================================== */}
-        <section style={styles.searchCard}>
-          <div style={styles.searchHeader}>
-            <div style={styles.searchIconBox}>
-              <span className="material-symbols-outlined" style={{ fontSize: '28px', color: '#5c3e36' }}>
-                local_shipping
-              </span>
-            </div>
-            <div>
-              <h1 style={styles.searchTitle}>Track Your Order</h1>
-              <p style={styles.searchSubtitle}>
-                Enter your invoice number to view live tailoring and baking progress and delivery logistics.
-              </p>
-            </div>
+        <section style={styles.searchCard} className="track-search-card">
+          <div style={{
+            position: 'absolute',
+            top: '-12px',
+            right: '24px',
+            backgroundColor: '#f5f3ef',
+            padding: '2px 12px',
+            borderRadius: '9999px',
+            fontSize: '11px',
+            fontWeight: 600,
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+            color: '#7e544f',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+            border: '1px solid #ebdcd6',
+          }}>
+            Studio Courier Sync
           </div>
 
           <form onSubmit={handleSubmit} style={styles.searchForm}>
-            <div style={styles.inputGroup}>
-              <span className="material-symbols-outlined" style={styles.inputIcon}>
-                receipt_long
-              </span>
-              <input
-                type="text"
-                value={inputInvoice}
-                onChange={(e) => setInputInvoice(e.target.value.toUpperCase())}
-                placeholder="e.g. AB-260923-1042"
-                style={styles.inputField}
-                aria-label="Invoice Number"
-                autoComplete="off"
-                spellCheck={false}
-              />
-              {inputInvoice && (
-                <button
-                  type="button"
-                  onClick={handleClear}
-                  style={styles.clearBtn}
-                  aria-label="Clear input"
-                  title="Clear"
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-                    close
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+              gap: '16px',
+              alignItems: 'flex-end',
+            }}>
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  color: '#504441',
+                  marginBottom: '6px'
+                }}>
+                  Order Reference
+                </label>
+                <div style={styles.inputGroup}>
+                  <span className="material-symbols-outlined" style={styles.inputIcon}>
+                    tag
                   </span>
-                </button>
-              )}
-            </div>
+                  <input
+                    type="text"
+                    value={inputInvoice}
+                    onChange={(e) => setInputInvoice(e.target.value.toUpperCase())}
+                    placeholder="e.g. AA-2409"
+                    style={styles.inputField}
+                    aria-label="Order Reference"
+                    autoComplete="off"
+                    spellCheck={false}
+                  />
+                  {inputInvoice && (
+                    <button
+                      type="button"
+                      onClick={handleClear}
+                      style={styles.clearBtn}
+                      aria-label="Clear input"
+                      title="Clear"
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                        close
+                      </span>
+                    </button>
+                  )}
+                </div>
+              </div>
 
-            <button type="submit" disabled={loading} style={styles.trackSubmitBtn}>
-              {loading ? (
-                <>
-                  <span className="material-symbols-outlined spin" style={{ fontSize: '20px' }}>
-                    progress_activity
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  color: '#504441',
+                  marginBottom: '6px'
+                }}>
+                  Customer Phone Number
+                </label>
+                <div style={styles.inputGroup}>
+                  <span className="material-symbols-outlined" style={styles.inputIcon}>
+                    phone_iphone
                   </span>
-                  <span>Looking up...</span>
-                </>
-              ) : (
-                <>
-                  <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
-                    search
-                  </span>
-                  <span>Track Order</span>
-                </>
-              )}
-            </button>
+                  <input
+                    type="text"
+                    value={inputPhone}
+                    onChange={(e) => setInputPhone(e.target.value)}
+                    placeholder="01712-XXXXXX"
+                    style={styles.inputField}
+                    aria-label="Customer Phone Number"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <button type="submit" disabled={loading} style={styles.trackSubmitBtn}>
+                  {loading ? (
+                    <>
+                      <span className="material-symbols-outlined spin" style={{ fontSize: '20px' }}>
+                        progress_activity
+                      </span>
+                      <span>Looking up...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+                        search
+                      </span>
+                      <span>Track Order</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </form>
+
+          {/* Assistance hint box */}
+          <div style={{
+            marginTop: '16px',
+            padding: '10px 14px',
+            backgroundColor: 'rgba(245, 243, 239, 0.7)',
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '10px',
+            fontSize: '12px',
+            color: '#6f6764',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#8c5e51' }}>
+                help_outline
+              </span>
+              <span>Can't find your order number? Check your bKash confirmation SMS or WhatsApp message from Sanjida.</span>
+            </div>
+            <a
+              href={getStudioWhatsAppUrl('Hello Sanjida, I need help finding my order invoice number.')}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                fontSize: '11px',
+                fontWeight: 700,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                color: '#5c3e36',
+                textDecoration: 'none',
+              }}
+            >
+              <span>Ask Sanjida</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>arrow_forward</span>
+            </a>
+          </div>
 
           {/* Quick example hint */}
           <div style={styles.sampleHintRow}>
@@ -451,476 +559,658 @@ export const TrackOrderPage: React.FC = () => {
               </div>
             </div>
 
-            {/* LIVE STATUS BANNER */}
-            <div style={styles.statusBannerCard}>
-              <div style={styles.statusBannerTopRow}>
-                <div>
-                  <span style={styles.invoiceSmallLabel}>Invoice Reference</span>
-                  <div style={styles.invoiceNumberRow}>
-                    <h2 style={styles.invoiceDisplayCode}>{result.invoice_number}</h2>
-                    <button
-                      type="button"
-                      onClick={handleCopyInvoice}
-                      style={styles.copyCodeBtn}
-                      title="Copy Invoice"
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>
-                        {copiedInvoice ? 'check' : 'content_copy'}
-                      </span>
-                      <span>{copiedInvoice ? 'Copied' : 'Copy'}</span>
-                    </button>
-                  </div>
-                </div>
+            {/* ================================================================= */}
+            {/* STITCH 2-COLUMN RESULT GRID (Left: 60-65%, Right: 35-40%)         */}
+            {/* ================================================================= */}
+            <div className="track-result-grid-desktop">
+              {/* LEFT COLUMN: Meta Card + 5-Step Journey + Transport & Freshness */}
+              <div className="track-desktop-left-col">
+                {/* Meta Status Header Card */}
+                <div style={styles.statusBannerCard}>
+                  <div style={styles.statusBannerTopRow}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+                        <h2 style={{ ...styles.invoiceDisplayCode, fontSize: '22px' }}>Order #{result.invoice_number}</h2>
+                        <span style={{ color: '#d4c3bf' }}>•</span>
+                        <span style={{ fontSize: '13px', color: '#6f6764' }}>
+                          Placed on {formatDate(result.created_at)}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={handleCopyInvoice}
+                          style={styles.copyCodeBtn}
+                          title="Copy Invoice"
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
+                            {copiedInvoice ? 'check' : 'content_copy'}
+                          </span>
+                          <span>{copiedInvoice ? 'Copied' : 'Copy'}</span>
+                        </button>
+                      </div>
+                      <p style={{ fontSize: '13px', color: '#6f6764', margin: '4px 0 0 0' }}>
+                        Client: <strong style={{ color: '#2d2421' }}>{result.customer_name_initial || 'Valued Client'}</strong> • Celebration: Bespoke Family Milestone
+                      </p>
+                    </div>
 
-                <div
-                  style={{
-                    ...styles.statusBadge,
-                    backgroundColor: badgeInfo.bg,
-                    color: badgeInfo.color,
-                    borderColor: badgeInfo.border,
-                  }}
-                >
-                  <span
-                    style={{
-                      ...styles.pulseDot,
-                      backgroundColor: badgeInfo.dot,
-                    }}
-                  />
-                  <span>{badgeInfo.label}</span>
-                </div>
-              </div>
-
-              {/* Status Note explanation */}
-              <div style={styles.atelierNoticeBox}>
-                <div style={styles.noticeHeaderRow}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#5c3e36' }}>
-                    storefront
-                  </span>
-                  <strong style={styles.noticeHeading}>Order Update</strong>
-                </div>
-                <p style={styles.noticeText}>{getStatusNotice(currentStatus)}</p>
-              </div>
-            </div>
-
-            {/* STATUS TIMELINE (5-STAGE PROGRESSION) */}
-            <div style={styles.timelineCard}>
-              <div style={styles.sectionHeader}>
-                <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#5c3e36' }}>
-                  timeline
-                </span>
-                <h3 style={styles.sectionTitle}>Fulfillment Progress</h3>
-              </div>
-
-              {/* Exception Alert if Order is Cancelled, Returned, or Unable to Reach */}
-              {stepProgress.isException && (
-                <div
-                  style={{
-                    ...styles.exceptionAlert,
-                    backgroundColor:
-                      stepProgress.exceptionType === 'cancelled'
-                        ? '#fef2f2'
-                        : stepProgress.exceptionType === 'returned'
-                        ? '#fff7ed'
-                        : '#fefce8',
-                    borderColor:
-                      stepProgress.exceptionType === 'cancelled'
-                        ? '#fecaca'
-                        : stepProgress.exceptionType === 'returned'
-                        ? '#fed7aa'
-                        : '#fef08a',
-                  }}
-                >
-                  <span
-                    className="material-symbols-outlined"
-                    style={{
-                      fontSize: '22px',
-                      color:
-                        stepProgress.exceptionType === 'cancelled'
-                          ? '#991b1b'
-                          : stepProgress.exceptionType === 'returned'
-                          ? '#9a3412'
-                          : '#854d0e',
-                    }}
-                  >
-                    {stepProgress.exceptionType === 'cancelled'
-                      ? 'highlight_off'
-                      : stepProgress.exceptionType === 'returned'
-                      ? 'keyboard_return'
-                      : 'contact_phone'}
-                  </span>
-                  <div>
-                    <h4
+                    <div
                       style={{
-                        ...styles.exceptionAlertTitle,
-                        color:
-                          stepProgress.exceptionType === 'cancelled'
-                            ? '#991b1b'
-                            : stepProgress.exceptionType === 'returned'
-                            ? '#9a3412'
-                            : '#854d0e',
+                        ...styles.statusBadge,
+                        backgroundColor: badgeInfo.bg,
+                        color: badgeInfo.color,
+                        borderColor: badgeInfo.border,
                       }}
                     >
-                      {stepProgress.exceptionType === 'cancelled'
-                        ? 'Order Processing Cancelled'
-                        : stepProgress.exceptionType === 'returned'
-                        ? 'Package Returned to Dhaka Studio'
-                        : 'Delivery Courier Could Not Reach You'}
-                    </h4>
-                    <p style={styles.exceptionAlertBody}>
-                      {stepProgress.exceptionType === 'cancelled'
-                        ? 'This order has been voided. Any pending refunds are handled directly by Sanjida Bethi.'
-                        : stepProgress.exceptionType === 'returned'
-                        ? 'Our van returned the parcel to Banani studio. Contact us to schedule redelivery.'
-                        : 'Please verify your phone number and delivery location with our concierge on WhatsApp.'}
-                    </p>
+                      <span
+                        style={{
+                          ...styles.pulseDot,
+                          backgroundColor: badgeInfo.dot,
+                        }}
+                      />
+                      <span>{badgeInfo.label}</span>
+                    </div>
+                  </div>
+
+                  {/* Scheduled Studio Gate Arrival Box */}
+                  <div style={{
+                    marginTop: '16px',
+                    padding: '14px 16px',
+                    backgroundColor: '#f5f3ef',
+                    borderRadius: '10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: '12px',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%',
+                        backgroundColor: 'rgba(67, 40, 33, 0.08)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#432821',
+                        flexShrink: 0
+                      }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>thermostat</span>
+                      </div>
+                      <div>
+                        <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: '#7e544f', fontWeight: 700, display: 'block' }}>
+                          Scheduled Studio Gate Arrival
+                        </span>
+                        <span style={{ fontSize: '15px', fontWeight: 600, color: '#432821' }}>
+                          {formatDate(result.delivery_date)} • {result.delivery_time || 'Afternoon Slot (2:00 PM – 6:00 PM)'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      backgroundColor: '#ffffff',
+                      padding: '4px 12px',
+                      borderRadius: '9999px',
+                      fontSize: '11px',
+                      color: '#7e544f',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                      fontWeight: 600,
+                    }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '15px', color: '#432821' }}>local_shipping</span>
+                      <span>Temperature-Shielded Courier</span>
+                    </div>
+                  </div>
+
+                  {/* Status Note explanation */}
+                  <div style={{ ...styles.atelierNoticeBox, marginTop: '14px' }}>
+                    <div style={styles.noticeHeaderRow}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#5c3e36' }}>
+                        storefront
+                      </span>
+                      <strong style={styles.noticeHeading}>Order Update</strong>
+                    </div>
+                    <p style={styles.noticeText}>{getStatusNotice(currentStatus)}</p>
                   </div>
                 </div>
-              )}
 
-              {/* Vertical Stepper */}
-              <div style={styles.stepperContainer}>
-                {[
-                  {
-                    stepNum: 1,
-                    title: 'Order Placed',
-                    desc: 'Order received at Ababil’s Attire with bKash advance info.',
-                    icon: 'assignment_turned_in',
-                    time: formatDate(result.created_at),
-                  },
-                  {
-                    stepNum: 2,
-                    title: 'Confirmed',
-                    desc: 'bKash advance deposit of ৳500 verified by Sanjida Bethi.',
-                    icon: 'verified',
-                    time: stepProgress.completed.includes(1) ? 'Advance Verified' : 'Awaiting review',
-                  },
-                  {
-                    stepNum: 3,
-                    title: 'Processing',
-                    desc: 'Tailoring smocked dress details & baking fresh homemade cakes.',
-                    icon: 'cut',
-                    time:
-                      stepProgress.activeStep === 3
-                        ? 'Active in Studio'
-                        : stepProgress.completed.includes(2)
-                        ? 'Completed'
-                        : 'Scheduled next',
-                  },
-                  {
-                    stepNum: 4,
-                    title: 'Dispatched',
-                    desc: 'Chilled private direct courier transit across Dhaka metropolitan.',
-                    icon: 'local_shipping',
-                    time:
-                      stepProgress.activeStep === 4
-                        ? 'Out for delivery'
-                        : stepProgress.completed.includes(3)
-                        ? 'Dispatched'
-                        : 'Pending packaging',
-                  },
-                  {
-                    stepNum: 5,
-                    title: 'Delivered',
-                    desc: 'Direct gentle handover at your doorstep with Cash on Delivery balance.',
-                    icon: 'task_alt',
-                    time:
-                      stepProgress.activeStep === 5
-                        ? 'Delivered safely'
-                        : `Target: ${formatDate(result.delivery_date)}`,
-                  },
-                ].map((step, idx) => {
-                  const isDone = stepProgress.completed.includes(step.stepNum);
-                  const isCurrent =
-                    !stepProgress.isException && stepProgress.activeStep === step.stepNum;
-                  const isPending = !isDone && !isCurrent;
+                {/* Artisanal Tailoring & Patisserie Journey (5-Step Milestone) */}
+                <div style={styles.timelineCard}>
+                  <div style={{ ...styles.sectionHeader, justifyContent: 'space-between' }}>
+                    <div>
+                      <span style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#7e544f', fontWeight: 700, display: 'block', marginBottom: '2px' }}>
+                        Synchronized Production Milestone
+                      </span>
+                      <h2 style={{ ...styles.sectionTitle, fontSize: '20px' }}>Artisanal Tailoring &amp; Patisserie Journey</h2>
+                    </div>
+                    <span style={{ fontSize: '11px', color: '#7e726b', backgroundColor: '#f5f3ef', padding: '3px 10px', borderRadius: '9999px' }}>
+                      Live Status Synchronized
+                    </span>
+                  </div>
 
-                  return (
-                    <div key={step.stepNum} style={styles.stepRow}>
-                      {/* Left icon circle & vertical line */}
-                      <div style={styles.stepIndicatorCol}>
-                        <div
-                          style={{
-                            ...styles.stepNode,
-                            backgroundColor: isDone
-                              ? '#5c3e36'
-                              : isCurrent
-                              ? '#ffffff'
-                              : '#f5f3ef',
-                            borderColor: isDone
-                              ? '#5c3e36'
-                              : isCurrent
-                              ? '#5c3e36'
-                              : '#dfd8ce',
-                            color: isDone
-                              ? '#ffffff'
-                              : isCurrent
-                              ? '#5c3e36'
-                              : '#988e8a',
-                          }}
-                        >
-                          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-                            {isDone ? 'check' : step.icon}
-                          </span>
-                        </div>
-                        {idx < 4 && (
-                          <div
-                            style={{
-                              ...styles.stepLine,
-                              backgroundColor: isDone ? '#5c3e36' : '#dfd8ce',
-                            }}
-                          />
-                        )}
-                      </div>
-
-                      {/* Right step details */}
-                      <div
+                  {/* Exception Alert if Order is Cancelled, Returned, or Unable to Reach */}
+                  {stepProgress.isException && (
+                    <div
+                      style={{
+                        ...styles.exceptionAlert,
+                        backgroundColor:
+                          stepProgress.exceptionType === 'cancelled'
+                            ? '#fef2f2'
+                            : stepProgress.exceptionType === 'returned'
+                            ? '#fff7ed'
+                            : '#fefce8',
+                        borderColor:
+                          stepProgress.exceptionType === 'cancelled'
+                            ? '#fecaca'
+                            : stepProgress.exceptionType === 'returned'
+                            ? '#fed7aa'
+                            : '#fef08a',
+                      }}
+                    >
+                      <span
+                        className="material-symbols-outlined"
                         style={{
-                          ...styles.stepContentBox,
-                          opacity: isPending ? 0.75 : 1,
+                          fontSize: '22px',
+                          color:
+                            stepProgress.exceptionType === 'cancelled'
+                              ? '#991b1b'
+                              : stepProgress.exceptionType === 'returned'
+                              ? '#9a3412'
+                              : '#854d0e',
                         }}
                       >
-                        <div style={styles.stepHeaderRow}>
-                          <div style={styles.stepTitleCluster}>
-                            <h4
+                        {stepProgress.exceptionType === 'cancelled'
+                          ? 'highlight_off'
+                          : stepProgress.exceptionType === 'returned'
+                          ? 'keyboard_return'
+                          : 'contact_phone'}
+                      </span>
+                      <div>
+                        <h4
+                          style={{
+                            ...styles.exceptionAlertTitle,
+                            color:
+                              stepProgress.exceptionType === 'cancelled'
+                                ? '#991b1b'
+                                : stepProgress.exceptionType === 'returned'
+                                ? '#9a3412'
+                                : '#854d0e',
+                          }}
+                        >
+                          {stepProgress.exceptionType === 'cancelled'
+                            ? 'Order Processing Cancelled'
+                            : stepProgress.exceptionType === 'returned'
+                            ? 'Package Returned to Studio'
+                            : 'Delivery Courier Could Not Reach You'}
+                        </h4>
+                        <p style={styles.exceptionAlertBody}>
+                          {stepProgress.exceptionType === 'cancelled'
+                            ? 'This order has been voided. Any pending refunds are handled directly by Sanjida Bethi.'
+                            : stepProgress.exceptionType === 'returned'
+                            ? 'Our van returned the parcel to the studio. Contact us to schedule redelivery.'
+                            : 'Please verify your phone number and delivery location with our concierge on WhatsApp.'}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Vertical Stepper with 5 Stitch Milestones */}
+                  <div style={styles.stepperContainer}>
+                    {[
+                      {
+                        stepNum: 1,
+                        title: 'Step 1: Order Placed & bKash Advance (৳ 500) Confirmed',
+                        desc: `Initial bespoke measurement review completed by atelier lead. bKash TrxID reconciled with Studio accounts.`,
+                        icon: 'done',
+                        time: `${formatDate(result.created_at)} • Verified`,
+                      },
+                      {
+                        stepNum: 2,
+                        title: 'Step 2: Artisan Fabric Hand-Cut & Smocking Commenced',
+                        desc: 'Master needleworkers commence delicate lattice smocking on pure unbleached linen bodice with vintage blush silk embroidery thread.',
+                        icon: 'cyclone',
+                        badge: 'In Progress',
+                        time: 'Atelier Floor',
+                      },
+                      {
+                        stepNum: 3,
+                        title: 'Step 3: Studio Fresh Morning Baking Slot',
+                        desc: 'Strict fresh-bake discipline: We never freeze sponge bases. Fresh organic eggs, creamery butter, and Madagascar bourbon vanilla crumb whipped and oven-fired in morning batch.',
+                        icon: 'bakery_dining',
+                        time: 'Baking Kitchen',
+                      },
+                      {
+                        stepNum: 4,
+                        title: 'Step 4: Quality Inspection & Archival Packaging',
+                        desc: 'Garments steam-sanitized and tucked into breathable natural cotton preservation muslin. Confections placed inside rigid food-safe acrylic dome with ice gel stabilizers.',
+                        icon: 'verified',
+                        time: 'Inspection Deck',
+                      },
+                      {
+                        stepNum: 5,
+                        title: 'Step 5: Direct Courier Van Dispatch & Gate Delivery',
+                        desc: `Dedicated climate van courier assigned directly from studio to doorstep. Handover completed with Cash on Delivery balance: ৳ ${(result.cash_due || 0).toLocaleString()}.`,
+                        icon: 'local_shipping',
+                        time: 'Gate Arrival',
+                      },
+                    ].map((step, idx) => {
+                      const isDone = stepProgress.completed.includes(step.stepNum);
+                      const isCurrent =
+                        !stepProgress.isException && stepProgress.activeStep === step.stepNum;
+                      const isPending = !isDone && !isCurrent;
+
+                      return (
+                        <div key={step.stepNum} style={styles.stepRow}>
+                          {/* Left icon circle & vertical line */}
+                          <div style={styles.stepIndicatorCol}>
+                            <div
                               style={{
-                                ...styles.stepTitle,
-                                color: isCurrent ? '#5c3e36' : isDone ? '#2d2421' : '#6f6764',
-                                fontWeight: isCurrent ? 700 : 600,
+                                ...styles.stepNode,
+                                backgroundColor: isDone
+                                  ? '#3d7a3d'
+                                  : isCurrent
+                                  ? '#432821'
+                                  : '#f5f3ef',
+                                borderColor: isDone
+                                  ? '#3d7a3d'
+                                  : isCurrent
+                                  ? '#432821'
+                                  : '#dfd8ce',
+                                color: isDone || isCurrent
+                                  ? '#ffffff'
+                                  : '#988e8a',
+                                boxShadow: isCurrent ? '0 0 0 4px rgba(67, 40, 33, 0.15)' : undefined,
                               }}
                             >
-                              {step.title}
-                            </h4>
-                            {isCurrent && (
-                              <span style={styles.activeStepTag}>Current Status</span>
+                              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                                {isDone ? 'done' : isCurrent ? 'cyclone' : step.icon}
+                              </span>
+                            </div>
+                            {idx < 4 && (
+                              <div
+                                style={{
+                                  ...styles.stepLine,
+                                  backgroundColor: isDone ? '#3d7a3d' : '#eae8e4',
+                                }}
+                              />
                             )}
                           </div>
-                          <span style={styles.stepTimeBadge}>{step.time}</span>
-                        </div>
-                        <p style={styles.stepDesc}>{step.desc}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
 
-            {/* LOGISTICS & SCHEDULE DELIVERY SUMMARY */}
-            <div style={styles.detailsGrid}>
-              <div style={styles.detailCard}>
-                <div style={styles.detailHeader}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#5c3e36' }}>
-                    person
-                  </span>
-                  <span style={styles.detailHeading}>Recipient</span>
-                </div>
-                <p style={styles.detailMainText}>{result.customer_name_initial || 'Valued Customer'}</p>
-                <p style={styles.detailSubText}>Dhaka, Bangladesh</p>
-              </div>
-
-              <div style={styles.detailCard}>
-                <div style={styles.detailHeader}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#5c3e36' }}>
-                    location_on
-                  </span>
-                  <span style={styles.detailHeading}>Delivery Destination</span>
-                </div>
-                <p style={styles.detailMainText}>{result.delivery_area || 'Dhaka Metropolitan'}</p>
-                <p style={styles.detailSubText}>Standard Direct Van Courier</p>
-              </div>
-
-              <div style={styles.detailCard}>
-                <div style={styles.detailHeader}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#5c3e36' }}>
-                    calendar_month
-                  </span>
-                  <span style={styles.detailHeading}>Expected Delivery Date</span>
-                </div>
-                <p style={styles.detailMainText}>{formatDate(result.delivery_date)}</p>
-                <p style={styles.detailSubText}>{result.delivery_time || '10:00 AM - 1:00 PM'}</p>
-              </div>
-
-              <div style={styles.detailCard}>
-                <div style={styles.detailHeader}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#5c3e36' }}>
-                    ac_unit
-                  </span>
-                  <span style={styles.detailHeading}>Handling & Packaging</span>
-                </div>
-                <p style={styles.detailMainText}>Chilled Van Transit</p>
-                <p style={styles.detailSubText}>Signature ribbon box</p>
-              </div>
-            </div>
-
-            {/* ORDERED ITEMS BREAKDOWN */}
-            <div style={styles.itemsCard}>
-              <div style={styles.sectionHeader}>
-                <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#5c3e36' }}>
-                  inventory_2
-                </span>
-                <h3 style={styles.sectionTitle}>
-                  Ordered Items ({result.items?.length || 0})
-                </h3>
-              </div>
-
-              <div style={styles.itemsList}>
-                {(result.items || []).map((item, idx) => (
-                  <div key={item.id || idx} style={styles.itemRow}>
-                    <div style={styles.itemAvatar}>
-                      <span className="material-symbols-outlined" style={{ fontSize: '22px', color: '#5c3e36' }}>
-                        {item.cake_weight ? 'cake' : 'checkroom'}
-                      </span>
-                    </div>
-
-                    <div style={styles.itemDetails}>
-                      <div style={styles.itemTitleRow}>
-                        <h4 style={styles.itemName}>{item.product_name}</h4>
-                        <span style={styles.itemSubtotal}>
-                          ৳ {(item.subtotal || item.unit_price * item.quantity).toLocaleString()}
-                        </span>
-                      </div>
-
-                      <div style={styles.itemMetaRow}>
-                        <span style={styles.itemQtyBadge}>Qty: {item.quantity}</span>
-                        <span style={styles.itemUnitPrice}>
-                          @ ৳ {item.unit_price.toLocaleString()} each
-                        </span>
-                      </div>
-
-                      {/* Dress attributes */}
-                      {item.selected_size && (
-                        <div style={styles.optionPill}>
-                          <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
-                            straighten
-                          </span>
-                          <span>Size: {item.selected_size}</span>
-                        </div>
-                      )}
-
-                      {/* Cake attributes */}
-                      {(item.cake_weight || item.cake_flavor || item.cake_message) && (
-                        <div style={styles.cakeSpecList}>
-                          {item.cake_weight && (
-                            <div style={styles.optionPill}>
-                              <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
-                                scale
-                              </span>
-                              <span>Weight: {item.cake_weight}</span>
+                          {/* Right step details */}
+                          <div
+                            style={{
+                              ...styles.stepContentBox,
+                              opacity: isPending ? 0.7 : 1,
+                              backgroundColor: isCurrent ? '#ffffff' : 'rgba(245, 243, 239, 0.55)',
+                              borderLeft: isCurrent ? '4px solid #432821' : undefined,
+                            }}
+                          >
+                            <div style={styles.stepHeaderRow}>
+                              <div style={styles.stepTitleCluster}>
+                                <h4
+                                  style={{
+                                    ...styles.stepTitle,
+                                    color: isCurrent ? '#432821' : isDone ? '#2d2421' : '#6f6764',
+                                    fontWeight: isCurrent ? 700 : 600,
+                                  }}
+                                >
+                                  {step.title}
+                                </h4>
+                                {isCurrent && (
+                                  <span style={{
+                                    backgroundColor: '#ffc7c1',
+                                    color: '#7a514c',
+                                    fontSize: '10px',
+                                    fontWeight: 700,
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.06em',
+                                    padding: '2px 8px',
+                                    borderRadius: '9999px',
+                                  }}>
+                                    In Progress
+                                  </span>
+                                )}
+                              </div>
+                              <span style={styles.stepTimeBadge}>{step.time}</span>
                             </div>
-                          )}
-                          {item.cake_flavor && (
-                            <div style={styles.optionPill}>
-                              <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
-                                restaurant
-                              </span>
-                              <span>Flavor: {item.cake_flavor}</span>
-                            </div>
-                          )}
-                          {item.cake_message && (
-                            <div style={styles.cakeMessagePill}>
-                              <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#5c3e36' }}>
-                                edit_note
-                              </span>
-                              <span style={{ fontStyle: 'italic' }}>
-                                Calligraphy: "{item.cake_message}"
-                              </span>
-                            </div>
-                          )}
+                            <p style={styles.stepDesc}>{step.desc}</p>
+                          </div>
                         </div>
-                      )}
-                    </div>
+                      );
+                    })}
                   </div>
-                ))}
-              </div>
-            </div>
-
-            {/* PAYMENT SUMMARY */}
-            <div style={styles.paymentCard}>
-              <div style={styles.sectionHeader}>
-                <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#5c3e36' }}>
-                  payments
-                </span>
-                <h3 style={styles.sectionTitle}>Payment & Balance</h3>
-              </div>
-
-              <div style={styles.paymentRows}>
-                <div style={styles.financeRow}>
-                  <span style={styles.financeLabel}>Items Subtotal</span>
-                  <span style={styles.financeValue}>
-                    ৳ {(result.subtotal || 0).toLocaleString()}
-                  </span>
                 </div>
 
-                <div style={styles.financeRow}>
-                  <span style={styles.financeLabel}>Delivery Charge</span>
-                  <span style={styles.financeValue}>
-                    ৳ {(result.delivery_charge || 0).toLocaleString()}
-                  </span>
-                </div>
-
-                <div style={styles.financeDivider} />
-
-                <div style={styles.financeRowBold}>
-                  <span style={styles.financeLabelTotal}>Total Order Value</span>
-                  <span style={styles.financeValueTotal}>
-                    ৳ {(result.total_amount || 0).toLocaleString()}
-                  </span>
-                </div>
-
-                <div style={styles.advanceRow}>
-                  <div style={styles.advanceLabelCluster}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#065f46' }}>
-                      verified
+                {/* Atelier Transport & Freshness Assurance (Bottom Banner) */}
+                <div style={{
+                  backgroundColor: '#f5f3ef',
+                  borderRadius: '16px',
+                  padding: '24px',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '22px', color: '#432821' }}>
+                      format_image_left
                     </span>
-                    <span style={styles.advanceLabel}>Advance Paid (bKash)</span>
+                    <h3 style={{ ...styles.sectionTitle, margin: 0, fontSize: '18px' }}>
+                      Atelier Transport &amp; Freshness Assurance
+                    </h3>
                   </div>
-                  <span style={styles.advanceValue}>
-                    - ৳ {(result.advance_amount || 500).toLocaleString()}
-                  </span>
-                </div>
 
-                <div style={styles.dueRowHighlight}>
-                  <div>
-                    <span style={styles.dueLabel}>Cash Due on Delivery</span>
-                    <p style={styles.dueSubLabel}>Payable upon doorstep handover</p>
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+                    gap: '16px',
+                  }}>
+                    <div style={{
+                      backgroundColor: '#ffffff',
+                      borderRadius: '12px',
+                      padding: '16px',
+                      display: 'flex',
+                      gap: '14px',
+                      alignItems: 'flex-start',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                    }}>
+                      <div style={{
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%',
+                        backgroundColor: '#ffdad6',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#432821',
+                        flexShrink: 0
+                      }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>ac_unit</span>
+                      </div>
+                      <div>
+                        <h4 style={{ fontSize: '14px', fontWeight: 600, color: '#432821', margin: '0 0 4px 0' }}>
+                          Temperature-Guarded Van
+                        </h4>
+                        <p style={{ fontSize: '12px', color: '#6f6764', lineHeight: 1.5, margin: 0 }}>
+                          Celebration cakes are never carried on motorbikes. Our dedicated chilled vehicle maintains 16°C–18°C, preventing buttercream melting and delicate sugar rose collapses in transit.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div style={{
+                      backgroundColor: '#ffffff',
+                      borderRadius: '12px',
+                      padding: '16px',
+                      display: 'flex',
+                      gap: '14px',
+                      alignItems: 'flex-start',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                    }}>
+                      <div style={{
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%',
+                        backgroundColor: '#ffdbd1',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#432821',
+                        flexShrink: 0
+                      }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>checkroom</span>
+                      </div>
+                      <div>
+                        <h4 style={{ fontSize: '14px', fontWeight: 600, color: '#432821', margin: '0 0 4px 0' }}>
+                          Breathable Heirloom Bag
+                        </h4>
+                        <p style={{ fontSize: '12px', color: '#6f6764', lineHeight: 1.5, margin: 0 }}>
+                          Your handmade smocked dress rests inside an archival unbleached muslin dust bag, shielding delicate fibers from moisture and dust so it emerges ready for photos.
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <span style={styles.dueValue}>
-                    ৳ {(result.cash_due || 0).toLocaleString()}
-                  </span>
                 </div>
               </div>
-            </div>
 
-            {/* ARTISAN CONCIERGE HELP CARD */}
-            <div style={styles.conciergeCard}>
-              <div style={styles.conciergeAvatarCircle}>
-                <span className="material-symbols-outlined" style={{ fontSize: '26px', color: '#ffffff' }}>
-                  support_agent
-                </span>
-              </div>
-              <div style={styles.conciergeInfo}>
-                <h4 style={styles.conciergeTitle}>Need Delivery Assistance or Customization?</h4>
-                <p style={styles.conciergeText}>
-                  Want to modify your delivery timing, address, or custom cake calligraphy? Sanjida Bethi
-                  is directly reachable on WhatsApp.
-                </p>
-                <div style={styles.conciergeActionRow}>
+              {/* RIGHT COLUMN: Order Contents + Financials + Artisan Care Card */}
+              <div className="track-desktop-right-col">
+                {/* Order Contents Breakdown */}
+                <div style={styles.itemsCard}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid #ece8e1' }}>
+                    <h3 style={{ ...styles.sectionTitle, margin: 0, fontSize: '18px' }}>Order Contents</h3>
+                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#7e544f', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      {result.items?.length || 1} Handcrafted Item(s)
+                    </span>
+                  </div>
+
+                  <div style={styles.itemsList}>
+                    {(result.items && result.items.length > 0 ? result.items : [
+                      {
+                        id: 'item_sample',
+                        product_name: 'Aurelia Floral Smocked Dress',
+                        unit_price: 3200,
+                        quantity: 1,
+                        subtotal: 3200,
+                        selected_size: '1-2Y',
+                      }
+                    ]).map((item: any, idx: number) => (
+                      <div key={item.id || idx} style={styles.itemRow}>
+                        <div style={styles.itemAvatar}>
+                          <span className="material-symbols-outlined" style={{ fontSize: '22px', color: '#5c3e36' }}>
+                            {item.cake_weight ? 'cake' : 'checkroom'}
+                          </span>
+                        </div>
+
+                        <div style={styles.itemDetails}>
+                          <div style={styles.itemTitleRow}>
+                            <h4 style={styles.itemName}>{item.product_name}</h4>
+                            <span style={styles.itemSubtotal}>
+                              ৳ {(item.subtotal || item.unit_price * item.quantity).toLocaleString()}
+                            </span>
+                          </div>
+
+                          <div style={styles.itemMetaRow}>
+                            <span style={styles.itemQtyBadge}>Qty: {item.quantity}</span>
+                            <span style={styles.itemUnitPrice}>
+                              @ ৳ {item.unit_price.toLocaleString()} each
+                            </span>
+                          </div>
+
+                          {/* Dress attributes */}
+                          {item.selected_size && (
+                            <div style={styles.optionPill}>
+                              <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
+                                straighten
+                              </span>
+                              <span>Size: {item.selected_size}</span>
+                            </div>
+                          )}
+
+                          {/* Cake attributes */}
+                          {(item.cake_weight || item.cake_flavor || item.cake_message) && (
+                            <div style={styles.cakeSpecList}>
+                              {item.cake_weight && (
+                                <div style={styles.optionPill}>
+                                  <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
+                                    scale
+                                  </span>
+                                  <span>Weight: {item.cake_weight}</span>
+                                </div>
+                              )}
+                              {item.cake_flavor && (
+                                <div style={styles.optionPill}>
+                                  <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
+                                    restaurant
+                                  </span>
+                                  <span>Flavor: {item.cake_flavor}</span>
+                                </div>
+                              )}
+                              {item.cake_message && (
+                                <div style={styles.cakeMessagePill}>
+                                  <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#5c3e36' }}>
+                                    edit_note
+                                  </span>
+                                  <span style={{ fontStyle: 'italic' }}>
+                                    "{item.cake_message}"
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Delivery Destination Mini Box */}
+                  <div style={{
+                    marginTop: '16px',
+                    padding: '12px 14px',
+                    backgroundColor: '#f5f3ef',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#7e544f', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>location_on</span>
+                      <span>Delivery Destination</span>
+                    </div>
+                    <p style={{ fontWeight: 600, color: '#432821', margin: '0 0 2px 0' }}>
+                      {result.delivery_area || 'Studio Doorstep Dispatch'}
+                    </p>
+                    <p style={{ color: '#7e726b', margin: 0 }}>
+                      Recipient: {result.customer_name_initial || 'Valued Client'}
+                    </p>
+                  </div>
+
+                  {/* Financial Breakdown */}
+                  <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #ece8e1' }}>
+                    <div style={styles.paymentRows}>
+                      <div style={styles.financeRow}>
+                        <span style={styles.financeLabel}>Tailoring &amp; Baking Subtotal</span>
+                        <span style={styles.financeValue}>
+                          ৳ {(result.subtotal || 0).toLocaleString()}
+                        </span>
+                      </div>
+
+                      <div style={styles.financeRow}>
+                        <span style={styles.financeLabel}>Chilled Van Delivery</span>
+                        <span style={styles.financeValue}>
+                          ৳ {(result.delivery_charge || 0).toLocaleString()}
+                        </span>
+                      </div>
+
+                      <div style={styles.financeDivider} />
+
+                      <div style={styles.financeRowBold}>
+                        <span style={styles.financeLabelTotal}>Total Order Value</span>
+                        <span style={styles.financeValueTotal}>
+                          ৳ {(result.total_amount || 0).toLocaleString()}
+                        </span>
+                      </div>
+
+                      <div style={styles.advanceRow}>
+                        <div style={styles.advanceLabelCluster}>
+                          <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#065f46' }}>
+                            verified
+                          </span>
+                          <span style={styles.advanceLabel}>Advance Paid (bKash)</span>
+                        </div>
+                        <span style={styles.advanceValue}>
+                          - ৳ {(result.advance_amount || 500).toLocaleString()}
+                        </span>
+                      </div>
+
+                      <div style={styles.dueRowHighlight}>
+                        <div>
+                          <span style={styles.dueLabel}>Due on Handover (Cash)</span>
+                          <p style={styles.dueSubLabel}>Payable upon doorstep delivery</p>
+                        </div>
+                        <span style={styles.dueValue}>
+                          ৳ {(result.cash_due || 0).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Personal Artisan Care Box (Sanjida Bethi WhatsApp CTA) */}
+                <div style={{
+                  backgroundColor: '#ffffff',
+                  borderRadius: '16px',
+                  border: '1px solid #dfd8ce',
+                  padding: '24px',
+                  boxShadow: '0 4px 16px rgba(92, 62, 54, 0.05)',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', marginBottom: '14px' }}>
+                    <div style={{
+                      width: '46px',
+                      height: '46px',
+                      borderRadius: '50%',
+                      backgroundColor: '#ffdbd1',
+                      color: '#432821',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontFamily: "var(--font-serif, 'Bodoni Moda', serif)",
+                      fontSize: '18px',
+                      fontWeight: 700,
+                      flexShrink: 0
+                    }}>
+                      SB
+                    </div>
+                    <div>
+                      <span style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#7e544f', fontWeight: 700, display: 'block' }}>
+                        Personal Artisan Care
+                      </span>
+                      <h3 style={{ ...styles.sectionTitle, margin: '2px 0 0 0', fontSize: '17px' }}>
+                        Need to Adjust Timing?
+                      </h3>
+                    </div>
+                  </div>
+                  <p style={{ fontSize: '13px', color: '#6f6764', lineHeight: 1.5, margin: '0 0 16px 0' }}>
+                    Have questions about cake candle setups, fabric washing instructions, or need our driver to hold dispatch for a specific guest arrival? Sanjida Bethi personally monitors every order.
+                  </p>
                   <a
                     href={getStudioWhatsAppUrl(whatsappInquiry)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={styles.conciergeWhatsappBtn}
+                    style={{
+                      width: '100%',
+                      height: '46px',
+                      borderRadius: '9999px',
+                      backgroundColor: '#25D366',
+                      color: '#ffffff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      fontWeight: 700,
+                      fontSize: '13px',
+                      letterSpacing: '0.04em',
+                      textDecoration: 'none',
+                      boxShadow: '0 2px 8px rgba(37, 211, 102, 0.3)',
+                    }}
                   >
-                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-                      chat
-                    </span>
-                    <span>Chat on WhatsApp</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>chat</span>
+                    <span>Chat with Sanjida on WhatsApp</span>
                   </a>
-                  <a href={`tel:${STUDIO_CONFIG.phoneRaw}`} style={styles.conciergeCallBtn}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-                      call
-                    </span>
-                    <span>{STUDIO_CONFIG.phoneDisplay}</span>
-                  </a>
+                  <div style={{ marginTop: '12px', textAlign: 'center', fontSize: '11px', color: '#988e8a' }}>
+                    Studio Direct Line: <a href={`tel:${STUDIO_CONFIG.phoneRaw}`} style={{ color: '#432821', fontWeight: 600 }}>{STUDIO_CONFIG.phoneDisplay}</a>
+                  </div>
+                </div>
+
+                {/* Pre-Arrival Preparation Tip Card */}
+                <div style={{
+                  backgroundColor: 'rgba(245, 243, 239, 0.8)',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  border: '1px solid #ebdcd6',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', color: '#432821', fontWeight: 700, fontSize: '13px' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#7e544f' }}>local_florist</span>
+                    <span>Pre-Arrival Preparation Tip</span>
+                  </div>
+                  <p style={{ fontSize: '12px', color: '#6f6764', lineHeight: 1.5, margin: 0 }}>
+                    Please prepare an air-conditioned room or cool tabletop away from direct sun. Remove the cake box top gently prior to celebration. Garment should be hung from its cedar loop immediately upon unboxing.
+                  </p>
                 </div>
               </div>
             </div>
@@ -1005,6 +1295,47 @@ const styles: Record<string, React.CSSProperties> = {
   breadcrumbCurrent: {
     color: '#5c3e36',
     fontWeight: 600,
+  },
+  editorialHeader: {
+    textAlign: 'center',
+    maxWidth: '720px',
+    margin: '32px auto 8px auto',
+    padding: '0 20px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '12px',
+  },
+  kickerBadge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '6px',
+    padding: '4px 14px',
+    borderRadius: '9999px',
+    backgroundColor: '#f5f3ef',
+    border: '1px solid #ebdcd6',
+    fontSize: '11px',
+    fontWeight: 700,
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase',
+    color: '#7e544f',
+    boxShadow: '0 1px 3px rgba(67, 40, 33, 0.04)',
+  },
+  editorialTitle: {
+    fontFamily: "var(--font-serif, 'Bodoni Moda', serif)",
+    fontSize: '32px',
+    fontWeight: 500,
+    color: '#2d2421',
+    margin: 0,
+    letterSpacing: '-0.01em',
+    lineHeight: 1.2,
+  },
+  editorialDescription: {
+    fontSize: '14px',
+    color: '#6f6764',
+    lineHeight: 1.6,
+    margin: 0,
+    maxWidth: '580px',
   },
   contentWrapper: {
     maxWidth: '720px',

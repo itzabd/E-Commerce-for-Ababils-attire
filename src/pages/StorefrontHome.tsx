@@ -71,7 +71,7 @@ export const StorefrontHome: React.FC = () => {
       {/* Footer */}
       <footer style={styles.footer}>
         <p style={styles.footerText}>
-          © 2026 Ababil’s Attire by Sanjida Bethi • Banani, Dhaka, Bangladesh • All Rights Reserved
+          © 2026 Ababil’s Attire by Sanjida Bethi • House 639, Kuddus Khalifa Road, Morkun, Tongi, Gazipur - 1700 • All Rights Reserved
         </p>
       </footer>
     </div>

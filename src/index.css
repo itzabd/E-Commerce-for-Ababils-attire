@@ -176,7 +176,7 @@ input, select, textarea {
   scrollbar-width: none;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 960px) {
   .customer-mobile-menu-btn {
     display: none !important;
   }
@@ -230,9 +230,26 @@ input, select, textarea {
   }
 }
 
+@media (max-width: 640px) {
+  .customer-brand-logo-wrapper {
+    width: 34px !important;
+    height: 34px !important;
+  }
+  .customer-brand-link {
+    gap: 8px !important;
+  }
+}
+
 @media (max-width: 480px) {
+  .customer-brand-logo-wrapper {
+    width: 30px !important;
+    height: 30px !important;
+  }
+  .customer-brand-link {
+    gap: 8px !important;
+  }
   .customer-brand-title {
-    font-size: 16px !important;
+    font-size: 15px !important;
   }
   .customer-brand-subtitle {
     font-size: 8px !important;
@@ -241,8 +258,15 @@ input, select, textarea {
 }
 
 @media (max-width: 360px) {
+  .customer-brand-logo-wrapper {
+    width: 26px !important;
+    height: 26px !important;
+  }
+  .customer-brand-link {
+    gap: 6px !important;
+  }
   .customer-brand-title {
-    font-size: 14px !important;
+    font-size: 13px !important;
   }
   .customer-brand-subtitle {
     display: none !important;
@@ -254,63 +278,300 @@ input, select, textarea {
    Editorial Haute-Couture Boutique Presentation
    ============================================================================== */
 
-/* 1. Announcement Ribbon (Desktop & Tablet) */
-.desktop-announcement-bar {
-  background-color: #5c3e36;
-  color: #fbf9f5;
-  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', sans-serif;
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  padding: 8px 32px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  width: 100%;
+/* 0. Admin Suite Desktop/Mobile Separation Defaults */
+.stitch-admin-desktop-sidebar {
+  display: none;
+}
+.stitch-admin-desktop-topbar {
+  display: none;
+}
+.stitch-admin-desktop-view {
+  display: none;
+}
+.stitch-admin-mobile-header {
+  display: block;
+}
+.stitch-admin-mobile-dock {
+  display: flex;
+}
+.stitch-admin-mobile-view {
+  display: flex;
+  flex-direction: column;
 }
 
-.desktop-announcement-inner {
-  max-width: 1360px;
+/* 1. Stitch Desktop 2-Row Header (Project 13092249108045248978 PC View) */
+.stitch-desktop-header {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background-color: rgba(251, 249, 245, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(223, 216, 206, 0.6);
+  box-shadow: 0 1px 8px rgba(92, 62, 54, 0.06);
+}
+
+.stitch-desktop-header-inner {
+  height: 112px;
+  max-width: 1280px;
   margin: 0 auto;
+  padding: 12px 3rem 8px 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.stitch-desktop-header-top-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  width: 100%;
 }
 
-.announcement-left {
+.stitch-desktop-brand-wrapper {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
+  flex-direction: column;
+  text-align: left;
 }
 
-.announcement-right {
+.stitch-desktop-brand-link {
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.stitch-desktop-brand-title {
+  font-family: 'Bodoni Moda', Georgia, serif;
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: #432821;
+}
+
+.stitch-desktop-brand-author {
+  font-family: 'Bodoni Moda', Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  color: #7e544f;
+}
+
+.stitch-desktop-brand-subtitle {
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px;
+  line-height: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+  color: #504441;
+  margin-top: 2px;
+}
+
+.stitch-desktop-header-actions {
   display: flex;
   align-items: center;
   gap: 14px;
-  font-weight: 500;
 }
 
-.announcement-divider {
-  opacity: 0.5;
-}
-
-.announcement-whatsapp-link {
-  display: inline-flex;
+.stitch-desktop-search-pill {
+  display: flex;
   align-items: center;
-  gap: 5px;
-  color: #d9a59f;
-  text-decoration: none;
-  font-weight: 600;
-  transition: color 0.15s ease;
+  background-color: #f5f3ef;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  color: #504441;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
 }
 
-.announcement-whatsapp-link:hover {
+.stitch-desktop-search-pill:focus-within {
+  background-color: #ffffff;
+  border-color: rgba(126, 84, 79, 0.4);
+  box-shadow: 0 2px 8px rgba(92, 62, 54, 0.06);
+}
+
+.stitch-desktop-search-icon {
+  font-size: 16px;
+  color: #504441;
+  margin-right: 6px;
+}
+
+.stitch-desktop-search-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  color: #504441;
+  width: 130px;
+}
+
+.stitch-desktop-search-input::placeholder {
+  color: #504441;
+  opacity: 0.85;
+}
+
+.stitch-desktop-currency {
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #432821;
+  padding: 4px 6px;
+  letter-spacing: 0.04em;
+  user-select: none;
+}
+
+.stitch-desktop-concierge-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #f5f3ef;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #504441;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.stitch-desktop-concierge-pill:hover {
+  background-color: #eae7e1;
+  color: #432821;
+}
+
+.stitch-desktop-concierge-icon {
+  font-size: 16px;
+  color: #7e544f;
+}
+
+.stitch-desktop-bag-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #5c3e36;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #ffffff;
+  text-decoration: none;
+  box-shadow: 0 4px 12px -2px rgba(92, 62, 54, 0.12);
+  transition: background-color 0.15s ease;
+}
+
+.stitch-desktop-bag-pill:hover {
+  background-color: #432821;
+}
+
+.stitch-desktop-bag-icon {
+  font-size: 16px;
   color: #ffffff;
 }
 
-@media (max-width: 767px) {
-  .desktop-announcement-bar {
+.stitch-desktop-bag-text {
+  color: #ffffff;
+}
+
+.stitch-desktop-bag-count {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #ffc7c1;
+  color: #7a514c;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stitch-desktop-user-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #432821;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+
+.stitch-desktop-user-btn:hover {
+  opacity: 0.9;
+}
+
+.stitch-desktop-user-icon {
+  font-size: 18px;
+  color: #ffffff;
+}
+
+/* Row 2: Centered Nav */
+.stitch-desktop-nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  padding-top: 4px;
+}
+
+.stitch-desktop-nav-link {
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #504441;
+  text-decoration: none;
+  padding-bottom: 4px;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.stitch-desktop-nav-link:hover {
+  color: #1b1c1a;
+}
+
+.stitch-desktop-nav-link.active {
+  color: #432821 !important;
+  font-weight: 600 !important;
+  border-bottom: 2px solid #432821 !important;
+}
+
+/* Visibility Control */
+@media (min-width: 960px) {
+  .stitch-desktop-header {
+    display: block !important;
+  }
+  .stitch-mobile-header {
     display: none !important;
+  }
+  .customer-main-content {
+    padding-top: 112px !important;
+  }
+}
+
+@media (max-width: 959px) {
+  .stitch-desktop-header {
+    display: none !important;
+  }
+  .stitch-mobile-header {
+    display: block !important;
+  }
+  .customer-main-content {
+    padding-top: 0 !important;
   }
 }
 
@@ -331,6 +592,13 @@ input, select, textarea {
     padding-left: 3rem !important;
     padding-right: 3rem !important;
     min-height: 76px !important;
+  }
+  .customer-brand-logo-wrapper {
+    width: 44px !important;
+    height: 44px !important;
+  }
+  .customer-brand-link {
+    gap: 14px !important;
   }
   .customer-brand-title {
     font-size: 24px !important;
@@ -517,6 +785,1384 @@ input, select, textarea {
     top: 96px !important;
   }
 }
+
+/* 10. Mobile Protection Rules (Mobile Viewports < 960px: Unaltered Stack Flow) */
+@media (max-width: 959px) {
+  .checkout-desktop-left-col,
+  .checkout-desktop-right-col,
+  .order-confirmed-grid-desktop,
+  .order-confirmed-left-col,
+  .order-confirmed-right-col,
+  .track-bottom-grid-desktop,
+  .track-bottom-left-col,
+  .track-bottom-right-col {
+    display: contents !important;
+  }
+  .desktop-checkout-submit-btn {
+    display: none !important;
+  }
+}
+
+/* 11. Dresses & Cakes Catalog Toolbar & Header (Desktop >= 1024px) */
+@media (min-width: 1024px) {
+  .catalog-editorial-header {
+    max-width: 1360px !important;
+    margin: 0 auto 16px auto !important;
+    text-align: left !important;
+    align-items: flex-start !important;
+  }
+  .catalog-editorial-header h1 {
+    font-size: 38px !important;
+    line-height: 1.2 !important;
+    letter-spacing: -0.015em !important;
+    font-family: 'Bodoni Moda', Georgia, serif !important;
+  }
+  .catalog-controls-section {
+    max-width: 1360px !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    background-color: #f5f3ef !important;
+    border-radius: 14px !important;
+    padding: 14px 20px !important;
+    border: 1px solid #dfd8ce !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 16px !important;
+    box-shadow: 0 2px 10px rgba(92, 62, 54, 0.03) !important;
+  }
+  .catalog-search-wrapper {
+    max-width: 340px !important;
+    width: 100% !important;
+  }
+  .catalog-filter-row {
+    flex: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
+    overflow-x: visible !important;
+    padding-bottom: 0 !important;
+  }
+}
+
+/* 12. Checkout 2-Column Split Layout (Desktop >= 960px) */
+@media (min-width: 960px) {
+  .checkout-page-canvas {
+    max-width: 1360px !important;
+    margin: 0 auto !important;
+    padding: 24px 3rem 64px 3rem !important;
+  }
+  .checkout-form-desktop-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.22fr) minmax(380px, 460px) !important;
+    gap: 48px !important;
+    align-items: start !important;
+  }
+  .checkout-desktop-left-col {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 28px !important;
+  }
+  .checkout-desktop-right-col {
+    position: sticky !important;
+    top: 96px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 28px !important;
+  }
+  .desktop-checkout-submit-btn {
+    display: block !important;
+  }
+  .mobile-checkout-sticky {
+    display: none !important;
+  }
+}
+
+/* 13. Order Confirmed 2-Column Split Layout (Desktop >= 960px) */
+@media (min-width: 960px) {
+  .order-confirmed-page-canvas {
+    max-width: 1360px !important;
+    margin: 0 auto !important;
+    padding: 24px 3rem 64px 3rem !important;
+  }
+  .order-confirmed-hero-card {
+    border-radius: 20px !important;
+    padding: 40px !important;
+    box-shadow: 0 16px 40px -12px rgba(67, 40, 33, 0.08) !important;
+  }
+  .order-confirmed-grid-desktop {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.22fr) minmax(380px, 460px) !important;
+    gap: 40px !important;
+    align-items: start !important;
+    margin-top: 32px !important;
+  }
+  .order-confirmed-left-col {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 24px !important;
+  }
+  .order-confirmed-right-col {
+    position: sticky !important;
+    top: 96px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 24px !important;
+  }
+}
+
+/* 14. Track Order Desktop Architecture (Desktop >= 960px) */
+@media (min-width: 960px) {
+  .track-page-container {
+    max-width: 1360px !important;
+    margin: 0 auto !important;
+    padding: 24px 3rem 64px 3rem !important;
+  }
+  .track-search-card {
+    max-width: 840px !important;
+    margin: 0 auto 36px auto !important;
+    border-radius: 20px !important;
+    padding: 36px !important;
+    box-shadow: 0 14px 36px -8px rgba(92, 62, 54, 0.08) !important;
+  }
+  .track-bottom-grid-desktop {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.2fr) minmax(360px, 440px) !important;
+    gap: 36px !important;
+    align-items: start !important;
+    margin-top: 24px !important;
+  }
+  .track-bottom-left-col {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 24px !important;
+  }
+  .track-bottom-right-col {
+    position: sticky !important;
+    top: 96px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 24px !important;
+  }
+}
+
+/* 15. About Page Editorial Architecture (Desktop >= 960px) */
+@media (min-width: 960px) {
+  .about-page-container {
+    max-width: 1360px !important;
+    margin: 0 auto !important;
+    padding: 32px 3rem 64px 3rem !important;
+  }
+  .about-header-section {
+    max-width: 900px !important;
+    margin: 0 auto 40px auto !important;
+    text-align: center !important;
+  }
+  .about-story-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr) !important;
+    gap: 56px !important;
+    align-items: center !important;
+    margin-bottom: 56px !important;
+    padding: 40px !important;
+    border-radius: 20px !important;
+    background: #ffffff !important;
+    border: 1px solid #dfd8ce !important;
+  }
+  .about-disciplines-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 36px !important;
+    margin-bottom: 56px !important;
+  }
+  .about-values-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 32px !important;
+  }
+  .about-cta-box {
+    max-width: 880px !important;
+    margin: 48px auto 0 auto !important;
+    border-radius: 20px !important;
+    padding: 48px !important;
+    text-align: center !important;
+  }
+}
+
+/* 16. Contact Page Desktop Architecture (Desktop >= 960px) */
+@media (min-width: 960px) {
+  .contact-page-container {
+    max-width: 1360px !important;
+    margin: 0 auto !important;
+    padding: 32px 3rem 64px 3rem !important;
+  }
+  .contact-header-section {
+    max-width: 900px !important;
+    margin: 0 auto 40px auto !important;
+    text-align: center !important;
+  }
+  .contact-grid-desktop {
+    display: grid !important;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) !important;
+    gap: 48px !important;
+    align-items: start !important;
+  }
+}
+
+/* 17. Global Desktop Bottom Spacing Adjustment */
+@media (min-width: 768px) {
+  .customer-main-content {
+    padding-bottom: 0 !important;
+  }
+  .customer-footer {
+    padding: 56px 3rem 48px 3rem !important;
+  }
+}
+
+/* ==============================================================================
+   DESKTOP STITCH COMPONENT ARCHITECTURES (Project 13092249108045248978)
+   ============================================================================== */
+
+/* 18. Stitch Desktop 4-Column Footer */
+.stitch-desktop-footer {
+  display: none;
+  background-color: #f5f3ef;
+  border-top: 1px solid rgba(223, 216, 206, 0.7);
+  box-shadow: 0 -1px 12px rgba(92, 62, 54, 0.03);
+  width: 100%;
+  margin-top: auto;
+}
+
+.stitch-desktop-footer-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 48px 3rem 32px 3rem;
+}
+
+.stitch-desktop-footer-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 0.9fr 0.9fr 1.1fr;
+  gap: 40px;
+  margin-bottom: 40px;
+}
+
+.stitch-desktop-footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stitch-desktop-footer-brand-title {
+  font-family: 'Bodoni Moda', Georgia, serif;
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 500;
+  color: #432821;
+}
+
+.stitch-desktop-footer-desc {
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  line-height: 20px;
+  color: #504441;
+  margin: 0;
+}
+
+.stitch-desktop-footer-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #7e544f;
+}
+
+.stitch-desktop-footer-col-title {
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #432821;
+  margin-bottom: 6px;
+}
+
+.stitch-desktop-footer-link {
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  color: #504441;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.stitch-desktop-footer-link:hover {
+  color: #432821;
+}
+
+.stitch-desktop-footer-address,
+.stitch-desktop-footer-phone {
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  line-height: 20px;
+  color: #504441;
+  margin: 0;
+}
+
+.stitch-desktop-footer-phone {
+  font-weight: 600;
+  color: #432821;
+  margin-top: 4px;
+}
+
+.stitch-desktop-footer-journal {
+  margin-top: 10px;
+}
+
+.stitch-desktop-footer-journal-label {
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #504441;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.stitch-desktop-footer-journal-input-wrap {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  border-radius: 9999px;
+  padding: 4px 6px 4px 14px;
+  border: 1px solid rgba(223, 216, 206, 0.8);
+  box-shadow: 0 2px 8px rgba(92, 62, 54, 0.04);
+}
+
+.stitch-desktop-footer-journal-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  color: #504441;
+  flex: 1;
+}
+
+.stitch-desktop-footer-journal-btn {
+  background-color: #432821;
+  color: #ffffff;
+  border: none;
+  border-radius: 9999px;
+  padding: 6px 16px;
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.stitch-desktop-footer-journal-btn:hover {
+  background-color: #5c3e36;
+}
+
+.stitch-desktop-footer-bottom {
+  border-top: 1px solid rgba(223, 216, 206, 0.6);
+  padding-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px;
+  color: #504441;
+}
+
+.stitch-desktop-footer-bottom-tags {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* 19. Responsive Layouts & Catalog 4-Column Grids (Desktop >= 960px) */
+@media (min-width: 960px) {
+  .stitch-desktop-footer {
+    display: block !important;
+  }
+  .stitch-mobile-footer {
+    display: none !important;
+  }
+
+  /* Catalog Grids: 4 Columns */
+  .customer-products-grid,
+  .home-products-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 24px !important;
+  }
+
+  /* Home Dual Categories (50/50 Split) */
+  .home-dual-collection-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 32px !important;
+  }
+  .home-collection-card {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+  }
+  .home-collection-card > div:first-child {
+    width: 220px !important;
+    height: 180px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Home Artisan Pillars: 4 Columns */
+  .home-pillars-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 24px !important;
+  }
+
+  /* Checkout Desktop: 2 Columns (60% Form / 40% Order & Payment) */
+  .checkout-page-canvas {
+    max-width: 1280px !important;
+    margin: 0 auto !important;
+    padding: 32px 3rem 64px 3rem !important;
+  }
+  .checkout-form-desktop-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.95fr) !important;
+    gap: 40px !important;
+    align-items: start !important;
+  }
+  .checkout-desktop-left-col {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 24px !important;
+  }
+  .checkout-desktop-right-col {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 24px !important;
+    position: sticky !important;
+    top: 130px !important;
+  }
+
+  /* My Bag Desktop: 2 Columns (Cart Items + Sticky Order Summary) */
+  .cart-grid-desktop {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.85fr) !important;
+    gap: 40px !important;
+    align-items: start !important;
+  }
+  .cart-summary-desktop {
+    position: sticky !important;
+    top: 130px !important;
+  }
+
+  /* PDP (Dress & Cake Detail): 2 Columns (50/50 Split Gallery + Info) */
+  .pdp-details-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr) !important;
+    gap: 48px !important;
+    align-items: start !important;
+  }
+  .pdp-gallery-section {
+    position: sticky !important;
+    top: 130px !important;
+  }
+
+  /* Track Order Page: Stitch Desktop 2-Column Layout */
+  .track-page-container {
+    max-width: 1320px !important;
+    padding: 32px 2.5rem 80px 2.5rem !important;
+  }
+  .track-search-card {
+    max-width: 840px !important;
+    margin: 0 auto 36px auto !important;
+  }
+  .track-result-grid-desktop {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 0.95fr) !important;
+    gap: 32px !important;
+    align-items: start !important;
+  }
+  .track-desktop-left-col {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 24px !important;
+  }
+  .track-desktop-right-col {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 24px !important;
+    position: sticky !important;
+    top: 120px !important;
+  }
+  .track-bottom-assurance {
+    grid-column: 1 / -1 !important;
+  }
+
+  /* Admin Suite Stitch Desktop Styling (>= 960px) */
+  .stitch-admin-mobile-header {
+    display: none !important;
+  }
+  .stitch-admin-mobile-dock {
+    display: none !important;
+  }
+  .stitch-admin-desktop-sidebar {
+    display: flex !important;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 250px;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    background-color: #fbf9f5;
+    border-right: 1px solid #ebdcd6;
+    padding: 24px 16px;
+    z-index: 50;
+  }
+  .stitch-admin-sidebar-header {
+    padding-bottom: 24px;
+    border-bottom: 1px solid #efe8e1;
+    margin-bottom: 16px;
+  }
+  .stitch-admin-sidebar-brand {
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .stitch-admin-sidebar-brand-name {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #432821;
+    letter-spacing: -0.01em;
+  }
+  .stitch-admin-sidebar-brand-sub {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    font-weight: 700;
+    color: #8c827a;
+    text-transform: uppercase;
+  }
+  .stitch-admin-sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+  }
+  .stitch-admin-sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #5c4a45;
+    font-size: 13.5px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  .stitch-admin-sidebar-link:hover {
+    background-color: #f3ece6;
+    color: #432821;
+  }
+  .stitch-admin-sidebar-link.active {
+    background-color: #432821;
+    color: #ffffff;
+    font-weight: 600;
+  }
+  .stitch-admin-sidebar-link.active .stitch-admin-sidebar-icon {
+    color: #ffffff;
+  }
+  .stitch-admin-sidebar-icon {
+    font-size: 20px;
+    color: #7e544f;
+  }
+  .stitch-admin-sidebar-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 1px solid #efe8e1;
+  }
+  .stitch-admin-storefront-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: #ffffff;
+    border: 1px solid #e2d7d0;
+    border-radius: 8px;
+    color: #432821;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(67, 40, 33, 0.04);
+  }
+  .stitch-admin-storefront-btn:hover {
+    background: #fdfbf9;
+    border-color: #b29388;
+  }
+  .stitch-admin-sync-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    font-size: 11px;
+    color: #8c827a;
+  }
+  .stitch-admin-sync-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #10b981;
+  }
+
+  /* Admin Stage & Topbar */
+  .stitch-admin-stage-wrapper {
+    margin-left: 250px !important;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #fcfbf9;
+  }
+  .stitch-admin-desktop-topbar {
+    height: 64px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #ebdcd6;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+  }
+  .stitch-admin-topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .stitch-admin-topbar-brand-chip {
+    display: flex;
+    flex-direction: column;
+  }
+  .stitch-admin-chip-title {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #432821;
+    letter-spacing: 0.08em;
+  }
+  .stitch-admin-chip-sub {
+    font-size: 10px;
+    color: #8c827a;
+  }
+  .stitch-admin-topbar-location {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background-color: #f7f3ee;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    color: #5c4a45;
+    font-weight: 500;
+  }
+  .stitch-admin-topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .stitch-admin-search-pill {
+    display: flex;
+    align-items: center;
+    background-color: #f6f3ee;
+    border: 1px solid #ebdcd6;
+    border-radius: 20px;
+    padding: 6px 14px;
+    width: 260px;
+    gap: 8px;
+  }
+  .stitch-admin-search-icon {
+    font-size: 18px;
+    color: #8c827a;
+  }
+  .stitch-admin-search-input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 12.5px;
+    color: #2d2421;
+    width: 100%;
+  }
+  .stitch-admin-icon-btn {
+    position: relative;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #5c4a45;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .stitch-admin-notification-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 6px;
+    height: 6px;
+    background-color: #d97706;
+    border-radius: 50%;
+  }
+  .stitch-admin-lead-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #f7f3ee;
+    padding: 4px 12px 4px 6px;
+    border-radius: 20px;
+    border: 1px solid #e7ded8;
+  }
+  .stitch-admin-lead-avatar {
+    width: 28px;
+    height: 28px;
+    background-color: #432821;
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .stitch-admin-lead-info {
+    display: flex;
+    flex-direction: column;
+  }
+  .stitch-admin-lead-name {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #2d2421;
+  }
+  .stitch-admin-lead-role {
+    font-size: 9px;
+    font-weight: 700;
+    color: #8c5e51;
+    letter-spacing: 0.05em;
+  }
+  .stitch-admin-main-stage {
+    padding: 28px !important;
+    padding-bottom: 60px !important;
+  }
+}
+
+@media (min-width: 960px) {
+  .stitch-admin-mobile-view {
+    display: none !important;
+  }
+  .stitch-admin-desktop-view {
+    display: flex !important;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* Stitch Dashboard Elements */
+  .stitch-dash-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .stitch-dash-subhead {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #8c5e51;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .stitch-dash-live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #10b981;
+  }
+  .stitch-dash-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #432821;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .stitch-dash-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .stitch-dash-cycle-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #ffffff;
+    border: 1px solid #ebdcd6;
+    border-radius: 10px;
+    padding: 6px 14px;
+  }
+  .stitch-dash-cycle-label {
+    font-size: 11px;
+    color: #5c4a45;
+    font-weight: 600;
+    display: block;
+  }
+  .stitch-dash-cycle-status {
+    font-size: 9.5px;
+    color: #8c827a;
+    display: block;
+  }
+  .stitch-dash-create-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #432821;
+    color: #ffffff;
+    padding: 10px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 12.5px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(67, 40, 33, 0.16);
+    transition: background-color 0.2s ease;
+  }
+  .stitch-dash-create-btn:hover {
+    background-color: #2e1a15;
+  }
+
+  /* 4 Metric Cards */
+  .stitch-dash-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .stitch-dash-metric-card {
+    background: #ffffff;
+    border: 1px solid #ebdcd6;
+    border-radius: 12px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    box-shadow: 0 1px 3px rgba(67, 40, 33, 0.03);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .stitch-dash-metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(67, 40, 33, 0.06);
+  }
+  .stitch-dash-metric-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .stitch-dash-metric-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #7e544f;
+    text-transform: uppercase;
+  }
+  .stitch-dash-metric-icon {
+    font-size: 20px;
+    color: #8c5e51;
+  }
+  .stitch-dash-metric-value {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: #2d2421;
+    line-height: 1.1;
+    margin: 4px 0;
+  }
+  .stitch-dash-metric-foot {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+  }
+  .stitch-dash-growth-positive {
+    color: #065f46;
+    font-weight: 700;
+  }
+  .stitch-dash-foot-text {
+    color: #8c827a;
+  }
+  .stitch-dash-dot-warn {
+    color: #d97706;
+  }
+  .stitch-dash-dot-live {
+    color: #10b981;
+  }
+
+  /* 2-Column Operational Grid */
+  .stitch-dash-operational-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 0.85fr);
+    gap: 24px;
+    align-items: start;
+  }
+  .stitch-dash-left-col {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .stitch-dash-right-col {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .stitch-dash-card {
+    background: #ffffff;
+    border: 1px solid #ebdcd6;
+    border-radius: 14px;
+    padding: 22px 24px;
+    box-shadow: 0 1px 4px rgba(67, 40, 33, 0.03);
+  }
+  .stitch-dash-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .stitch-dash-card-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #2d2421;
+    margin: 4px 0 0 0;
+  }
+  .stitch-dash-tag-red {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: #991b1b;
+    background-color: #fee2e2;
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.04em;
+  }
+  .stitch-dash-tag-gray {
+    font-size: 9.5px;
+    font-weight: 600;
+    color: #6f6764;
+    background-color: #f3efe9;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .stitch-dash-sync-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #5c4a45;
+    background-color: #f7f4ee;
+    padding: 4px 10px;
+    border-radius: 9999px;
+  }
+
+  /* Table */
+  .stitch-dash-table-wrapper {
+    overflow-x: auto;
+  }
+  .stitch-dash-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+  }
+  .stitch-dash-table th {
+    text-align: left;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    color: #8c827a;
+    font-weight: 700;
+    padding: 8px 12px;
+    border-bottom: 1px solid #efe8e1;
+  }
+  .stitch-dash-table td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #f7f3ee;
+    vertical-align: middle;
+  }
+  .stitch-dash-ref {
+    color: #432821;
+    font-size: 13px;
+    display: block;
+  }
+  .stitch-dash-patron {
+    color: #5c4a45;
+    font-size: 12px;
+    margin: 1px 0;
+  }
+  .stitch-dash-delivery-pill {
+    font-size: 9px;
+    font-weight: 700;
+    color: #7e544f;
+    background: #f7ede8;
+    padding: 1px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+  }
+  .stitch-dash-pickup-pill {
+    font-size: 9px;
+    font-weight: 700;
+    color: #065f46;
+    background: #e6f4ea;
+    padding: 1px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+  }
+  .stitch-dash-mono-box {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #2d2421;
+    background: #f7f4ee;
+    padding: 3px 6px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+  .stitch-dash-phone {
+    font-size: 11px;
+    color: #8c827a;
+    margin-top: 2px;
+  }
+  .stitch-dash-item-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    color: #2d2421;
+    margin-bottom: 2px;
+  }
+  .stitch-dash-custom-tag {
+    font-size: 10px;
+    color: #854d0e;
+    background: #fef9c3;
+    padding: 1px 6px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+  .stitch-dash-price {
+    font-weight: 700;
+    font-size: 13px;
+    color: #2d2421;
+  }
+  .stitch-dash-sub {
+    font-size: 9.5px;
+    color: #8c827a;
+    letter-spacing: 0.04em;
+  }
+  .stitch-dash-verify-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background-color: #432821;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background-color 0.15s ease;
+  }
+  .stitch-dash-verify-btn:hover {
+    background-color: #2e1a15;
+  }
+  .stitch-dash-flag-btn {
+    background: none;
+    border: 1px solid #e5ded8;
+    border-radius: 6px;
+    padding: 4px 6px;
+    cursor: pointer;
+    color: #8c827a;
+  }
+  .stitch-dash-table-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid #efe8e1;
+  }
+  .stitch-dash-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #432821;
+    text-decoration: none;
+  }
+
+  /* Dual Craft Section */
+  .stitch-dash-subhead-small {
+    font-size: 10px;
+    font-weight: 700;
+    color: #8c5e51;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .stitch-dash-checkin-badge {
+    font-size: 11px;
+    font-weight: 600;
+    color: #432821;
+    background-color: #f7ede8;
+    padding: 4px 10px;
+    border-radius: 9999px;
+  }
+  .stitch-dash-dual-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 14px;
+  }
+  .stitch-dash-craft-col {
+    background-color: #fcfbf9;
+    border: 1px solid #efe8e1;
+    border-radius: 10px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .stitch-dash-craft-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .stitch-dash-badge-sm {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: #7e544f;
+    background-color: #f5ede9;
+    padding: 2px 8px;
+    border-radius: 9999px;
+  }
+  .stitch-dash-craft-card {
+    background: #ffffff;
+    border: 1px solid #ebe5df;
+    border-radius: 8px;
+    padding: 12px;
+  }
+  .stitch-dash-craft-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+  .stitch-dash-time-slot {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: #8c827a;
+    letter-spacing: 0.05em;
+  }
+  .stitch-dash-weight-tag {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: #432821;
+    background: #f7ede8;
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+  .stitch-dash-craft-item-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #2d2421;
+    margin: 2px 0 4px 0;
+  }
+  .stitch-dash-craft-desc {
+    font-size: 11px;
+    color: #6f6764;
+    line-height: 1.45;
+    margin: 0 0 8px 0;
+  }
+  .stitch-dash-craft-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 8px;
+    border-top: 1px dashed #efe8e1;
+  }
+  .stitch-dash-van-tag {
+    font-size: 9.5px;
+    color: #065f46;
+    background: #e6f4ea;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+  .stitch-dash-oven-tag {
+    font-size: 9.5px;
+    color: #9a3412;
+    background: #ffedd5;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+  .stitch-dash-progress-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+  .stitch-dash-pleat-tag {
+    font-size: 9.5px;
+    color: #5c4a45;
+    background: #f3efe9;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  /* Right Column Actions & Stacks */
+  .stitch-dash-actions-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .stitch-dash-btn-primary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #432821;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 12px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    box-shadow: 0 2px 6px rgba(67, 40, 33, 0.12);
+  }
+  .stitch-dash-btn-outline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #fbf9f5;
+    border: 1px solid #ebdcd6;
+    color: #432821;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 10px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+  }
+  .stitch-dash-fleet-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .stitch-dash-fleet-box {
+    background: #fbf9f5;
+    border: 1px solid #efe8e1;
+    border-radius: 8px;
+    padding: 12px;
+  }
+  .stitch-dash-fleet-badge-ready {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: #991b1b;
+    background-color: #fee2e2;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .stitch-dash-fleet-badge-slot {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: #5c4a45;
+    background-color: #f1ede7;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .stitch-dash-supply-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .stitch-dash-supply-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fbf9f5;
+    border: 1px solid #efe8e1;
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .stitch-dash-reorder-btn {
+    font-size: 11px;
+    color: #432821;
+    background: #ffffff;
+    border: 1px solid #dfd8ce;
+    padding: 4px 10px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 959px) {
+  .stitch-desktop-footer {
+    display: none !important;
+  }
+  .stitch-mobile-footer {
+    display: block !important;
+  }
+  .stitch-admin-desktop-sidebar {
+    display: none !important;
+  }
+  .stitch-admin-desktop-topbar {
+    display: none !important;
+  }
+  .stitch-admin-stage-wrapper {
+    margin-left: 0 !important;
+  }
+  .stitch-admin-mobile-header {
+    display: block !important;
+  }
+  .stitch-admin-mobile-dock {
+    display: flex !important;
+  }
+  .stitch-admin-desktop-view {
+    display: none !important;
+  }
+  .stitch-admin-mobile-view {
+    display: flex !important;
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+
+
+
 
 
 

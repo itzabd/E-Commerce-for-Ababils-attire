@@ -3,27 +3,45 @@
  * About Page & Atelier Story (Mirrors Stitch brand guidelines)
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { settingsService } from '../../services/settings.service';
+import type { StoreSettings } from '../../types';
 
 export const AboutPage: React.FC = () => {
+  const [storeSettings, setStoreSettings] = useState<StoreSettings | null>(null);
+
+  useEffect(() => {
+    settingsService.getSettings().then((s) => setStoreSettings(s));
+    const handleSettingsUpdated = (e: any) => {
+      if (e.detail) setStoreSettings(e.detail);
+    };
+    window.addEventListener('store_settings_updated', handleSettingsUpdated);
+    return () => window.removeEventListener('store_settings_updated', handleSettingsUpdated);
+  }, []);
+
+  const storyTitle = storeSettings?.about_story_title || "Handmade Dresses & Cakes, Stitched & Baked with Love";
+  const storySubtitle = storeSettings?.store_description || "Ababil’s Attire was born from a desire to bring timeless simplicity to children's milestones and family celebrations.";
+  const storyContent = storeSettings?.about_story_content || `Growing up with an appreciation for vintage textiles and classical French pastry arts, Sanjida Bethi established Ababil’s Attire to unite two heartfelt arts: hand-smocked dresses for little girls and wholesome, scratch-baked celebration cakes.\n\nIn an era of mass production and pre-mix bakeries, our studio preserves the unhurried rhythm of authentic craftsmanship. Each dress takes days of careful tailoring, featuring hand-smocked silk embroidery, French seams, and pure natural fabrics that feel gentle on tender skin.`;
+  const storyImageUrl = storeSettings?.about_story_image_url || "https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?auto=format&fit=crop&w=1200&q=80";
+  const craftDressesDesc = storeSettings?.about_craft_dresses_desc || "We exclusively craft garments using breathable natural fibres: European flax linen, organic cotton muslin, and mulberry silk organza. Every pleat and smocking gather is stitched by hand so your child can move with grace and comfort.";
+  const craftCakesDesc = storeSettings?.about_craft_cakes_desc || "Our confections are baked strictly from scratch with real dairy butter, farm-fresh eggs, and pure Madagascar bourbon vanilla. Never artificial stabilizers or pre-mix powders. Finished with hand-piped Lambeth ruffles, rose petals, and personalized calligraphy.";
+  const artisanQuote = storeSettings?.about_artisan_quote || "“Stitched with love, baked with care — every piece created for timeless family memories.”";
+
   return (
-    <div style={styles.container}>
+    <div style={styles.container} className="customer-page-container about-page-container">
       {/* Editorial Header */}
-      <section style={styles.headerSection}>
+      <section style={styles.headerSection} className="about-header-section">
         <span style={styles.eyebrow}>OUR STORY</span>
-        <h1 style={styles.title}>Handmade Dresses &amp; Cakes, Stitched &amp; Baked with Love</h1>
-        <p style={styles.subtitle}>
-          Ababil’s Attire was born from a desire to bring timeless simplicity to children's
-          milestones and family celebrations in Dhaka.
-        </p>
+        <h1 style={styles.title}>{storyTitle}</h1>
+        <p style={styles.subtitle}>{storySubtitle}</p>
       </section>
 
       {/* Meet Sanjida Story Card */}
-      <section style={styles.storyCard}>
+      <section style={styles.storyCard} className="about-story-grid">
         <div style={styles.storyImageWrapper}>
           <img
-            src="https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?auto=format&fit=crop&w=1200&q=80"
+            src={storyImageUrl}
             alt="Hand-smocking artisan needlework"
             style={styles.storyImage}
           />
@@ -32,22 +50,29 @@ export const AboutPage: React.FC = () => {
         <div style={styles.storyTextContent}>
           <span style={styles.founderTag}>SANJIDA BETHI • FOUNDER & ARTISAN</span>
           <h2 style={styles.storyHeading}>A Passion for Handcrafted Detail</h2>
-          <p style={styles.storyParagraph}>
-            Growing up with an appreciation for vintage textiles and classical French pastry arts,
-            Sanjida Bethi established Ababil’s Attire to unite two heartfelt arts: hand-smocked dresses
-            for little girls and wholesome, scratch-baked celebration cakes.
-          </p>
-          <p style={styles.storyParagraph}>
-            In an era of mass production and pre-mix bakeries, our Banani studio preserves the
-            unhurried rhythm of authentic craftsmanship. Each dress takes days of careful tailoring,
-            featuring hand-smocked silk embroidery, French seams, and pure natural fabrics that feel
-            gentle on tender skin.
-          </p>
+          {storyContent.split('\n\n').map((paragraph, idx) => (
+            <p key={idx} style={styles.storyParagraph}>
+              {paragraph}
+            </p>
+          ))}
+          {artisanQuote && (
+            <blockquote style={{
+              margin: '8px 0 0 0',
+              paddingLeft: '14px',
+              borderLeft: '3px solid #8c5e51',
+              fontStyle: 'italic',
+              color: '#5c3e36',
+              fontSize: '13px',
+              lineHeight: 1.5
+            }}>
+              {artisanQuote}
+            </blockquote>
+          )}
         </div>
       </section>
 
       {/* Dual Disciplines Exhibition */}
-      <section style={styles.disciplinesSection}>
+      <section style={styles.disciplinesSection} className="about-disciplines-grid">
         {/* Discipline 1: Handmade Tailoring */}
         <div style={styles.disciplineCard}>
           <div style={styles.disciplineIconWrapper}>
@@ -57,9 +82,7 @@ export const AboutPage: React.FC = () => {
           </div>
           <h3 style={styles.disciplineTitle}>Handmade Children's Dresses</h3>
           <p style={styles.disciplineText}>
-            We exclusively craft garments using breathable natural fibres: European flax linen,
-            organic cotton muslin, and mulberry silk organza. Every pleat and smocking gather is
-            stitched by hand so your child can move with grace and comfort.
+            {craftDressesDesc}
           </p>
           <Link to="/dresses" style={styles.disciplineLink}>
             Explore Dresses →
@@ -75,9 +98,7 @@ export const AboutPage: React.FC = () => {
           </div>
           <h3 style={styles.disciplineTitle}>Homemade Celebration Cakes</h3>
           <p style={styles.disciplineText}>
-            Our confections are baked strictly from scratch with real dairy butter, farm-fresh eggs,
-            and pure Madagascar bourbon vanilla. Never artificial stabilizers or pre-mix powders.
-            Finished with hand-piped Lambeth ruffles, rose petals, and personalized calligraphy.
+            {craftCakesDesc}
           </p>
           <Link to="/cakes" style={styles.disciplineLink}>
             Explore Cakes →
@@ -92,7 +113,7 @@ export const AboutPage: React.FC = () => {
           <h2 style={styles.valuesTitle}>Why Families Cherish Us</h2>
         </div>
 
-        <div style={styles.valuesGrid}>
+        <div style={styles.valuesGrid} className="about-values-grid">
           <div style={styles.valueItem}>
             <span style={styles.valueNumber}>01</span>
             <h4 style={styles.valueHeading}>No Shortcuts</h4>
@@ -120,7 +141,7 @@ export const AboutPage: React.FC = () => {
       </section>
 
       {/* CTA Box */}
-      <section style={styles.ctaBox}>
+      <section style={styles.ctaBox} className="about-cta-box">
         <h3 style={styles.ctaTitle}>Planning an Upcoming Celebration?</h3>
         <p style={styles.ctaText}>
           Reach out to discuss custom sizing or request a signature celebration cake.

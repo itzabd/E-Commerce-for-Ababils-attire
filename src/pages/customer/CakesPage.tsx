@@ -114,7 +114,7 @@ export const CakesPage: React.FC = () => {
       {/* ================================================================= */}
       {/* 2. EDITORIAL HEADER SECTION                                       */}
       {/* ================================================================= */}
-      <section style={styles.editorialHeader}>
+      <section style={styles.editorialHeader} className="catalog-editorial-header">
         <h1 style={styles.pageTitle}>Homemade Celebration Cakes</h1>
         <p style={styles.pageDescription}>
           Fresh homemade cakes made with care for birthdays, celebrations, and special family milestones.
@@ -138,9 +138,9 @@ export const CakesPage: React.FC = () => {
       {/* ================================================================= */}
       {/* 3. SEARCH AND QUICK FILTER CHIPS                                  */}
       {/* ================================================================= */}
-      <section style={styles.controlsSection}>
+      <section style={styles.controlsSection} className="catalog-controls-section">
         {/* Search Bar */}
-        <div style={styles.searchWrapper}>
+        <div style={styles.searchWrapper} className="catalog-search-wrapper">
           <span className="material-symbols-outlined" style={styles.searchIcon}>
             search
           </span>
@@ -166,7 +166,7 @@ export const CakesPage: React.FC = () => {
         </div>
 
         {/* Horizontal Quick Filter Chips */}
-        <div style={styles.filterRow} className="no-scrollbar">
+        <div style={styles.filterRow} className="catalog-filter-row no-scrollbar">
           <button
             type="button"
             onClick={() => setActiveTab('all')}

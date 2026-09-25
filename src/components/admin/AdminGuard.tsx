@@ -20,7 +20,9 @@ export const AdminGuard: React.FC<AdminGuardProps> = ({ children, allowedRoles }
   const { isAdmin, isLoading, admin } = useAuth();
   const location = useLocation();
 
-  if (isLoading) {
+  // Only display full-screen loading if we do not yet have an authenticated admin session.
+  // Never unmount active workspaces during background token verifications!
+  if (isLoading && !admin) {
     return (
       <div style={styles.loadingContainer}>
         <div style={styles.loadingCard}>

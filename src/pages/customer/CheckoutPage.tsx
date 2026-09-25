@@ -340,7 +340,7 @@ export const CheckoutPage: React.FC = () => {
       {/* ===================================================================== */}
       {/* MAIN CHECKOUT FORM CANVAS                                             */}
       {/* ===================================================================== */}
-      <main style={styles.mainCanvas}>
+      <main style={styles.mainCanvas} className="customer-page-container checkout-page-canvas">
         {/* Title Header */}
         <div style={styles.titleSection}>
           <div style={styles.guestBadge}>
@@ -369,46 +369,50 @@ export const CheckoutPage: React.FC = () => {
           </div>
         )}
 
-        {/* Scheduled Delivery Window Banner */}
-        <section style={styles.scheduleCard}>
-          <div style={styles.scheduleIconWrap}>
-            <span className="material-symbols-outlined" style={{ fontSize: '22px', color: '#5c3e36' }}>
-              {hasCake ? 'calendar_month' : 'local_shipping'}
-            </span>
-          </div>
-          <div style={{ flex: 1 }}>
-            <div style={styles.scheduleBadgeRow}>
-              <span style={styles.scheduleTag}>
-                {hasCake ? 'Scheduled Window' : 'Handcrafted Tailoring'}
-              </span>
-              <span style={styles.chilledPill}>{hasCake ? 'Chilled Van' : 'Standard Courier'}</span>
-            </div>
-            <p style={styles.scheduleTitle}>
-              {hasCake
-                ? `Cake Delivery Window: ${formatDateDisplay(deliveryDate)} (${deliveryTime})`
-                : `Estimated Dispatch: ${formatDateDisplay(deliveryDate)}`}
-            </p>
-            <p style={styles.scheduleSubtitle}>
-              {hasCake
-                ? 'Delivery mode: Hand Delivery by Chilled Private Courier'
-                : 'Delivery mode: Standard safe courier across Bangladesh'}
-            </p>
-          </div>
-          {hasDress && hasCake && (
-            <div style={styles.ecoNotice}>
-              <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#7e544f' }}>
-                eco
-              </span>
-              <span>Your dress and cake will be delivered safely together in one combined dispatch.</span>
-            </div>
-          )}
-        </section>
+        <form onSubmit={handleSubmitOrder} style={styles.formFlow} className="checkout-form-desktop-grid">
+          {/* ================================================================= */}
+          {/* LEFT COLUMN: SCHEDULE & CUSTOMER DELIVERY DETAILS                 */}
+          {/* ================================================================= */}
+          <div className="checkout-desktop-left-col">
+            {/* Scheduled Delivery Window Banner */}
+            <section style={styles.scheduleCard}>
+              <div style={styles.scheduleIconWrap}>
+                <span className="material-symbols-outlined" style={{ fontSize: '22px', color: '#5c3e36' }}>
+                  {hasCake ? 'calendar_month' : 'local_shipping'}
+                </span>
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={styles.scheduleBadgeRow}>
+                  <span style={styles.scheduleTag}>
+                    {hasCake ? 'Scheduled Window' : 'Handcrafted Tailoring'}
+                  </span>
+                  <span style={styles.chilledPill}>{hasCake ? 'Chilled Van' : 'Standard Courier'}</span>
+                </div>
+                <p style={styles.scheduleTitle}>
+                  {hasCake
+                    ? `Cake Delivery Window: ${formatDateDisplay(deliveryDate)} (${deliveryTime})`
+                    : `Estimated Dispatch: ${formatDateDisplay(deliveryDate)}`}
+                </p>
+                <p style={styles.scheduleSubtitle}>
+                  {hasCake
+                    ? 'Delivery mode: Hand Delivery by Chilled Private Courier'
+                    : 'Delivery mode: Standard safe courier across Bangladesh'}
+                </p>
+              </div>
+              {hasDress && hasCake && (
+                <div style={styles.ecoNotice}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#7e544f' }}>
+                    eco
+                  </span>
+                  <span>Your dress and cake will be delivered safely together in one combined dispatch.</span>
+                </div>
+              )}
+            </section>
 
-        <form onSubmit={handleSubmitOrder} style={styles.formFlow}>
-          {/* ================================================================= */}
-          {/* STEP 1: CUSTOMER CONTACT & DELIVERY DETAILS                       */}
-          {/* ================================================================= */}
-          <section style={styles.cardSection}>
+            {/* ================================================================= */}
+            {/* STEP 1: CUSTOMER CONTACT & DELIVERY DETAILS                       */}
+            {/* ================================================================= */}
+            <section style={styles.cardSection}>
             <div style={styles.cardHeader}>
               <div style={styles.cardHeaderLeft}>
                 <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#5c3e36' }}>
@@ -595,7 +599,12 @@ export const CheckoutPage: React.FC = () => {
               </div>
             </div>
           </section>
+        </div>
 
+        {/* ================================================================= */}
+        {/* RIGHT COLUMN: ORDER REVIEW, BKASH PAYMENT & SUMMARY               */}
+        {/* ================================================================= */}
+        <div className="checkout-desktop-right-col">
           {/* ================================================================= */}
           {/* ORDER ITEMS REVIEW (Compact Stream)                               */}
           {/* ================================================================= */}
@@ -905,12 +914,48 @@ export const CheckoutPage: React.FC = () => {
                 payment and confirm cake delivery details.
               </p>
             </div>
-          </section>
 
-          {/* ================================================================= */}
-          {/* STICKY BOTTOM BAR / CHECKOUT CTA (Stitch Spec)                    */}
-          {/* ================================================================= */}
-          <aside style={styles.stickyBar}>
+            {/* Desktop-Only Submit Button inside Payment Summary */}
+            <div className="desktop-checkout-submit-btn" style={{ marginTop: '20px' }}>
+              <button
+                type="submit"
+                disabled={!isFormValid || isSubmitting}
+                style={{
+                  ...styles.submitOrderBtn,
+                  opacity: !isFormValid || isSubmitting ? 0.55 : 1,
+                  cursor: !isFormValid || isSubmitting ? 'not-allowed' : 'pointer',
+                  width: '100%',
+                }}
+              >
+                {isSubmitting ? (
+                  <>
+                    <span className="material-symbols-outlined" style={{ fontSize: '18px', animation: 'spin 1s linear infinite' }}>
+                      progress_activity
+                    </span>
+                    <span>Placing Your Order...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Confirm &amp; Place Order • ৳ {totalAmount.toLocaleString()}</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                      arrow_forward
+                    </span>
+                  </>
+                )}
+              </button>
+              <p style={{ ...styles.stickyHelper, textAlign: 'center', marginTop: '8px' }}>
+                {!isFormValid
+                  ? 'Please complete all required address & bKash fields to confirm this order.'
+                  : 'Your advance payment details are required to confirm this order.'}
+              </p>
+            </div>
+          </section>
+        </div>
+
+        {/* ================================================================= */}
+        {/* STICKY BOTTOM BAR / CHECKOUT CTA (Mobile Only)                    */}
+        {/* ================================================================= */}
+        <aside style={styles.stickyBar} className="mobile-checkout-sticky">
             <div style={styles.stickyBarInner}>
               <div style={styles.stickyPillsRow}>
                 <span>Handmade with care</span>

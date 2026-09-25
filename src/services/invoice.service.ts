@@ -88,8 +88,8 @@ export const invoiceService = {
         artisan: 'Sanjida Bethi',
         contact_phone: '+880 1712-345678',
         whatsapp: import.meta.env.VITE_STUDIO_WHATSAPP_NUMBER || '+8801712345678',
-        studio_address: import.meta.env.VITE_STUDIO_ADDRESS || 'Banani, Dhaka, Bangladesh',
-        bkash_number: import.meta.env.VITE_STUDIO_BKASH_NUMBER || '01712-345678',
+        studio_address: import.meta.env.VITE_STUDIO_ADDRESS || 'House 639, Kuddus Khalifa Road, Morkun, Tongi, Gazipur - 1700',
+        bkash_number: import.meta.env.VITE_STUDIO_BKASH_NUMBER || '01795-077102',
       },
     };
 

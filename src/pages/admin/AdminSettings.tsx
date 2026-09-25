@@ -144,7 +144,15 @@ export const AdminSettings: React.FC = () => {
     try {
       const data = await settingsService.getSettings();
       setInitialSettings(data);
-      setForm(JSON.parse(JSON.stringify(data)));
+      // Restore unsaved draft if user navigated between tabs without saving
+      let activeData = data;
+      try {
+        const savedDraft = sessionStorage.getItem('ababil_admin_settings_draft');
+        if (savedDraft) {
+          activeData = { ...data, ...JSON.parse(savedDraft) };
+        }
+      } catch {}
+      setForm(JSON.parse(JSON.stringify(activeData)));
     } catch (err) {
       console.error('Failed to load settings:', err);
       showToast('Could not load settings from server. Using local defaults.');
@@ -277,12 +285,25 @@ export const AdminSettings: React.FC = () => {
 
   const hasUnsavedChanges = unsavedCount > 0;
 
+  // Persist unsaved draft in sessionStorage so navigating away or switching tabs doesn't discard progress
+  useEffect(() => {
+    if (!form || !initialSettings) return;
+    try {
+      if (unsavedCount > 0) {
+        sessionStorage.setItem('ababil_admin_settings_draft', JSON.stringify(form));
+      } else {
+        sessionStorage.removeItem('ababil_admin_settings_draft');
+      }
+    } catch {}
+  }, [form, initialSettings, unsavedCount]);
+
   // Save Settings
   const handleSave = async () => {
     if (!form) return;
     setIsSaving(true);
     try {
       const updated = await settingsService.updateSettings(form);
+      try { sessionStorage.removeItem('ababil_admin_settings_draft'); } catch {}
       setInitialSettings(updated);
       setForm(JSON.parse(JSON.stringify(updated)));
       showToast('Store settings successfully updated and deployed.');
@@ -297,6 +318,7 @@ export const AdminSettings: React.FC = () => {
   // Discard Changes
   const handleDiscard = () => {
     if (window.confirm('Discard all unsaved boutique settings changes? Unsaved edits will be reverted.')) {
+      try { sessionStorage.removeItem('ababil_admin_settings_draft'); } catch {}
       if (initialSettings) {
         setForm(JSON.parse(JSON.stringify(initialSettings)));
       }
@@ -672,6 +694,19 @@ export const AdminSettings: React.FC = () => {
             <span>Store Info</span>
           </a>
           <a
+            href="#section-about"
+            onClick={() => setActiveSection('about')}
+            style={{
+              ...styles.tabLink,
+              ...(activeSection === 'about' ? styles.tabLinkActive : {}),
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>
+              auto_stories
+            </span>
+            <span>About Section</span>
+          </a>
+          <a
             href="#section-bkash"
             onClick={() => setActiveSection('bkash')}
             style={{
@@ -960,6 +995,125 @@ export const AdminSettings: React.FC = () => {
                   value={form.facebook_url}
                   onChange={(e) => setForm({ ...form, facebook_url: e.target.value })}
                   style={styles.input}
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* =================================================================== */}
+        {/* SECTION 1.2: DYNAMIC ABOUT SECTION / STORY CONTENT                  */}
+        {/* =================================================================== */}
+        <section id="section-about" style={{ ...styles.sectionCard, padding: 'clamp(14px, 3.5vw, 24px)' }}>
+          <div style={{ ...styles.sectionCardHeader, alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+            <div style={{ ...styles.sectionHeaderLeft, alignItems: 'flex-start', flex: '1 1 240px', minWidth: '0' }}>
+              <span className="material-symbols-outlined" style={{ ...styles.sectionIcon, marginTop: '2px', flexShrink: 0 }}>
+                auto_stories
+              </span>
+              <div style={{ minWidth: '0' }}>
+                <h2 style={{ ...styles.sectionCardTitle, wordBreak: 'break-word', fontSize: 'clamp(16px, 4vw, 18px)' }}>
+                  About Section &amp; Brand Story Content
+                </h2>
+                <span style={{ ...styles.publicProfileTag, display: 'block', marginTop: '4px', lineHeight: '1.4' }}>
+                  Manage the editorial narrative, founder quote, and craft descriptions displayed live on the storefront
+                </span>
+              </div>
+            </div>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 14px',
+              backgroundColor: '#ecfdf5',
+              border: '1px solid #a7f3d0',
+              borderRadius: '20px',
+              fontSize: '12px',
+              fontWeight: 600,
+              color: '#065f46',
+              flexShrink: 0,
+              alignSelf: 'flex-start'
+            }}>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981', display: 'inline-block' }} />
+              Updates Live
+            </div>
+          </div>
+
+          <div style={styles.sectionBody}>
+            {/* Story Title */}
+            <div>
+              <label style={styles.label}>Editorial Story Heading</label>
+              <input
+                type="text"
+                placeholder="e.g. Handmade Dresses & Cakes, Stitched & Baked with Love"
+                value={form.about_story_title || ''}
+                onChange={(e) => setForm({ ...form, about_story_title: e.target.value })}
+                style={styles.input}
+              />
+              <span style={styles.inputHint}>
+                Main headline displayed at the top of the Our Story / About page.
+              </span>
+            </div>
+
+            {/* Story Content / Narrative */}
+            <div>
+              <label style={styles.label}>Artisan Story Narrative (Paragraphs separated by blank lines)</label>
+              <textarea
+                rows={5}
+                placeholder="Write the founding journey and craftsmanship story here..."
+                value={form.about_story_content || ''}
+                onChange={(e) => setForm({ ...form, about_story_content: e.target.value })}
+                style={styles.textarea}
+              />
+              <span style={styles.inputHint}>
+                Detailed narrative about your atelier, hand-tailoring process, and scratch-baking heritage.
+              </span>
+            </div>
+
+            {/* Founder Quote */}
+            <div>
+              <label style={styles.label}>Artisan Quote / Philosophy Callout</label>
+              <input
+                type="text"
+                placeholder="“Stitched with love, baked with care — every piece created for timeless family memories.”"
+                value={form.about_artisan_quote || ''}
+                onChange={(e) => setForm({ ...form, about_artisan_quote: e.target.value })}
+                style={styles.input}
+              />
+            </div>
+
+            {/* Story Photo URL */}
+            <div>
+              <label style={styles.label}>Story Photograph URL</label>
+              <input
+                type="text"
+                placeholder="https://..."
+                value={form.about_story_image_url || ''}
+                onChange={(e) => setForm({ ...form, about_story_image_url: e.target.value })}
+                style={styles.input}
+              />
+            </div>
+
+            {/* Craft Disciplines Grid */}
+            <div style={styles.formGrid2}>
+              <div>
+                <label style={styles.label}>Dresses Craft Description</label>
+                <textarea
+                  rows={3}
+                  placeholder="Details on linen fabrics, smocking gathers, and hand embroidery..."
+                  value={form.about_craft_dresses_desc || ''}
+                  onChange={(e) => setForm({ ...form, about_craft_dresses_desc: e.target.value })}
+                  style={styles.textarea}
+                />
+              </div>
+
+              <div>
+                <label style={styles.label}>Celebration Cakes Craft Description</label>
+                <textarea
+                  rows={3}
+                  placeholder="Details on fresh dairy ingredients, bourbon vanilla, and Lambeth ruffles..."
+                  value={form.about_craft_cakes_desc || ''}
+                  onChange={(e) => setForm({ ...form, about_craft_cakes_desc: e.target.value })}
+                  style={styles.textarea}
                 />
               </div>
             </div>

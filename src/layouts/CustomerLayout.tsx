@@ -20,6 +20,7 @@ export const CustomerLayout: React.FC = () => {
   const { isAdmin } = useAuth();
   const { itemCount, isBagBouncing } = useCart();
   const navigate = useNavigate();
+  const [desktopSearch, setDesktopSearch] = useState('');
 
   useEffect(() => {
     settingsService.getSettings().then((s) => {
@@ -91,6 +92,16 @@ export const CustomerLayout: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [drawerOpen]);
 
+  // Determine clean brand title and subtitle without duplicating "by Sanjida Bethi"
+  const rawStoreName = (storeSettings?.store_name || "Ababil’s Attire by Sanjida Bethi").trim();
+  const hasAuthorInName = /by\s+Sanjida\s+Bethi/i.test(rawStoreName);
+  const mainBrandName = hasAuthorInName
+    ? rawStoreName.replace(/by\s+Sanjida\s+Bethi/i, '').trim()
+    : rawStoreName;
+  const headerSubtitleText = hasAuthorInName
+    ? "Handmade Dresses & Homemade Cakes"
+    : "Handmade Dresses & Homemade Cakes • by Sanjida Bethi";
+
   return (
     <div style={styles.pageContainer}>
       {/* Floating Add to Cart Notification */}
@@ -125,39 +136,146 @@ export const CustomerLayout: React.FC = () => {
         </div>
       )}
 
-      {/* Editorial Announcement Ribbon (Desktop POV) */}
-      <div className="desktop-announcement-bar">
-        <div className="desktop-announcement-inner">
-          <div className="announcement-left">
-            <span className="material-symbols-outlined" style={{ fontSize: '15px', color: '#d9a59f' }}>
-              auto_awesome
-            </span>
-            <span>Dhaka Atelier • Sweet Handcrafted Dresses & Celebration Cakes</span>
+      {/* ================================================================= */}
+      {/* 1A. STITCH DESKTOP 2-ROW HEADER (Visible >= 960px)                */}
+      {/* Faithfully implements Stitch Project 13092249108045248978 PC View */}
+      {/* ================================================================= */}
+      <header className="stitch-desktop-header">
+        <div className="stitch-desktop-header-inner">
+          {/* Row 1: Brand & Atelier Action Cluster */}
+          <div className="stitch-desktop-header-top-row">
+            <div className="stitch-desktop-brand-wrapper">
+              <Link to="/" className="stitch-desktop-brand-link">
+                <span className="stitch-desktop-brand-title">
+                  {mainBrandName || "Ababil’s Attire"}{' '}
+                  <span className="stitch-desktop-brand-author">by Sanjida Bethi</span>
+                </span>
+                <span className="stitch-desktop-brand-subtitle">
+                  HANDMADE DRESSES &amp; FRESH CELEBRATION CAKES
+                </span>
+              </Link>
+            </div>
+
+            <div className="stitch-desktop-header-actions">
+              {/* Search Atelier Pill */}
+              <div className="stitch-desktop-search-pill">
+                <span className="material-symbols-outlined stitch-desktop-search-icon">search</span>
+                <input
+                  type="text"
+                  placeholder="Search atelier..."
+                  value={desktopSearch}
+                  onChange={(e) => setDesktopSearch(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      const q = desktopSearch.trim();
+                      navigate(q ? `/dresses?search=${encodeURIComponent(q)}` : '/dresses');
+                    }
+                  }}
+                  className="stitch-desktop-search-input"
+                  aria-label="Search atelier"
+                />
+              </div>
+
+              {/* WhatsApp Concierge / Inquire */}
+              <a
+                href={getStudioWhatsAppUrl('Assalamu Alaikum Sanjida Apu, I would like to inquire about an order.')}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="stitch-desktop-concierge-pill"
+                title="Chat with Atelier Team"
+              >
+                <span className="material-symbols-outlined stitch-desktop-concierge-icon">chat</span>
+                <span>Chat with Us</span>
+              </a>
+
+              {/* My Bag */}
+              <Link
+                to="/bag"
+                className={`stitch-desktop-bag-pill ${isBagBouncing ? 'bag-bounce-active' : ''}`}
+                title={`Shopping Bag (${itemCount} items)`}
+              >
+                <span className="material-symbols-outlined stitch-desktop-bag-icon">shopping_bag</span>
+                <span className="stitch-desktop-bag-text">MY BAG</span>
+                <span className="stitch-desktop-bag-count">{itemCount}</span>
+              </Link>
+
+              {/* User / Admin Access */}
+              <Link
+                to={isAdmin ? "/admin" : "/admin/login"}
+                className="stitch-desktop-user-btn"
+                title={isAdmin ? "Studio Admin Suite" : "Atelier Access"}
+                onClick={() => {
+                  handleSecretTap();
+                }}
+              >
+                <span className="material-symbols-outlined stitch-desktop-user-icon">
+                  {isAdmin ? 'shield_person' : 'person'}
+                </span>
+              </Link>
+            </div>
           </div>
-          <div className="announcement-right">
-            <span>bKash Advance Reservation: ৳{storeSettings?.minimum_advance_amount || 500}</span>
-            <span className="announcement-divider">•</span>
-            <a
-              href={getStudioWhatsAppUrl('Assalamu Alaikum Sanjida Apu, I would like to inquire about an order.')}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="announcement-whatsapp-link"
+
+          {/* Row 2: Centered Horizontal Nav */}
+          <nav className="stitch-desktop-nav-row" aria-label="Desktop Navigation">
+            <NavLink
+              to="/"
+              end
+              className={({ isActive }) =>
+                `stitch-desktop-nav-link ${isActive ? 'active' : ''}`
+              }
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
-                chat
-              </span>
-              <span>WhatsApp Atelier</span>
-            </a>
-          </div>
+              HOME
+            </NavLink>
+            <NavLink
+              to="/dresses"
+              className={({ isActive }) =>
+                `stitch-desktop-nav-link ${isActive ? 'active' : ''}`
+              }
+            >
+              HANDMADE DRESSES
+            </NavLink>
+            <NavLink
+              to="/cakes"
+              className={({ isActive }) =>
+                `stitch-desktop-nav-link ${isActive ? 'active' : ''}`
+              }
+            >
+              CELEBRATION CAKES
+            </NavLink>
+            <NavLink
+              to="/track-order"
+              className={({ isActive }) =>
+                `stitch-desktop-nav-link ${isActive ? 'active' : ''}`
+              }
+            >
+              TRACK ORDER
+            </NavLink>
+            <NavLink
+              to="/about"
+              className={({ isActive }) =>
+                `stitch-desktop-nav-link ${isActive ? 'active' : ''}`
+              }
+            >
+              ABOUT ARTISAN
+            </NavLink>
+            <NavLink
+              to="/contact"
+              className={({ isActive }) =>
+                `stitch-desktop-nav-link ${isActive ? 'active' : ''}`
+              }
+            >
+              CONTACT
+            </NavLink>
+          </nav>
         </div>
-      </div>
+      </header>
 
       {/* ================================================================= */}
-      {/* 1. STICKY BOUTIQUE HEADER (TopAppBar Anchor Component)            */}
+      {/* 1B. PROTECTED MOBILE HEADER (Visible < 960px)                     */}
       {/* ================================================================= */}
-      <header style={styles.header}>
+      <header style={styles.header} className="stitch-mobile-header">
         <div style={styles.headerInner} className="customer-header-inner">
-          {/* Left: Mobile Drawer Toggle & Desktop Nav */}
+          {/* Left: Mobile Drawer Toggle */}
           <div style={styles.leftGroup}>
             <button
               type="button"
@@ -171,68 +289,41 @@ export const CustomerLayout: React.FC = () => {
                 menu
               </span>
             </button>
-
-            {/* Desktop Navigation Links */}
-            <nav style={styles.desktopNav} className="customer-desktop-nav" aria-label="Main Navigation">
-              <NavLink
-                to="/"
-                end
-                style={({ isActive }) => (isActive ? styles.desktopNavLinkActive : styles.desktopNavLink)}
-              >
-                Home
-              </NavLink>
-              <NavLink
-                to="/dresses"
-                style={({ isActive }) => (isActive ? styles.desktopNavLinkActive : styles.desktopNavLink)}
-              >
-                Dresses
-              </NavLink>
-              <NavLink
-                to="/cakes"
-                style={({ isActive }) => (isActive ? styles.desktopNavLinkActive : styles.desktopNavLink)}
-              >
-                Cakes
-              </NavLink>
-              <NavLink
-                to="/about"
-                style={({ isActive }) => (isActive ? styles.desktopNavLinkActive : styles.desktopNavLink)}
-              >
-                Our Story
-              </NavLink>
-              <NavLink
-                to="/contact"
-                style={({ isActive }) => (isActive ? styles.desktopNavLinkActive : styles.desktopNavLink)}
-              >
-                Custom Orders & Contact
-              </NavLink>
-            </nav>
           </div>
 
           {/* Center: Brand Identity (Mathematically centered across viewports) */}
           <div style={styles.brandCenter} className="customer-brand-center">
-            <Link to="/" style={styles.brandLink}>
+            <Link to="/" style={styles.brandLink} className="customer-brand-link">
               {storeSettings?.logo_url && !logoImgError && (
-                <img
-                  src={storeSettings.logo_url}
-                  alt="Ababil’s Attire Logo"
-                  onError={() => setLogoImgError(true)}
-                  style={styles.brandLogoImg}
-                />
+                <div style={styles.brandLogoWrapper} className="customer-brand-logo-wrapper">
+                  <img
+                    src={storeSettings.logo_url}
+                    alt="Ababil’s Attire Logo"
+                    onError={() => setLogoImgError(true)}
+                    style={styles.brandLogoImg}
+                  />
+                </div>
               )}
-              <span style={styles.brandTitle} className="customer-brand-title">
-                {storeSettings?.store_name || "Ababil’s Attire"}
-              </span>
+              <div style={styles.brandTextStack} className="customer-brand-text-stack">
+                <span style={styles.brandTitle} className="customer-brand-title">
+                  {rawStoreName}
+                </span>
+                <span
+                  style={styles.brandSubtitle}
+                  className="customer-brand-subtitle"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleSecretTap();
+                  }}
+                  title="Ababil’s Attire by Sanjida Bethi"
+                  role="button"
+                  tabIndex={-1}
+                >
+                  {headerSubtitleText}
+                </span>
+              </div>
             </Link>
-            <span
-              style={styles.brandSubtitle}
-              className="customer-brand-subtitle"
-              onClick={handleSecretTap}
-              title="Ababil’s Attire by Sanjida Bethi"
-              role="button"
-              tabIndex={-1}
-            >
-              Handmade Dresses & Homemade Cakes by Sanjida Bethi
-            </span>
           </div>
 
           {/* Right: Actions Cluster (Track Order, Bag, Admin) */}
@@ -293,10 +384,21 @@ export const CustomerLayout: React.FC = () => {
       >
         {/* Drawer Header */}
         <div style={styles.drawerHeader}>
-          <div>
-            <h2 style={styles.drawerBrandTitle}>Ababil’s Attire</h2>
-            <p style={styles.drawerBrandSubtitle}>by Sanjida Bethi</p>
-            <span style={styles.drawerCrest}>Handmade Dresses & Homemade Cakes</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {storeSettings?.logo_url && !logoImgError && (
+              <div style={styles.drawerLogoWrapper}>
+                <img
+                  src={storeSettings.logo_url}
+                  alt="Ababil’s Attire Logo"
+                  style={styles.drawerLogoImg}
+                />
+              </div>
+            )}
+            <div>
+              <h2 style={styles.drawerBrandTitle}>Ababil’s Attire</h2>
+              <p style={styles.drawerBrandSubtitle}>by Sanjida Bethi</p>
+              <span style={styles.drawerCrest}>Handmade Dresses & Homemade Cakes</span>
+            </div>
           </div>
           <button
             type="button"
@@ -418,7 +520,7 @@ export const CustomerLayout: React.FC = () => {
         <div style={styles.drawerFooter}>
           <p style={styles.drawerQuote}>"Stitched with love, baked with care."</p>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-            <p style={styles.drawerDhaka}>{storeSettings?.workshop_address || "Studio • Dhaka, Bangladesh"}</p>
+            <p style={styles.drawerDhaka}>{storeSettings?.workshop_address || "House 639, Kuddus Khalifa Road, Morkun, Tongi, Gazipur - 1700"}</p>
             <button
               type="button"
               onClick={() => {
@@ -450,19 +552,107 @@ export const CustomerLayout: React.FC = () => {
       {/* ================================================================= */}
       {/* MAIN CONTENT OUTLET                                              */}
       {/* ================================================================= */}
-      <main style={styles.mainContent}>
+      <main style={styles.mainContent} className="customer-main-content">
         <Outlet />
       </main>
 
       {/* ================================================================= */}
-      {/* ATELIER FOOTER (Anchor Implementation)                            */}
+      {/* 2A. STITCH DESKTOP 4-COLUMN FOOTER (Visible >= 960px)             */}
       {/* ================================================================= */}
-      <footer style={styles.footer}>
+      <footer className="stitch-desktop-footer">
+        <div className="stitch-desktop-footer-inner">
+          <div className="stitch-desktop-footer-grid">
+            {/* Column 1: Brand & Guild Standard */}
+            <div className="stitch-desktop-footer-col">
+              <span className="stitch-desktop-footer-brand-title">
+                {mainBrandName || "Ababil’s Attire"}
+              </span>
+              <p className="stitch-desktop-footer-desc">
+                Handcrafted heirloom dresses tailored with pure organic threads alongside bespoke celebration confections designed for timeless memories.
+              </p>
+              <div className="stitch-desktop-footer-badge">
+                <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#7e544f' }}>
+                  verified
+                </span>
+                <span>Artisan Guild Standard</span>
+              </div>
+            </div>
+
+            {/* Column 2: Collections */}
+            <div className="stitch-desktop-footer-col">
+              <span className="stitch-desktop-footer-col-title">Collections</span>
+              <Link to="/dresses" className="stitch-desktop-footer-link">Heirloom Dresses</Link>
+              <Link to="/cakes" className="stitch-desktop-footer-link">Celebration Cakes</Link>
+              <Link to="/cakes" className="stitch-desktop-footer-link">Bento Confections</Link>
+              <Link to="/contact" className="stitch-desktop-footer-link">Custom Commissions</Link>
+            </div>
+
+            {/* Column 3: Customer Care */}
+            <div className="stitch-desktop-footer-col">
+              <span className="stitch-desktop-footer-col-title">Customer Care</span>
+              <Link to="/track-order" className="stitch-desktop-footer-link">Cake Ordering Policy</Link>
+              <Link to="/track-order" className="stitch-desktop-footer-link">Delivery &amp; Courier Policy</Link>
+              <Link to="/dresses" className="stitch-desktop-footer-link">Sizing &amp; Tailoring Guide</Link>
+              <Link to="/about" className="stitch-desktop-footer-link">Care &amp; Preservation</Link>
+            </div>
+
+            {/* Column 4: Atelier Studio */}
+            <div className="stitch-desktop-footer-col">
+              <span className="stitch-desktop-footer-col-title">Atelier Studio</span>
+              <p className="stitch-desktop-footer-address">
+                {storeSettings?.workshop_address || "House 639, Kuddus Khalifa Road, Morkun, Tongi, Gazipur - 1700"}
+              </p>
+              <p className="stitch-desktop-footer-phone">
+                WhatsApp: {storeSettings?.whatsapp_number || storeSettings?.contact_phone || '+880 1795-077102'}
+              </p>
+              <div className="stitch-desktop-footer-journal">
+                <span className="stitch-desktop-footer-journal-label">Join the Atelier Journal</span>
+                <div className="stitch-desktop-footer-journal-input-wrap">
+                  <input
+                    type="email"
+                    placeholder="Enter your email"
+                    className="stitch-desktop-footer-journal-input"
+                  />
+                  <button type="button" className="stitch-desktop-footer-journal-btn">
+                    Join
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="stitch-desktop-footer-bottom">
+            <span>© {new Date().getFullYear()} Ababil’s Attire by Sanjida Bethi. All rights reserved.</span>
+            <div className="stitch-desktop-footer-bottom-tags">
+              <span>Bespoke Craftsmanship</span>
+              <span>•</span>
+              <span>Fresh Baked Daily</span>
+              <span>•</span>
+              <span>Nationwide &amp; Doorstep Delivery</span>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      {/* ================================================================= */}
+      {/* 2B. PROTECTED MOBILE FOOTER (Visible < 960px)                      */}
+      {/* ================================================================= */}
+      <footer style={styles.footer} className="customer-footer stitch-mobile-footer">
         <div style={styles.footerInner}>
           {/* Brand Header */}
           <div style={styles.footerBrandSection}>
-            <h2 style={styles.footerTitle}>{storeSettings?.store_name || "Ababil’s Attire"}</h2>
-            <p style={styles.footerAuthor}>by Sanjida Bethi</p>
+            {storeSettings?.logo_url && !logoImgError && (
+              <div style={styles.footerLogoWrapper}>
+                <img
+                  src={storeSettings.logo_url}
+                  alt="Ababil’s Attire Logo"
+                  style={styles.footerLogoImg}
+                />
+              </div>
+            )}
+            <h2 style={styles.footerTitle}>{rawStoreName}</h2>
+            {!hasAuthorInName && <p style={styles.footerAuthor}>by Sanjida Bethi</p>}
             <p style={styles.footerTagline}>
               {storeSettings?.store_description || "Sweet handmade dresses for little girls and delicious homemade cakes for your family celebrations."}
             </p>
@@ -554,9 +744,9 @@ export const CustomerLayout: React.FC = () => {
             <span
               onClick={handleSecretTap}
               style={{ ...styles.footerLink, cursor: 'default', userSelect: 'none' }}
-              title="Dhaka Studio Atelier"
+              title="Studio Atelier"
             >
-              {storeSettings?.workshop_address ? storeSettings.workshop_address.split(',')[0] : "Dhaka Atelier"}
+              {storeSettings?.workshop_address ? storeSettings.workshop_address.split(',')[0] : "Studio Atelier"}
             </span>
           </div>
 
@@ -601,7 +791,7 @@ export const CustomerLayout: React.FC = () => {
               onClick={handleSecretTap}
               title="Ababil’s Attire by Sanjida Bethi (Triple-tap for Atelier admin)"
             >
-              © {new Date().getFullYear()} {storeSettings?.store_name || "Ababil’s Attire by Sanjida Bethi"}. All Rights Reserved. • {storeSettings?.workshop_address || "Dhaka, Bangladesh"}
+              © {new Date().getFullYear()} {storeSettings?.store_name || "Ababil’s Attire by Sanjida Bethi"}. All Rights Reserved. • {storeSettings?.workshop_address || "House 639, Kuddus Khalifa Road, Morkun, Tongi, Gazipur - 1700"}
             </p>
           </div>
         </div>
@@ -764,12 +954,10 @@ const styles: Record<string, React.CSSProperties> = {
   },
   brandCenter: {
     display: 'flex',
-    flexDirection: 'column',
     alignItems: 'center',
-    textAlign: 'center',
+    justifyContent: 'center',
     justifySelf: 'center',
-    maxWidth: '60vw',
-    gap: '2px',
+    maxWidth: '65vw',
   },
   brandLink: {
     textDecoration: 'none',
@@ -777,28 +965,46 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '8px',
+    gap: '12px',
+  },
+  brandLogoWrapper: {
+    width: '42px',
+    height: '42px',
+    borderRadius: '50%',
+    overflow: 'hidden',
+    backgroundColor: '#ffffff',
+    border: '1.5px solid #ebd8d0',
+    boxShadow: '0 2px 8px rgba(92, 62, 54, 0.08)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
   },
   brandLogoImg: {
-    height: '28px',
-    width: 'auto',
-    maxWidth: '36px',
-    objectFit: 'contain',
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
     display: 'block',
-    flexShrink: 0,
+  },
+  brandTextStack: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    textAlign: 'center',
+    gap: '2px',
   },
   brandTitle: {
     fontFamily: "var(--font-serif, 'Bodoni Moda', serif)",
-    fontSize: '19px',
+    fontSize: '20px',
     fontWeight: 600,
     color: '#5c3e36',
     letterSpacing: '0.02em',
-    lineHeight: 1.1,
+    lineHeight: 1.15,
     whiteSpace: 'nowrap',
   },
   brandSubtitle: {
     fontFamily: "var(--font-sans, 'Plus Jakarta Sans', sans-serif)",
-    fontSize: '9px',
+    fontSize: '9.5px',
     letterSpacing: '0.12em',
     color: '#8c5e51',
     textTransform: 'uppercase',
@@ -898,6 +1104,24 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'space-between',
     paddingBottom: '16px',
     borderBottom: '1px solid var(--color-border-subtle, #ece8e1)',
+  },
+  drawerLogoWrapper: {
+    width: '42px',
+    height: '42px',
+    borderRadius: '50%',
+    overflow: 'hidden',
+    backgroundColor: '#ffffff',
+    border: '1.5px solid #ebd8d0',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  drawerLogoImg: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+    display: 'block',
   },
   drawerBrandTitle: {
     fontFamily: "var(--font-serif, 'Bodoni Moda', serif)",
@@ -1021,7 +1245,26 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '4px',
+    gap: '6px',
+  },
+  footerLogoWrapper: {
+    width: '48px',
+    height: '48px',
+    borderRadius: '50%',
+    overflow: 'hidden',
+    backgroundColor: '#ffffff',
+    border: '1.5px solid #ebd8d0',
+    boxShadow: '0 2px 8px rgba(92, 62, 54, 0.08)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: '6px',
+  },
+  footerLogoImg: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+    display: 'block',
   },
   footerTitle: {
     fontFamily: "var(--font-serif, 'Bodoni Moda', serif)",

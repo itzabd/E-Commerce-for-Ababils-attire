@@ -157,7 +157,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
-          setIsLoading(true);
+          // Do not flash full-screen loading on silent token refreshes (e.g. switching browser tabs)
+          // Setting isLoading to true unmounts the active page and destroys in-progress user input!
+          if (event === 'SIGNED_IN') {
+            setIsLoading((prev) => (!user ? true : prev));
+          }
           const adminRecord = await verifyAndFetchAdminRecord(newSession.user.id);
 
           if (adminRecord) {
