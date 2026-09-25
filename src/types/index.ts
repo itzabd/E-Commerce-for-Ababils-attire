@@ -270,9 +270,20 @@ export interface StoreSettings {
   preconfigured_cake_weights: string[];
   product_categories: string[];
   default_product_status: string;
+  size_chart?: SizeChartEntry[];
+  size_guide_intro?: string;
 
   created_at?: string;
   updated_at?: string;
+}
+
+/** Size Chart Specification for Dress Sizing Guide */
+export interface SizeChartEntry {
+  id: string;
+  size: string;
+  chest: string;
+  length: string;
+  typical_age: string;
 }
 
 /** Manual Order Item Specification */

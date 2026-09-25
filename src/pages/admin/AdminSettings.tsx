@@ -16,10 +16,10 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { settingsService } from '../../services/settings.service';
+import { settingsService, DEFAULT_SIZE_CHART } from '../../services/settings.service';
 import { storageService } from '../../services/storage.service';
 import { reviewsService, type CustomerReview } from '../../services/reviews.service';
-import type { StoreSettings } from '../../types';
+import type { StoreSettings, SizeChartEntry } from '../../types';
 import { convertToCSV, downloadFile } from '../../lib/csv';
 import { ImageCropper } from '../../components/admin/ImageCropper';
 
@@ -417,6 +417,66 @@ export const AdminSettings: React.FC = () => {
       ...form,
       preconfigured_cake_weights: form.preconfigured_cake_weights.filter((w) => w !== weightToRemove),
     });
+  };
+
+  // Size Chart Handlers
+  const handleSizeChartChange = (index: number, field: keyof SizeChartEntry, value: string) => {
+    if (!form) return;
+    const currentChart = [...(form.size_chart || DEFAULT_SIZE_CHART)];
+    currentChart[index] = { ...currentChart[index], [field]: value };
+    setForm({ ...form, size_chart: currentChart });
+  };
+
+  const handleAddSizeChartRow = () => {
+    if (!form) return;
+    const currentChart = [...(form.size_chart || DEFAULT_SIZE_CHART)];
+    const newRow: SizeChartEntry = {
+      id: `sz_${Date.now()}`,
+      size: '5-6Y',
+      chest: '24.5"',
+      length: '25"',
+      typical_age: '5–6 Years',
+    };
+    const updated = [...currentChart, newRow];
+    setForm({
+      ...form,
+      size_chart: updated,
+      preconfigured_sizes: Array.from(new Set([...form.preconfigured_sizes, newRow.size])),
+    });
+  };
+
+  const handleRemoveSizeChartRow = (index: number) => {
+    if (!form) return;
+    const currentChart = [...(form.size_chart || DEFAULT_SIZE_CHART)];
+    if (currentChart.length <= 1) {
+      showToast('You must have at least one size in your size guide chart.');
+      return;
+    }
+    currentChart.splice(index, 1);
+    setForm({ ...form, size_chart: currentChart });
+  };
+
+  const handleMoveSizeChartRow = (index: number, direction: 'up' | 'down') => {
+    if (!form) return;
+    const currentChart = [...(form.size_chart || DEFAULT_SIZE_CHART)];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= currentChart.length) return;
+    const [moved] = currentChart.splice(index, 1);
+    currentChart.splice(targetIndex, 0, moved);
+    setForm({ ...form, size_chart: currentChart });
+  };
+
+  const handleResetSizeChart = () => {
+    if (window.confirm('Reset size chart measurements back to default boutique standards (6M, 12M, 18M, 2-3Y, 3-4Y, 4-5Y)?')) {
+      if (form) {
+        setForm({
+          ...form,
+          size_chart: JSON.parse(JSON.stringify(DEFAULT_SIZE_CHART)),
+          size_guide_intro: 'Measurements in inches. Handcrafted garments have a relaxed silhouette for ease and growing room.',
+        });
+        showToast('Size chart reset to defaults. Click Save to deploy.');
+      }
+    }
   };
 
   // Add Customer Screenshot Review
@@ -2031,23 +2091,235 @@ export const AdminSettings: React.FC = () => {
               <span className="material-symbols-outlined" style={styles.sectionIcon}>
                 straighten
               </span>
-              <h2 style={styles.sectionCardTitle}>Product Defaults & Sizing</h2>
+              <div>
+                <h2 style={styles.sectionCardTitle}>Product Defaults & Size Guide</h2>
+                <span style={styles.publicProfileTag}>
+                  Customizable size chart, measurements & catalog presets
+                </span>
+              </div>
             </div>
-            <span style={styles.publicProfileTag}>Preset Catalog Matrix</span>
+            <button
+              type="button"
+              onClick={handleResetSizeChart}
+              style={styles.addTagToggleBtn}
+              title="Reset size chart to standard boutique measurements"
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>
+                restart_alt
+              </span>
+              <span>Reset Size Chart Defaults</span>
+            </button>
           </div>
 
           <div style={styles.sectionBody}>
-            {/* Pre-configured Dress Sizes */}
-            <div>
+            {/* Girls' Dress Size Chart Editor */}
+            <div style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #ebdcd5',
+              borderRadius: '12px',
+              padding: '20px',
+              boxShadow: '0 2px 8px rgba(67, 40, 33, 0.04)',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#432821', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#8c5e51' }}>
+                      checkroom
+                    </span>
+                    Girls’ Dress Size Guide & Measurements Editor
+                  </h3>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#827470' }}>
+                    Directly configures the Size Guide popup on dress pages. Edit sizes, chest, length, and age ranges.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddSizeChartRow}
+                  style={{
+                    padding: '8px 14px',
+                    backgroundColor: '#5c3e36',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                    add
+                  </span>
+                  Add Size Row
+                </button>
+              </div>
+
+              {/* Size Guide Intro Note */}
+              <div style={{ marginBottom: '16px' }}>
+                <label style={styles.label}>Size Guide Modal Note / Subtitle</label>
+                <input
+                  type="text"
+                  value={form.size_guide_intro || ''}
+                  onChange={(e) => setForm({ ...form, size_guide_intro: e.target.value })}
+                  placeholder="e.g. Measurements in inches. Handcrafted garments have a relaxed silhouette for ease and growing room."
+                  style={styles.input}
+                />
+              </div>
+
+              {/* Size Chart Table Editor */}
+              <div style={{ overflowX: 'auto', border: '1px solid #ebdcd5', borderRadius: '8px' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'left' }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#f9f6f2', borderBottom: '1px solid #ebdcd5' }}>
+                      <th style={{ padding: '10px 12px', fontWeight: 700, color: '#432821' }}>Size Label</th>
+                      <th style={{ padding: '10px 12px', fontWeight: 700, color: '#432821' }}>Chest (Inches)</th>
+                      <th style={{ padding: '10px 12px', fontWeight: 700, color: '#432821' }}>Length (Inches)</th>
+                      <th style={{ padding: '10px 12px', fontWeight: 700, color: '#432821' }}>Typical Age Range</th>
+                      <th style={{ padding: '10px 12px', fontWeight: 700, color: '#432821', textAlign: 'right', minWidth: '100px' }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(form.size_chart || DEFAULT_SIZE_CHART).map((row, idx) => (
+                      <tr key={row.id || idx} style={{ borderBottom: '1px solid #f2ece7', backgroundColor: idx % 2 === 0 ? '#ffffff' : '#fdfcfa' }}>
+                        <td style={{ padding: '8px 12px' }}>
+                          <input
+                            type="text"
+                            value={row.size}
+                            onChange={(e) => handleSizeChartChange(idx, 'size', e.target.value)}
+                            style={{
+                              width: '90px',
+                              padding: '6px 8px',
+                              border: '1px solid #d9cbbf',
+                              borderRadius: '6px',
+                              fontSize: '13px',
+                              fontWeight: 700,
+                              color: '#432821',
+                            }}
+                            placeholder="e.g. 2-3Y"
+                          />
+                        </td>
+                        <td style={{ padding: '8px 12px' }}>
+                          <input
+                            type="text"
+                            value={row.chest}
+                            onChange={(e) => handleSizeChartChange(idx, 'chest', e.target.value)}
+                            style={{
+                              width: '100px',
+                              padding: '6px 8px',
+                              border: '1px solid #d9cbbf',
+                              borderRadius: '6px',
+                              fontSize: '13px',
+                              color: '#432821',
+                            }}
+                            placeholder='e.g. 21.5"'
+                          />
+                        </td>
+                        <td style={{ padding: '8px 12px' }}>
+                          <input
+                            type="text"
+                            value={row.length}
+                            onChange={(e) => handleSizeChartChange(idx, 'length', e.target.value)}
+                            style={{
+                              width: '100px',
+                              padding: '6px 8px',
+                              border: '1px solid #d9cbbf',
+                              borderRadius: '6px',
+                              fontSize: '13px',
+                              color: '#432821',
+                            }}
+                            placeholder='e.g. 19"'
+                          />
+                        </td>
+                        <td style={{ padding: '8px 12px' }}>
+                          <input
+                            type="text"
+                            value={row.typical_age}
+                            onChange={(e) => handleSizeChartChange(idx, 'typical_age', e.target.value)}
+                            style={{
+                              width: '100%',
+                              minWidth: '140px',
+                              padding: '6px 8px',
+                              border: '1px solid #d9cbbf',
+                              borderRadius: '6px',
+                              fontSize: '13px',
+                              color: '#432821',
+                            }}
+                            placeholder="e.g. 2–3 Years"
+                          />
+                        </td>
+                        <td style={{ padding: '8px 12px', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                          <button
+                            type="button"
+                            onClick={() => handleMoveSizeChartRow(idx, 'up')}
+                            disabled={idx === 0}
+                            style={{
+                              padding: '4px 6px',
+                              border: '1px solid #ebdcd5',
+                              backgroundColor: '#ffffff',
+                              borderRadius: '4px',
+                              cursor: idx === 0 ? 'default' : 'pointer',
+                              opacity: idx === 0 ? 0.3 : 1,
+                              marginRight: '4px',
+                            }}
+                            title="Move row up"
+                          >
+                            ▲
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleMoveSizeChartRow(idx, 'down')}
+                            disabled={idx === (form.size_chart || DEFAULT_SIZE_CHART).length - 1}
+                            style={{
+                              padding: '4px 6px',
+                              border: '1px solid #ebdcd5',
+                              backgroundColor: '#ffffff',
+                              borderRadius: '4px',
+                              cursor: idx === (form.size_chart || DEFAULT_SIZE_CHART).length - 1 ? 'default' : 'pointer',
+                              opacity: idx === (form.size_chart || DEFAULT_SIZE_CHART).length - 1 ? 0.3 : 1,
+                              marginRight: '6px',
+                            }}
+                            title="Move row down"
+                          >
+                            ▼
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveSizeChartRow(idx)}
+                            style={{
+                              padding: '4px 6px',
+                              border: '1px solid #fecaca',
+                              backgroundColor: '#fef2f2',
+                              color: '#dc2626',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                            }}
+                            title="Remove size row"
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>
+                              delete
+                            </span>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Pre-configured Dress Sizes Preset Badges */}
+            <div style={{ marginTop: '16px' }}>
               <div style={styles.tagHeaderRow}>
-                <label style={styles.label}>Pre-configured Dress Sizes</label>
+                <label style={styles.label}>Active Catalog Size Options</label>
                 {!showAddSize ? (
                   <button
                     type="button"
                     onClick={() => setShowAddSize(true)}
                     style={styles.addTagToggleBtn}
                   >
-                    + Add Custom Size
+                    + Add Size Option
                   </button>
                 ) : (
                   <div style={styles.inlineAddGroup}>
@@ -2085,7 +2357,7 @@ export const AdminSettings: React.FC = () => {
             </div>
 
             {/* Pre-configured Cake Weights */}
-            <div>
+            <div style={{ marginTop: '16px' }}>
               <div style={styles.tagHeaderRow}>
                 <label style={styles.label}>Pre-configured Cake Weights</label>
                 {!showAddWeight ? (
@@ -2132,7 +2404,7 @@ export const AdminSettings: React.FC = () => {
             </div>
 
             {/* Product Categories & Default Status */}
-            <div style={styles.formGrid2}>
+            <div style={{ ...styles.formGrid2, marginTop: '16px' }}>
               <div>
                 <label style={styles.label}>Primary Product Categories</label>
                 <input

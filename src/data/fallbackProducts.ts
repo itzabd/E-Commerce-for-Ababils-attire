@@ -57,7 +57,7 @@ export const FALLBACK_PRODUCTS: ProductWithDetails[] = [
     ],
     dress_details: {
       product_id: '11111111-1111-4111-8111-111111111111',
-      available_sizes: ['6M', '12M', '18M', '2T', '3T', '4T'],
+      available_sizes: ['6M', '12M', '18M', '2-3Y', '3-4Y', '4-5Y'],
       fabric_details: '100% Pure Soft Cotton with Hand Smocking & French lace trim',
       care_instructions:
         'Gentle cold hand-wash with mild baby-safe detergent. Do not wring or tumble dry. Dry flat in shade. Cool iron on reverse.',
@@ -92,7 +92,7 @@ export const FALLBACK_PRODUCTS: ProductWithDetails[] = [
     ],
     dress_details: {
       product_id: '22222222-2222-4222-8222-222222222222',
-      available_sizes: ['12M', '18M', '2T', '3T', '4T'],
+      available_sizes: ['12M', '18M', '2-3Y', '3-4Y', '4-5Y'],
       fabric_details: '100% Organic Muslin with French Seams & Peter Pan Collar',
       care_instructions:
         'Machine wash cold on gentle cycle with like colors. Hang to dry naturally. Warm iron if desired.',
@@ -127,7 +127,7 @@ export const FALLBACK_PRODUCTS: ProductWithDetails[] = [
     ],
     dress_details: {
       product_id: '33333333-3333-4333-8333-333333333333',
-      available_sizes: ['6M', '12M', '18M', '2T'],
+      available_sizes: ['6M', '12M', '18M', '2-3Y'],
       fabric_details: '100% Antique English Eyelet Cotton Voile',
       care_instructions:
         'Delicate cold hand-wash. Do not bleach. Air dry flat. Cool iron on reverse.',
@@ -162,7 +162,7 @@ export const FALLBACK_PRODUCTS: ProductWithDetails[] = [
     ],
     dress_details: {
       product_id: '44444444-1111-4111-8111-111111111111',
-      available_sizes: ['6M', '12M', '18M', '2T', '3T', '4T'],
+      available_sizes: ['6M', '12M', '18M', '2-3Y', '3-4Y', '4-5Y'],
       fabric_details: 'Silk & Cotton Batiste with Hand-stitched French Knots',
       care_instructions:
         'Dry clean recommended or gentle lukewarm hand rinse. Iron damp.',

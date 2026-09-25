@@ -1,18 +1,15 @@
-/**
- * Ababil’s Attire by Sanjida Bethi
- * Dress Product Details View (Mirrors Stitch project 1646646279704595948)
- */
-
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { productsService } from '../../services/products.service';
-import type { ProductWithDetails } from '../../types';
+import { settingsService, DEFAULT_SIZE_CHART } from '../../services/settings.service';
+import type { ProductWithDetails, StoreSettings } from '../../types';
 import { useCart } from '../../hooks/useCart';
 import { getStudioWhatsAppUrl } from '../../lib/studio';
 
 export const DressDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<ProductWithDetails | null>(null);
+  const [storeSettings, setStoreSettings] = useState<StoreSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string>('12M');
@@ -36,16 +33,22 @@ export const DressDetailPage: React.FC = () => {
   useEffect(() => {
     let isMounted = true;
 
-    async function loadProduct() {
+    async function loadData() {
       if (!id) return;
       try {
         setLoading(true);
-        const data = await productsService.getProductByCode(id);
+        const [productData, settingsData] = await Promise.all([
+          productsService.getProductByCode(id),
+          settingsService.getSettings(),
+        ]);
         if (isMounted) {
-          setProduct(data);
-          const sizes = data?.dress_details?.available_sizes;
+          setProduct(productData);
+          setStoreSettings(settingsData);
+          const sizes = productData?.dress_details?.available_sizes;
           if (sizes && sizes.length > 0) {
             setSelectedSize(sizes[0]);
+          } else if (settingsData?.size_chart && settingsData.size_chart.length > 0) {
+            setSelectedSize(settingsData.size_chart[0].size);
           }
         }
       } catch (err) {
@@ -55,7 +58,7 @@ export const DressDetailPage: React.FC = () => {
       }
     }
 
-    loadProduct();
+    loadData();
     return () => {
       isMounted = false;
     };
@@ -127,14 +130,13 @@ export const DressDetailPage: React.FC = () => {
         ];
 
   const currentImage = galleryImages[activeImageIndex] || galleryImages[0];
-  const availableSizes = product.dress_details?.available_sizes || [
-    '6M',
-    '12M',
-    '18M',
-    '2T',
-    '3T',
-    '4T',
-  ];
+  const sizeChart = storeSettings?.size_chart && storeSettings.size_chart.length > 0 
+    ? storeSettings.size_chart 
+    : DEFAULT_SIZE_CHART;
+  const availableSizes =
+    product.dress_details?.available_sizes && product.dress_details.available_sizes.length > 0
+      ? product.dress_details.available_sizes
+      : sizeChart.map((s) => s.size);
 
   const isOutOfStock = product.status === 'out_of_stock' || product.stock_quantity === 0;
   const isMadeToOrder = product.status === 'made_to_order';
@@ -391,7 +393,8 @@ export const DressDetailPage: React.FC = () => {
             </div>
 
             <p style={styles.modalSubtitle}>
-              Measurements in inches. Handcrafted garments have a relaxed silhouette for ease and growing room.
+              {storeSettings?.size_guide_intro ||
+                'Measurements in inches. Handcrafted garments have a relaxed silhouette for ease and growing room.'}
             </p>
 
             <table style={styles.sizeTable}>
@@ -404,42 +407,14 @@ export const DressDetailPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr style={styles.tableRow}>
-                  <td style={styles.tableTdBold}>6M</td>
-                  <td style={styles.tableTd}>18"</td>
-                  <td style={styles.tableTd}>14"</td>
-                  <td style={styles.tableTd}>3–6 Months</td>
-                </tr>
-                <tr style={styles.tableRow}>
-                  <td style={styles.tableTdBold}>12M</td>
-                  <td style={styles.tableTd}>19.5"</td>
-                  <td style={styles.tableTd}>16"</td>
-                  <td style={styles.tableTd}>6–12 Months</td>
-                </tr>
-                <tr style={styles.tableRow}>
-                  <td style={styles.tableTdBold}>18M</td>
-                  <td style={styles.tableTd}>20.5"</td>
-                  <td style={styles.tableTd}>17.5"</td>
-                  <td style={styles.tableTd}>12–18 Months</td>
-                </tr>
-                <tr style={styles.tableRow}>
-                  <td style={styles.tableTdBold}>2T</td>
-                  <td style={styles.tableTd}>21.5"</td>
-                  <td style={styles.tableTd}>19"</td>
-                  <td style={styles.tableTd}>1.5–2 Years</td>
-                </tr>
-                <tr style={styles.tableRow}>
-                  <td style={styles.tableTdBold}>3T</td>
-                  <td style={styles.tableTd}>22.5"</td>
-                  <td style={styles.tableTd}>21"</td>
-                  <td style={styles.tableTd}>2.5–3 Years</td>
-                </tr>
-                <tr style={styles.tableRow}>
-                  <td style={styles.tableTdBold}>4T</td>
-                  <td style={styles.tableTd}>23.5"</td>
-                  <td style={styles.tableTd}>23"</td>
-                  <td style={styles.tableTd}>3.5–4 Years</td>
-                </tr>
+                {sizeChart.map((row) => (
+                  <tr key={row.id || row.size} style={styles.tableRow}>
+                    <td style={styles.tableTdBold}>{row.size}</td>
+                    <td style={styles.tableTd}>{row.chest}</td>
+                    <td style={styles.tableTd}>{row.length}</td>
+                    <td style={styles.tableTd}>{row.typical_age}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
 

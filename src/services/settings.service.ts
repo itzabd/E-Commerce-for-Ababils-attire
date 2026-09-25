@@ -54,11 +54,22 @@ export const DEFAULT_STORE_SETTINGS: StoreSettings = {
   dress_lead_time_days: 7,
   cancellation_policy: 'Advance non-refundable once cake baking or fabric cutting commences.',
 
-  preconfigured_sizes: ['0-3M', '3-6M', '6-12M', '12-18M', '2-3Y', '3-4Y', '4-5Y', 'Custom Sizing'],
+  preconfigured_sizes: ['6M', '12M', '18M', '2-3Y', '3-4Y', '4-5Y', 'Custom Sizing'],
   preconfigured_cake_weights: ['0.5 lb Bento', '1.0 lb', '1.5 lb', '2.0 lb', '3.0 lb Tiered'],
   product_categories: ['Handmade Dresses', 'Celebration Cakes', 'Custom Keepsakes'],
   default_product_status: 'draft',
+  size_chart: [
+    { id: 'sz_1', size: '6M', chest: '18"', length: '14"', typical_age: '3–6 Months' },
+    { id: 'sz_2', size: '12M', chest: '19.5"', length: '16"', typical_age: '6–12 Months' },
+    { id: 'sz_3', size: '18M', chest: '20.5"', length: '17.5"', typical_age: '12–18 Months' },
+    { id: 'sz_4', size: '2-3Y', chest: '21.5"', length: '19"', typical_age: '2–3 Years' },
+    { id: 'sz_5', size: '3-4Y', chest: '22.5"', length: '21"', typical_age: '3–4 Years' },
+    { id: 'sz_6', size: '4-5Y', chest: '23.5"', length: '23"', typical_age: '4–5 Years' },
+  ],
+  size_guide_intro: 'Measurements in inches. Handcrafted garments have a relaxed silhouette for ease and growing room.',
 };
+
+export const DEFAULT_SIZE_CHART = DEFAULT_STORE_SETTINGS.size_chart!;
 
 function getLocalSettings(): StoreSettings {
   try {
