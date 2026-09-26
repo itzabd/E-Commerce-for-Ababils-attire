@@ -16,19 +16,33 @@ import { STUDIO_CONFIG, getStudioWhatsAppUrl } from '../../lib/studio';
 export const TrackOrderPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const routeParams = useParams<{ invoiceNumber?: string }>();
-  const defaultDemoInvoice = 'AA-2409';
-  const invoiceParam = searchParams.get('invoice') || routeParams.invoiceNumber || defaultDemoInvoice;
+  
+  // Look up recent order invoice from guest storage if available, otherwise blank
+  const getRecentInvoice = (): string => {
+    try {
+      const stored = localStorage.getItem('ababils_guest_orders_v1');
+      if (stored) {
+        const orderList = JSON.parse(stored);
+        const keys = Object.keys(orderList);
+        if (keys.length > 0) {
+          return keys[keys.length - 1];
+        }
+      }
+    } catch {
+      // ignore
+    }
+    return '';
+  };
+
+  const invoiceParam = searchParams.get('invoice') || routeParams.invoiceNumber || getRecentInvoice();
 
   const [inputInvoice, setInputInvoice] = useState(invoiceParam);
-  const [inputPhone, setInputPhone] = useState('01712-884920');
+  const [inputPhone, setInputPhone] = useState('');
   const [activeInvoice, setActiveInvoice] = useState(invoiceParam.trim().toUpperCase());
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<OrderTrackingResult | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedInvoice, setCopiedInvoice] = useState(false);
-
-  // Optional status override for interactive demo preview (as designed in Stitch mockup)
-  const [simulatedStatus, setSimulatedStatus] = useState<string | null>(null);
 
   const normalizeInvoice = (raw: string): string => {
     return raw.trim().toUpperCase().replace(/^#/, '');
@@ -37,14 +51,12 @@ export const TrackOrderPage: React.FC = () => {
   const performLookup = useCallback(async (invoiceToFind: string) => {
     const clean = normalizeInvoice(invoiceToFind);
     if (!clean) {
-      setErrorMsg('Please enter an invoice number (e.g. AA-2409)');
       setResult(null);
       return;
     }
 
     setLoading(true);
     setErrorMsg(null);
-    setSimulatedStatus(null);
 
     try {
       const res = await trackingService.trackOrderByInvoice(clean);
@@ -68,8 +80,13 @@ export const TrackOrderPage: React.FC = () => {
   // Sync on initial mount or when query param changes
   useEffect(() => {
     const clean = normalizeInvoice(invoiceParam);
-    setInputInvoice(clean);
-    performLookup(clean);
+    if (clean) {
+      setInputInvoice(clean);
+      performLookup(clean);
+    } else {
+      setInputInvoice('');
+      setResult(null);
+    }
   }, [invoiceParam, performLookup]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -87,7 +104,6 @@ export const TrackOrderPage: React.FC = () => {
     setInputInvoice('');
     setErrorMsg(null);
     setResult(null);
-    setSimulatedStatus(null);
     setSearchParams({});
   };
 
@@ -100,8 +116,8 @@ export const TrackOrderPage: React.FC = () => {
     });
   };
 
-  // Determine active display status (supports simulated status preview)
-  const currentStatus: string = (simulatedStatus || result?.status || 'review_required').toLowerCase();
+  // Live order status driven by admin and order database
+  const currentStatus: string = (result?.status || 'review_required').toLowerCase();
 
   // Helper for status timeline steps
   // Standard progression: Order Placed (1) -> Confirmed (2) -> Processing (3) -> Dispatched (4) -> Delivered (5)
@@ -270,7 +286,7 @@ export const TrackOrderPage: React.FC = () => {
         <div style={styles.breadcrumbInner}>
           <Link to="/" style={styles.breadcrumbLink}>
             <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
-              storefront
+              arrow_back
             </span>
             <span>Home</span>
           </Link>
@@ -455,21 +471,24 @@ export const TrackOrderPage: React.FC = () => {
             </a>
           </div>
 
-          {/* Quick example hint */}
-          <div style={styles.sampleHintRow}>
-            <span style={styles.sampleHintLabel}>Try sample invoice:</span>
-            <button
-              type="button"
-              onClick={() => {
-                setInputInvoice('AB-260923-1042');
-                setSearchParams({ invoice: 'AB-260923-1042' });
-                performLookup('AB-260923-1042');
-              }}
-              style={styles.sampleChip}
-            >
-              AB-260923-1042
-            </button>
-          </div>
+          {/* Live Recent Order Chip (if guest placed an order recently) */}
+          {getRecentInvoice() && (
+            <div style={styles.sampleHintRow}>
+              <span style={styles.sampleHintLabel}>Your recent order:</span>
+              <button
+                type="button"
+                onClick={() => {
+                  const recent = getRecentInvoice();
+                  setInputInvoice(recent);
+                  setSearchParams({ invoice: recent });
+                  performLookup(recent);
+                }}
+                style={styles.sampleChip}
+              >
+                #{getRecentInvoice()}
+              </button>
+            </div>
+          )}
         </section>
 
         {/* ===================================================================== */}
@@ -521,44 +540,6 @@ export const TrackOrderPage: React.FC = () => {
         {/* ===================================================================== */}
         {result && !loading && (
           <div style={styles.resultContainer}>
-            {/* Interactive Preview Bar (Designed in Stitch for demo inspection) */}
-            <div style={styles.simulationBar}>
-              <div style={styles.simulationHeader}>
-                <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#77554c' }}>
-                  tune
-                </span>
-                <span style={styles.simulationTitle}>Preview Lifecycle States:</span>
-              </div>
-              <div style={styles.simulationButtons}>
-                {[
-                  { label: 'Placed', status: 'review_required' },
-                  { label: 'Confirmed', status: 'advance_verified' },
-                  { label: 'Being Made', status: 'in_production' },
-                  { label: 'Dispatched', status: 'out_for_delivery' },
-                  { label: 'Delivered', status: 'delivered' },
-                  { label: 'Cancelled', status: 'cancelled' },
-                  { label: 'Returned', status: 'returned' },
-                  { label: 'Unable to Reach', status: 'unable_to_reach' },
-                ].map((st) => (
-                  <button
-                    key={st.status}
-                    type="button"
-                    onClick={() => setSimulatedStatus(st.status)}
-                    style={{
-                      ...styles.simBtn,
-                      backgroundColor:
-                        currentStatus === st.status ? '#5c3e36' : '#ffffff',
-                      color: currentStatus === st.status ? '#ffffff' : '#5c3e36',
-                      borderColor:
-                        currentStatus === st.status ? '#5c3e36' : '#dfd8ce',
-                    }}
-                  >
-                    {st.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             {/* ================================================================= */}
             {/* STITCH 2-COLUMN RESULT GRID (Left: 60-65%, Right: 35-40%)         */}
             {/* ================================================================= */}
@@ -588,7 +569,7 @@ export const TrackOrderPage: React.FC = () => {
                         </button>
                       </div>
                       <p style={{ fontSize: '13px', color: '#6f6764', margin: '4px 0 0 0' }}>
-                        Client: <strong style={{ color: '#2d2421' }}>{result.customer_name_initial || 'Valued Client'}</strong> • Celebration: Bespoke Family Milestone
+                        Patron: <strong style={{ color: '#2d2421' }}>{result.customer_name_initial || 'Valued Patron'}</strong> • Destination: <strong style={{ color: '#2d2421' }}>{result.delivery_area || 'Dhaka'}</strong>
                       </p>
                     </div>
 
@@ -977,21 +958,12 @@ export const TrackOrderPage: React.FC = () => {
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid #ece8e1' }}>
                     <h3 style={{ ...styles.sectionTitle, margin: 0, fontSize: '18px' }}>Order Contents</h3>
                     <span style={{ fontSize: '11px', fontWeight: 700, color: '#7e544f', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                      {result.items?.length || 1} Handcrafted Item(s)
+                      {result.items?.length || 0} Handcrafted Item(s)
                     </span>
                   </div>
 
                   <div style={styles.itemsList}>
-                    {(result.items && result.items.length > 0 ? result.items : [
-                      {
-                        id: 'item_sample',
-                        product_name: 'Aurelia Floral Smocked Dress',
-                        unit_price: 3200,
-                        quantity: 1,
-                        subtotal: 3200,
-                        selected_size: '1-2Y',
-                      }
-                    ]).map((item: any, idx: number) => (
+                    {(result.items || []).map((item: any, idx: number) => (
                       <div key={item.id || idx} style={styles.itemRow}>
                         <div style={styles.itemAvatar}>
                           <span className="material-symbols-outlined" style={{ fontSize: '22px', color: '#5c3e36' }}>
@@ -1269,31 +1241,35 @@ const styles: Record<string, React.CSSProperties> = {
     paddingBottom: '80px',
   },
   breadcrumbBar: {
-    borderBottom: '1px solid #ece8e1',
-    backgroundColor: '#ffffff',
+    padding: '8px 0',
+    backgroundColor: 'transparent',
+    borderBottom: 'none',
   },
   breadcrumbInner: {
-    maxWidth: '720px',
+    maxWidth: '1320px',
     margin: '0 auto',
-    padding: '12px 16px',
+    padding: '0 24px',
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
+    gap: '6px',
     fontSize: '12px',
-    color: '#6f6764',
+    fontFamily: "var(--font-sans, 'Plus Jakarta Sans', sans-serif)",
   },
   breadcrumbLink: {
     display: 'flex',
     alignItems: 'center',
     gap: '4px',
-    color: '#6f6764',
+    color: '#5c3e36',
     textDecoration: 'none',
+    fontWeight: 500,
+    transition: 'color 0.15s ease',
   },
   breadcrumbDivider: {
-    color: '#988e8a',
+    color: '#dfd8ce',
+    userSelect: 'none',
   },
   breadcrumbCurrent: {
-    color: '#5c3e36',
+    color: '#2d2421',
     fontWeight: 600,
   },
   editorialHeader: {

@@ -145,15 +145,28 @@ export const CustomerLayout: React.FC = () => {
           {/* Row 1: Brand & Atelier Action Cluster */}
           <div className="stitch-desktop-header-top-row">
             <div className="stitch-desktop-brand-wrapper">
-              <Link to="/" className="stitch-desktop-brand-link">
-                <span className="stitch-desktop-brand-title">
-                  {mainBrandName || "Ababil’s Attire"}{' '}
-                  <span className="stitch-desktop-brand-author">by Sanjida Bethi</span>
-                </span>
-                <span className="stitch-desktop-brand-subtitle">
+              <div className="stitch-desktop-brand-link">
+                <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <span className="stitch-desktop-brand-title">
+                    {mainBrandName || "Ababil’s Attire"}{' '}
+                    <span className="stitch-desktop-brand-author">by Sanjida Bethi</span>
+                  </span>
+                </Link>
+                <span 
+                  className="stitch-desktop-brand-subtitle"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleSecretTap();
+                  }}
+                  style={{ cursor: 'pointer' }}
+                  title="Ababil’s Attire by Sanjida Bethi"
+                  role="button"
+                  tabIndex={-1}
+                >
                   HANDMADE DRESSES &amp; FRESH CELEBRATION CAKES
                 </span>
-              </Link>
+              </div>
             </div>
 
             <div className="stitch-desktop-header-actions">
@@ -197,20 +210,6 @@ export const CustomerLayout: React.FC = () => {
                 <span className="material-symbols-outlined stitch-desktop-bag-icon">shopping_bag</span>
                 <span className="stitch-desktop-bag-text">MY BAG</span>
                 <span className="stitch-desktop-bag-count">{itemCount}</span>
-              </Link>
-
-              {/* User / Admin Access */}
-              <Link
-                to={isAdmin ? "/admin" : "/admin/login"}
-                className="stitch-desktop-user-btn"
-                title={isAdmin ? "Studio Admin Suite" : "Atelier Access"}
-                onClick={() => {
-                  handleSecretTap();
-                }}
-              >
-                <span className="material-symbols-outlined stitch-desktop-user-icon">
-                  {isAdmin ? 'shield_person' : 'person'}
-                </span>
               </Link>
             </div>
           </div>

@@ -94,64 +94,59 @@ export const trackingService = {
       console.warn('Error reading cached orders from localStorage:', e);
     }
 
-    // Standard Demo Seed Fallback for AA-2409 (Stitch Screen Showcase) or AB-260923-1042
-    if (cleanInvoice === 'AA-2409' || cleanInvoice === 'AB-260923-1042') {
-      const isAA = cleanInvoice === 'AA-2409';
-      return {
-        found: true,
-        invoice_number: isAA ? 'AA-2409' : 'AB-260923-1042',
-        status: 'in_production',
-        customer_name_initial: isAA ? 'Barrister Nabila Rahman' : 'Ayesha',
-        delivery_area: 'House 42, Road 11, Block D, Studio Delivery Metro',
-        delivery_date: '2026-09-28',
-        delivery_time: 'Afternoon Slot (2:00 PM – 6:00 PM)',
-        subtotal: 5800,
-        delivery_charge: 250,
-        total_amount: 6050,
-        advance_amount: 500,
-        advance_status: 'verified',
-        cash_due: 5550,
-        created_at: '2026-09-24T09:12:00Z',
-        items: [
-          {
-            id: 'demo_item_1',
-            product_name: 'Aurelia Smocked Dress',
-            quantity: 1,
-            unit_price: 3200,
-            subtotal: 3200,
-            selected_size: '1-2Y (Custom tailored)',
-          },
-          {
-            id: 'demo_item_2',
-            product_name: 'Vintage Rose Birthday Cake',
-            quantity: 1,
-            unit_price: 2600,
-            subtotal: 2600,
-            cake_weight: '2 lb',
-            cake_flavor: 'Vanilla & Raspberry Compote',
-            cake_message: 'Happy 2nd Birthday Inaya!',
-          },
-        ],
-        timeline: [
-          {
-            status: 'Order Placed',
-            created_at: '2026-09-24T14:30:00Z',
-            note: 'Order submitted with bKash advance transaction. Awaiting store verification.',
-          },
-          {
-            status: 'Confirmed',
-            created_at: '2026-09-24T15:15:00Z',
-            note: 'bKash advance payment of ৳500 verified by Sanjida Bethi.',
-          },
-          {
-            status: 'Processing',
-            created_at: '2026-09-24T16:00:00Z',
-            note: 'Tailoring smocked dress details and preparing fresh celebration cake sponge.',
-          },
-        ],
-      };
+    // Query admin order service (which reads Supabase orders + guest orders + admin updates)
+    try {
+      const { ordersService } = await import('./orders.service');
+      const adminOrder = await ordersService.getOrderByIdAdmin(cleanInvoice);
+      if (adminOrder) {
+        const history = adminOrder.history || [];
+        const timeline = history.length > 0
+          ? history.map(h => ({
+              status: h.status ? h.status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : 'Updated',
+              created_at: h.created_at,
+              note: h.note || 'Status updated by atelier administration.',
+            }))
+          : [
+              {
+                status: 'Order Placed',
+                created_at: adminOrder.created_at,
+                note: 'Order received at Ababil’s Attire atelier.',
+              },
+            ];
+
+        return {
+          found: true,
+          invoice_number: adminOrder.invoice_number,
+          status: adminOrder.status || 'review_required',
+          customer_name_initial: adminOrder.customer?.name ? adminOrder.customer.name.split(' ')[0] : 'Valued Patron',
+          delivery_area: adminOrder.delivery_address || 'Studio Delivery Metro',
+          delivery_date: adminOrder.delivery_date,
+          delivery_time: adminOrder.delivery_time || 'Standard Afternoon Slot (2:00 PM – 6:00 PM)',
+          subtotal: adminOrder.subtotal,
+          delivery_charge: adminOrder.delivery_charge,
+          total_amount: adminOrder.total_amount,
+          advance_amount: adminOrder.advance_amount,
+          advance_status: adminOrder.advance_status || 'pending',
+          cash_due: adminOrder.cash_due,
+          created_at: adminOrder.created_at,
+          items: (adminOrder.items || []).map((it, idx) => ({
+            id: it.id || `it_${idx}`,
+            product_name: it.product_name_snapshot,
+            quantity: it.quantity,
+            unit_price: it.unit_price,
+            subtotal: it.subtotal,
+            selected_size: it.selected_size || undefined,
+            cake_weight: it.cake_weight || undefined,
+            cake_flavor: it.cake_flavor || undefined,
+            cake_message: it.cake_message || undefined,
+          })),
+          timeline,
+        };
+      }
+    } catch (e) {
+      console.warn('Error reading dynamic order from admin service:', e);
     }
 
-    return { found: false, error: `We couldn't find an order with that number. Please check the number or contact Sanjida directly.` };
+    return { found: false, error: `We couldn't find an order with invoice #${cleanInvoice}. Please check your invoice number or contact Sanjida on WhatsApp.` };
   },
 };

@@ -1081,16 +1081,156 @@ export const AdminSettings: React.FC = () => {
               />
             </div>
 
-            {/* Story Photo URL */}
+            {/* Story Photo Upload & Preview */}
             <div>
-              <label style={styles.label}>Story Photograph URL</label>
-              <input
-                type="text"
-                placeholder="https://..."
-                value={form.about_story_image_url || ''}
-                onChange={(e) => setForm({ ...form, about_story_image_url: e.target.value })}
-                style={styles.input}
-              />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', marginBottom: '8px' }}>
+                <div>
+                  <label style={{ ...styles.label, marginBottom: '2px' }}>Story Photograph & Atelier Visual</label>
+                  <span style={styles.inputHint}>
+                    Featured 4:3 photograph showing Sanjida Bethi or the artisan atelier process on the About page.
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                  {form.about_story_image_url && (
+                    <button
+                      type="button"
+                      onClick={() => handleReCropBanner('about_story_image_url', 4 / 3, form.about_story_image_url)}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '6px 12px',
+                        minHeight: '34px',
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #d9cbbf',
+                        borderRadius: '6px',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        color: '#432821',
+                        cursor: 'pointer'
+                      }}
+                      title="Re-adjust framing or zoom on existing photo"
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>crop</span>
+                      Adjust / Crop
+                    </button>
+                  )}
+                  <label style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 14px',
+                    minHeight: '34px',
+                    backgroundColor: '#432821',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    color: '#ffffff',
+                    cursor: uploadingBannerField === 'about_story_image_url' ? 'not-allowed' : 'pointer',
+                    boxShadow: '0 2px 5px rgba(67, 40, 33, 0.2)'
+                  }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>upload</span>
+                    {form.about_story_image_url ? 'Upload New Photo' : 'Upload Story Photo'}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleBannerFileChange(e, 'about_story_image_url', 4 / 3)}
+                      style={{ display: 'none' }}
+                      disabled={uploadingBannerField === 'about_story_image_url'}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => handleResetBanner('about_story_image_url', 'https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?auto=format&fit=crop&w=1200&q=80', 'About Story Photo')}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '6px',
+                      minHeight: '34px',
+                      minWidth: '34px',
+                      backgroundColor: '#ffffff',
+                      border: '1px solid #ebdcd5',
+                      borderRadius: '6px',
+                      color: '#827470',
+                      cursor: 'pointer'
+                    }}
+                    title="Reset to default story photo"
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>restart_alt</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Story Photo Visual Preview */}
+              <div style={{
+                position: 'relative',
+                width: '100%',
+                maxWidth: '480px',
+                aspectRatio: '4 / 3',
+                borderRadius: '10px',
+                overflow: 'hidden',
+                backgroundColor: '#1b1c1a',
+                border: '1px solid #ebdcd5',
+                boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginTop: '8px',
+                marginBottom: '10px',
+              }}>
+                {uploadingBannerField === 'about_story_image_url' ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#ffffff', zIndex: 10 }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '32px', animation: 'spin 1s linear infinite' }}>sync</span>
+                    <span style={{ fontSize: '12px', fontWeight: 600 }}>Optimizing & Uploading Photo...</span>
+                  </div>
+                ) : (
+                  <>
+                    <img
+                      src={form.about_story_image_url || 'https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?auto=format&fit=crop&w=1200&q=80'}
+                      alt="About Story Preview"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => {
+                        const target = e.currentTarget as HTMLImageElement;
+                        const src = target.src;
+                        if (!target.dataset.retried && src.includes('supabase.co')) {
+                          target.dataset.retried = 'true';
+                          setTimeout(() => {
+                            target.src = `${src}${src.includes('?') ? '&' : '?'}retry=${Date.now()}`;
+                          }, 1200);
+                        }
+                      }}
+                    />
+                    <div style={{
+                      position: 'absolute',
+                      bottom: '8px',
+                      left: '8px',
+                      padding: '4px 10px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.92)',
+                      backdropFilter: 'blur(6px)',
+                      borderRadius: '20px',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      color: '#432821',
+                    }}>
+                      4:3 Atelier Framing
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Direct URL Fallback */}
+              <div style={{ maxWidth: '480px' }}>
+                <input
+                  type="text"
+                  placeholder="Or paste external image URL (https://...)"
+                  value={form.about_story_image_url || ''}
+                  onChange={(e) => setForm({ ...form, about_story_image_url: e.target.value })}
+                  style={{ ...styles.input, fontSize: '12px', padding: '6px 10px' }}
+                />
+              </div>
             </div>
 
             {/* Craft Disciplines Grid */}

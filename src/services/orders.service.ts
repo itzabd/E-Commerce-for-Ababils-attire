@@ -233,6 +233,47 @@ export const ordersService = {
       console.warn('Error reading cached orders from localStorage:', e);
     }
 
+    // Apply any admin status or payment overrides saved locally
+    try {
+      const statusOverridesStr = localStorage.getItem('ababils_admin_status_overrides_v1');
+      const paymentOverridesStr = localStorage.getItem('ababils_admin_payment_overrides_v1');
+      const statusOverrides = statusOverridesStr ? JSON.parse(statusOverridesStr) : {};
+      const paymentOverrides = paymentOverridesStr ? JSON.parse(paymentOverridesStr) : {};
+
+      allOrders = allOrders.map((order) => {
+        let updatedOrder = { ...order };
+        const statusOv = statusOverrides[order.id] || statusOverrides[order.invoice_number];
+        if (statusOv) {
+          const newHistory = [...(updatedOrder.history || [])];
+          if (!newHistory.some(h => h.status === statusOv.status && h.note === statusOv.note)) {
+            newHistory.push({
+              id: 'hist_ov_' + Date.now(),
+              order_id: order.id,
+              status: statusOv.status,
+              changed_by: null,
+              note: statusOv.note || `Status changed to ${statusOv.status}`,
+              created_at: statusOv.updated_at || new Date().toISOString(),
+            });
+          }
+          updatedOrder.status = statusOv.status;
+          updatedOrder.history = newHistory;
+        }
+
+        // Check payment overrides by TrxID
+        for (const payment of updatedOrder.payments) {
+          if (payment.trx_id && paymentOverrides[payment.trx_id.toUpperCase()]) {
+            const payOv = paymentOverrides[payment.trx_id.toUpperCase()];
+            updatedOrder.advance_status = payOv.advance_status;
+            payment.status = payOv.confirmed ? 'matched' : 'rejected';
+          }
+        }
+
+        return updatedOrder;
+      });
+    } catch (err) {
+      console.warn('Error applying admin overrides:', err);
+    }
+
     // Apply client-side filters
     let filtered = allOrders;
 
@@ -271,7 +312,8 @@ export const ordersService = {
   async getOrderByIdAdmin(orderIdOrInvoice: string): Promise<AdminOrderSummary | null> {
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await (supabase as any)
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(orderIdOrInvoice);
+        let query = (supabase as any)
           .from('orders')
           .select(`
             *,
@@ -279,9 +321,15 @@ export const ordersService = {
             items:order_items(*),
             payments(*),
             history:order_status_history(*)
-          `)
-          .or(`id.eq.${orderIdOrInvoice},invoice_number.eq.${orderIdOrInvoice}`)
-          .single();
+          `);
+
+        if (isUuid) {
+          query = query.or(`id.eq.${orderIdOrInvoice},invoice_number.eq.${orderIdOrInvoice}`);
+        } else {
+          query = query.eq('invoice_number', orderIdOrInvoice);
+        }
+
+        const { data, error } = await query.maybeSingle();
 
         if (!error && data) {
           return data as unknown as AdminOrderSummary;
