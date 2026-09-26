@@ -54,6 +54,20 @@ export const ordersService = {
           throw new Error(error.message || 'Failed to place order');
         }
 
+        if (data && (data as any).invoice_number) {
+          try {
+            const stored = localStorage.getItem('ababils_guest_orders_v1');
+            const orderList = stored ? JSON.parse(stored) : {};
+            orderList[(data as any).invoice_number] = {
+              confirmation: data,
+              payload,
+            };
+            localStorage.setItem('ababils_guest_orders_v1', JSON.stringify(orderList));
+          } catch (e) {
+            console.warn('Could not cache guest order to localStorage:', e);
+          }
+        }
+
         return data as unknown as OrderConfirmationResult;
       } catch (err: any) {
         console.warn('RPC invocation failed, falling back to local guest confirmation:', err);
@@ -135,8 +149,104 @@ export const ordersService = {
         }
 
         const { data, error } = await query;
-        if (!error && data && data.length > 0) {
-          return data as unknown as AdminOrderSummary[];
+        if (!error && Array.isArray(data)) {
+          // If we have remote orders or the database query succeeded
+          const remoteOrders = data as unknown as AdminOrderSummary[];
+          
+          // Also check if there are locally cached guest orders not yet in remoteOrders
+          try {
+            const stored = localStorage.getItem('ababils_guest_orders_v1');
+            if (stored) {
+              const orderList = JSON.parse(stored);
+              const remoteInvoices = new Set(remoteOrders.map((o) => o.invoice_number));
+              const missingCached: AdminOrderSummary[] = Object.keys(orderList)
+                .filter((inv) => !remoteInvoices.has(inv))
+                .map((inv) => {
+                  const entry = orderList[inv];
+                  const conf = entry.confirmation;
+                  const payload = entry.payload;
+                  return {
+                    id: conf.order_id || 'ord_' + inv,
+                    invoice_number: conf.invoice_number,
+                    customer_id: 'cust_' + inv,
+                    status: conf.status || 'review_required',
+                    subtotal: conf.subtotal,
+                    delivery_charge: conf.delivery_charge,
+                    total_amount: conf.total_amount,
+                    advance_amount: conf.advance_amount,
+                    advance_status: conf.advance_status || 'pending',
+                    cash_due: conf.cash_due,
+                    delivery_date: conf.delivery_date,
+                    delivery_time: payload?.order?.delivery_time || 'Morning 10:00 AM - 1:00 PM',
+                    delivery_address: payload?.order?.delivery_address || payload?.customer?.address || 'Dhaka',
+                    special_instructions: payload?.order?.special_instructions || null,
+                    created_at: conf.created_at,
+                    updated_at: conf.created_at,
+                    customer: {
+                      id: 'cust_' + inv,
+                      name: payload?.customer?.name || conf.customer_name || 'Customer',
+                      phone: payload?.customer?.phone || '01700000000',
+                      email: payload?.customer?.email || null,
+                      address: payload?.customer?.address || 'Dhaka',
+                      area: payload?.customer?.area || 'Dhaka',
+                      notes: null,
+                      created_at: conf.created_at,
+                      updated_at: conf.created_at,
+                    },
+                    items: (payload?.items || []).map((it: any, idx: number) => ({
+                      id: 'item_' + idx,
+                      order_id: conf.order_id || 'ord_' + inv,
+                      product_id: it.product_id || null,
+                      product_name_snapshot: it.product_name_snapshot,
+                      quantity: it.quantity,
+                      unit_price: it.unit_price,
+                      subtotal: it.subtotal,
+                      selected_size: it.selected_size || null,
+                      cake_weight: it.cake_weight || null,
+                      cake_flavor: it.cake_flavor || null,
+                      cake_message: it.cake_message || null,
+                      customization_details: it.customization_details || null,
+                      created_at: conf.created_at,
+                    })),
+                    payments: [
+                      {
+                        id: 'pay_' + inv,
+                        order_id: conf.order_id || 'ord_' + inv,
+                        method: 'bkash',
+                        amount: conf.advance_amount,
+                        trx_id: payload?.payment?.trx_id || '9K28FD4A',
+                        sender_last4: payload?.payment?.sender_last4 || '1234',
+                        reference_name: payload?.payment?.reference_name || payload?.customer?.name || null,
+                        status: (conf.advance_status === 'verified' ? 'matched' : 'pending_match') as any,
+                        matched_at: null,
+                        matched_by: null,
+                        created_at: conf.created_at,
+                      },
+                    ],
+                    history: [
+                      {
+                        id: 'hist_' + inv,
+                        order_id: conf.order_id || 'ord_' + inv,
+                        status: conf.status || 'review_required',
+                        changed_by: null,
+                        note: 'Order placed by guest customer.',
+                        created_at: conf.created_at,
+                      },
+                    ],
+                  };
+                });
+
+              if (missingCached.length > 0) {
+                return [...missingCached, ...remoteOrders];
+              }
+            }
+          } catch (cacheErr) {
+            console.warn('Error checking cached guest orders:', cacheErr);
+          }
+
+          if (remoteOrders.length > 0) {
+            return remoteOrders;
+          }
         }
       } catch (err) {
         console.warn('Supabase query failed, falling back to cached/demo orders:', err);
