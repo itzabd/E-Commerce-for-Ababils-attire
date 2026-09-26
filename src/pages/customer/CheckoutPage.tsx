@@ -9,6 +9,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../hooks/useCart';
 import { ordersService } from '../../services/orders.service';
 import { settingsService } from '../../services/settings.service';
+import { telegramNotificationService } from '../../services/telegram.service';
 import type { CreateGuestOrderPayload, OrderItemInput, StoreSettings } from '../../types';
 
 const STUDIO_BKASH_NUMBER = import.meta.env.VITE_STUDIO_BKASH_NUMBER || '01795-077102';
@@ -228,6 +229,11 @@ export const CheckoutPage: React.FC = () => {
       if (result && result.invoice_number) {
         // Clear local shopping bag
         clearCart();
+
+        // 🚀 Asynchronously trigger Telegram notification (safe, never fails or blocks the customer)
+        telegramNotificationService.notifyNewGuestOrder(result, payload).catch((tgErr) => {
+          console.warn('[Checkout] Background Telegram notification error:', tgErr);
+        });
 
         // Navigate to Order Confirmed page
         navigate(`/order-confirmed/${encodeURIComponent(result.invoice_number)}`, {

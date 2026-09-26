@@ -639,7 +639,7 @@ export const CustomerLayout: React.FC = () => {
       {/* ================================================================= */}
       <footer style={styles.footer} className="customer-footer stitch-mobile-footer">
         <div style={styles.footerInner}>
-          {/* Brand Header */}
+          {/* Brand Header - Compact & Clean */}
           <div style={styles.footerBrandSection}>
             {storeSettings?.logo_url && !logoImgError && (
               <div style={styles.footerLogoWrapper}>
@@ -650,24 +650,23 @@ export const CustomerLayout: React.FC = () => {
                 />
               </div>
             )}
-            <h2 style={styles.footerTitle}>{rawStoreName}</h2>
-            {!hasAuthorInName && <p style={styles.footerAuthor}>by Sanjida Bethi</p>}
-            <p style={styles.footerTagline}>
-              {storeSettings?.store_description || "Sweet handmade dresses for little girls and delicious homemade cakes for your family celebrations."}
-            </p>
+            <h2 style={{ ...styles.footerTitle, fontSize: '20px' }}>{rawStoreName}</h2>
+            {!hasAuthorInName && (
+              <p style={{ ...styles.footerAuthor, fontSize: '11px', margin: '2px 0 0 0' }}>by Sanjida Bethi</p>
+            )}
           </div>
 
-          {/* Concierge Communication Buttons */}
-          <div style={styles.footerConcierge}>
+          {/* Concierge Communication Buttons (Quick Touchpoints) */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
             <a
               href={getStudioWhatsAppUrl(undefined, storeSettings?.whatsapp_number || storeSettings?.contact_phone)}
               target="_blank"
               rel="noopener noreferrer"
-              style={styles.conciergeIconBtn}
+              style={{ ...styles.conciergeIconBtn, width: '38px', height: '38px' }}
               aria-label="WhatsApp"
               title={`WhatsApp: ${storeSettings?.whatsapp_number || storeSettings?.contact_phone || 'Direct Line'}`}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '17px' }}>
                 chat
               </span>
             </a>
@@ -679,11 +678,11 @@ export const CustomerLayout: React.FC = () => {
                 : STUDIO_CONFIG.instagramUrl}
               target="_blank"
               rel="noopener noreferrer"
-              style={styles.conciergeIconBtn}
+              style={{ ...styles.conciergeIconBtn, width: '38px', height: '38px' }}
               aria-label="Instagram"
               title="Follow on Instagram"
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '17px' }}>
                 photo_camera
               </span>
             </a>
@@ -692,105 +691,71 @@ export const CustomerLayout: React.FC = () => {
                 href={storeSettings.facebook_url.startsWith('http') ? storeSettings.facebook_url : `https://${storeSettings.facebook_url}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={styles.conciergeIconBtn}
+                style={{ ...styles.conciergeIconBtn, width: '38px', height: '38px' }}
                 aria-label="Facebook"
                 title="Follow on Facebook"
               >
-                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '17px' }}>
                   thumb_up
                 </span>
               </a>
             )}
             <a
-              href={`mailto:${storeSettings?.business_email || STUDIO_CONFIG.conciergeEmail}`}
-              style={styles.conciergeIconBtn}
-              aria-label="Email Studio"
-              title="Email Studio Concierge"
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-                mail
-              </span>
-            </a>
-            <a
               href={`tel:${(storeSettings?.contact_phone || storeSettings?.whatsapp_number || STUDIO_CONFIG.phone).replace(/\s+/g, '')}`}
-              style={styles.conciergeIconBtn}
+              style={{ ...styles.conciergeIconBtn, width: '38px', height: '38px' }}
               aria-label="Call Studio"
               title="Call Studio Directly"
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '17px' }}>
                 call
               </span>
             </a>
           </div>
 
-          {/* Quick Footer Links (Confidential boutique storefront — no overt admin link) */}
-          <div style={styles.footerLinksGrid}>
+          {/* Minimal Quick Links */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px 16px', fontSize: '12px' }}>
             <Link to="/dresses" style={styles.footerLink}>
-              Dresses Collection
+              Dresses
             </Link>
+            <span style={{ color: '#d8d0c7' }}>•</span>
             <Link to="/cakes" style={styles.footerLink}>
-              Cake Ordering Guide
+              Cakes
             </Link>
+            <span style={{ color: '#d8d0c7' }}>•</span>
             <Link to="/track-order" style={styles.footerLink}>
-              Track Your Order
+              Track Order
             </Link>
-            <Link to="/contact" style={styles.footerLink}>
-              Custom Orders
-            </Link>
+            <span style={{ color: '#d8d0c7' }}>•</span>
             <Link to="/about" style={styles.footerLink}>
               Our Story
             </Link>
-            <span
-              onClick={handleSecretTap}
-              style={{ ...styles.footerLink, cursor: 'default', userSelect: 'none' }}
-              title="Studio Atelier"
-            >
-              {storeSettings?.workshop_address ? storeSettings.workshop_address.split(',')[0] : "Studio Atelier"}
-            </span>
           </div>
 
-          {/* Studio Physical Details Banner */}
-          <div style={{
-            marginTop: '20px',
-            paddingTop: '16px',
-            borderTop: '1px solid rgba(223, 216, 206, 0.4)',
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: '16px',
-            fontSize: '12px',
-            color: '#7e726b',
-            textAlign: 'center'
-          }}>
-            {storeSettings?.workshop_address && (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#8a6552' }}>location_on</span>
-                {storeSettings.workshop_address}
-              </span>
-            )}
-            {storeSettings?.studio_hours && (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#8a6552' }}>schedule</span>
-                {storeSettings.studio_hours}
-              </span>
-            )}
-            {(storeSettings?.whatsapp_number || storeSettings?.contact_phone) && (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#8a6552' }}>phone_in_talk</span>
-                Direct: {storeSettings.whatsapp_number || storeSettings.contact_phone}
-              </span>
-            )}
-          </div>
+          {/* Single Compact Location / Atelier line if configured */}
+          {storeSettings?.workshop_address && (
+            <div style={{
+              fontSize: '11px',
+              color: '#8c7d75',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '4px',
+              padding: '0 8px',
+              lineHeight: 1.4
+            }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '13px', color: '#8a6552' }}>location_on</span>
+              <span>{storeSettings.workshop_address}</span>
+            </div>
+          )}
 
-          {/* Copyright (Triple-tap to enter Studio Admin) */}
-          <div style={styles.copyrightRow}>
+          {/* Copyright (Triple-tap to enter Studio Admin preserved) */}
+          <div style={{ ...styles.copyrightRow, paddingTop: '12px', marginTop: '4px' }}>
             <p
-              style={{ ...styles.copyrightText, cursor: 'default', userSelect: 'none' }}
+              style={{ ...styles.copyrightText, cursor: 'default', userSelect: 'none', margin: 0 }}
               onClick={handleSecretTap}
-              title="Ababil’s Attire by Sanjida Bethi (Triple-tap for Atelier admin)"
+              title="Ababil’s Attire (Triple-tap for Atelier admin)"
             >
-              © {new Date().getFullYear()} {storeSettings?.store_name || "Ababil’s Attire by Sanjida Bethi"}. All Rights Reserved. • {storeSettings?.workshop_address || "House 639, Kuddus Khalifa Road, Morkun, Tongi, Gazipur - 1700"}
+              © {new Date().getFullYear()} {storeSettings?.store_name || "Ababil’s Attire"}. All Rights Reserved.
             </p>
           </div>
         </div>
@@ -1228,17 +1193,17 @@ const styles: Record<string, React.CSSProperties> = {
   footer: {
     backgroundColor: '#f5f3ef',
     borderTop: '1px solid var(--color-border-subtle, #ece8e1)',
-    padding: '48px 16px 80px 16px', // Extra bottom spacing for bottom nav bar
+    padding: '32px 16px 84px 16px', // Extra bottom spacing for bottom nav bar
     marginTop: 'auto',
   },
   footerInner: {
-    maxWidth: '680px',
+    maxWidth: '540px',
     margin: '0 auto',
     textAlign: 'center',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '24px',
+    gap: '16px',
   },
   footerBrandSection: {
     display: 'flex',

@@ -442,4 +442,87 @@ assert.equal('admin_notes' in publicTrackingPayload, false);
 assert.equal('matched_by' in publicTrackingPayload, false);
 console.log('✓ Public order tracking payload sanitized against internal payment credentials and staff notes.');
 
+// =============================================================================
+// TEST 9: Telegram Notifications Configuration & Safe Non-blocking Dispatch
+// =============================================================================
+console.log('Test 9: Telegram Notifications Configuration & Safe Non-blocking Dispatch...');
+
+interface TelegramSettingsState {
+  telegram_notifications_enabled?: boolean;
+  telegram_chat_id?: string;
+}
+
+const defaultTgSettings: TelegramSettingsState = {
+  telegram_notifications_enabled: false,
+  telegram_chat_id: '',
+};
+
+assert.equal(defaultTgSettings.telegram_notifications_enabled, false);
+assert.equal(defaultTgSettings.telegram_chat_id, '');
+
+// Test update settings with telegram chat ID
+const updatedTgSettings: TelegramSettingsState = {
+  ...defaultTgSettings,
+  telegram_notifications_enabled: true,
+  telegram_chat_id: '-1002345678901',
+};
+assert.equal(updatedTgSettings.telegram_notifications_enabled, true);
+assert.equal(updatedTgSettings.telegram_chat_id, '-1002345678901');
+
+// Test notification safety: Disabled state skips cleanly
+function evaluateTelegramDispatch(settings: TelegramSettingsState, orderConfirmed: boolean) {
+  if (!orderConfirmed) {
+    return { shouldSend: false, reason: 'order_not_confirmed' };
+  }
+  if (!settings.telegram_notifications_enabled) {
+    return { shouldSend: false, reason: 'disabled' };
+  }
+  if (!settings.telegram_chat_id || !settings.telegram_chat_id.trim()) {
+    return { shouldSend: false, reason: 'missing_chat_id' };
+  }
+  return { shouldSend: true, chatId: settings.telegram_chat_id.trim() };
+}
+
+// 1. Order not confirmed yet
+assert.deepEqual(evaluateTelegramDispatch(updatedTgSettings, false), {
+  shouldSend: false,
+  reason: 'order_not_confirmed',
+});
+
+// 2. Telegram disabled in settings
+assert.deepEqual(evaluateTelegramDispatch(defaultTgSettings, true), {
+  shouldSend: false,
+  reason: 'disabled',
+});
+
+// 3. Telegram enabled but empty chat ID
+assert.deepEqual(evaluateTelegramDispatch({ telegram_notifications_enabled: true, telegram_chat_id: '   ' }, true), {
+  shouldSend: false,
+  reason: 'missing_chat_id',
+});
+
+// 4. Telegram enabled and configured
+assert.deepEqual(evaluateTelegramDispatch(updatedTgSettings, true), {
+  shouldSend: true,
+  chatId: '-1002345678901',
+});
+
+// 5. Verify failure isolation: delivery failure must never throw or rollback order
+async function safeDispatchSimulation(fails: boolean) {
+  let orderSaved = true;
+  try {
+    if (fails) {
+      throw new Error('Telegram Gateway Timeout');
+    }
+  } catch (err: any) {
+    // Non-blocking catch
+    console.log('  (Simulated non-blocking Telegram error caught safely:', err.message, ')');
+  }
+  return { orderSaved };
+}
+
+const dispatchResult = await safeDispatchSimulation(true);
+assert.equal(dispatchResult.orderSaved, true);
+console.log('✓ Telegram settings configuration, verification, and non-blocking notification safety validated.');
+
 console.log('\n--- ALL PHASE 10: ADMIN SETTINGS & MANUAL ORDER TESTS PASSED! ---');

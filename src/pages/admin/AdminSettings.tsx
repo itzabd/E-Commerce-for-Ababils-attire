@@ -19,6 +19,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { settingsService, DEFAULT_SIZE_CHART } from '../../services/settings.service';
 import { storageService } from '../../services/storage.service';
 import { reviewsService, type CustomerReview } from '../../services/reviews.service';
+import { telegramNotificationService } from '../../services/telegram.service';
 import type { StoreSettings, SizeChartEntry } from '../../types';
 import { convertToCSV, downloadFile } from '../../lib/csv';
 import { ImageCropper } from '../../components/admin/ImageCropper';
@@ -100,6 +101,48 @@ export const AdminSettings: React.FC = () => {
 
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const logoInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Telegram Test Notification State
+  const [sendingTelegramTest, setSendingTelegramTest] = useState(false);
+  const [telegramFeedback, setTelegramFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  const handleSendTelegramTest = async () => {
+    if (!form) return;
+    const chatId = (form.telegram_chat_id || '').trim();
+    if (!chatId) {
+      setTelegramFeedback({
+        type: 'error',
+        message: 'Please provide a Telegram Chat ID before sending a test notification.',
+      });
+      return;
+    }
+
+    setSendingTelegramTest(true);
+    setTelegramFeedback(null);
+
+    try {
+      const res = await telegramNotificationService.sendTestNotification(chatId);
+      if (res.success) {
+        setTelegramFeedback({
+          type: 'success',
+          message: res.message || 'Test notification delivered successfully to your Telegram!',
+        });
+        showToast('Test notification sent to Telegram!');
+      } else {
+        setTelegramFeedback({
+          type: 'error',
+          message: res.error || 'Failed to dispatch test notification.',
+        });
+      }
+    } catch (err: any) {
+      setTelegramFeedback({
+        type: 'error',
+        message: err.message || 'Error occurred while contacting Telegram.',
+      });
+    } finally {
+      setSendingTelegramTest(false);
+    }
+  };
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -770,6 +813,19 @@ export const AdminSettings: React.FC = () => {
               rate_review
             </span>
             <span>Customer Reviews</span>
+          </a>
+          <a
+            href="#section-telegram"
+            onClick={() => setActiveSection('telegram')}
+            style={{
+              ...styles.tabLink,
+              ...(activeSection === 'telegram' ? styles.tabLinkActive : {}),
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>
+              send
+            </span>
+            <span>Telegram</span>
           </a>
           <a
             href="#section-account"
@@ -2859,6 +2915,185 @@ export const AdminSettings: React.FC = () => {
                 ))}
               </div>
             )}
+          </div>
+        </section>
+
+        {/* =================================================================== */}
+        {/* SECTION: TELEGRAM NOTIFICATIONS                                     */}
+        {/* =================================================================== */}
+        <section id="section-telegram" style={styles.sectionCard}>
+          <div style={styles.sectionCardHeader}>
+            <div style={styles.sectionHeaderLeft}>
+              <span className="material-symbols-outlined" style={styles.sectionIcon}>
+                send
+              </span>
+              <h2 style={styles.sectionCardTitle}>Telegram Notifications</h2>
+            </div>
+            <span
+              style={{
+                ...styles.activeBdBadge,
+                backgroundColor: form.telegram_notifications_enabled ? '#d1fae5' : '#f3f4f6',
+                color: form.telegram_notifications_enabled ? '#065f46' : '#6b7280',
+              }}
+            >
+              {form.telegram_notifications_enabled ? 'Notifications Active' : 'Disabled'}
+            </span>
+          </div>
+
+          <div style={styles.sectionBody}>
+            {/* Operational Info Banner */}
+            <div style={styles.infoBanner}>
+              <span className="material-symbols-outlined" style={styles.infoIcon}>
+                notifications_active
+              </span>
+              <div>
+                <h4 style={styles.infoTitle}>Instant Order Alerts to Telegram</h4>
+                <p style={styles.infoDesc}>
+                  Receive real-time push notifications on your phone or desktop whenever a new customer order is confirmed or a manual order is booked.
+                </p>
+              </div>
+            </div>
+
+            {/* Notification Enable / Disable Toggle */}
+            <div style={{ ...styles.pickupCard, marginBottom: '16px' }}>
+              <div>
+                <p style={styles.pickupTitle}>Enable Order Notifications</p>
+                <p style={styles.pickupSubtitle}>
+                  When enabled, verified new orders automatically ping your Telegram channel or group.
+                </p>
+              </div>
+              <label style={styles.switchWrapper}>
+                <input
+                  type="checkbox"
+                  checked={Boolean(form.telegram_notifications_enabled)}
+                  onChange={(e) =>
+                    setForm({ ...form, telegram_notifications_enabled: e.target.checked })
+                  }
+                  style={styles.switchInput}
+                />
+                <span
+                  style={{
+                    ...styles.switchTrack,
+                    backgroundColor: form.telegram_notifications_enabled ? '#432821' : '#e4e2de',
+                  }}
+                >
+                  <span
+                    style={{
+                      ...styles.switchThumb,
+                      transform: form.telegram_notifications_enabled ? 'translateX(20px)' : 'translateX(0)',
+                    }}
+                  />
+                </span>
+              </label>
+            </div>
+
+            {/* Telegram Chat ID & Security Guard */}
+            <div style={styles.formGrid2}>
+              <div>
+                <label style={styles.label}>Telegram Chat ID *</label>
+                <input
+                  type="text"
+                  value={form.telegram_chat_id || ''}
+                  onChange={(e) => setForm({ ...form, telegram_chat_id: e.target.value })}
+                  placeholder="e.g. -1001234567890 or 987654321"
+                  style={styles.input}
+                />
+                <span style={styles.inputHint}>
+                  Recipient chat ID, private user ID, or channel/group ID (e.g. <code>-100...</code> for supergroups).
+                </span>
+              </div>
+
+              <div>
+                <label style={styles.label}>Bot Token Security</label>
+                <div
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: '4px',
+                    backgroundColor: '#faf8f5',
+                    border: '1px solid #ebdcd5',
+                    fontSize: '12px',
+                    color: '#6e5a54',
+                    lineHeight: 1.5,
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600, color: '#432821', marginBottom: '2px' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '15px', color: '#065f46' }}>
+                      verified_user
+                    </span>
+                    <span>Protected Server Secrets</span>
+                  </div>
+                  The bot token is securely kept in environment variables and never exposed in the browser.
+                </div>
+              </div>
+            </div>
+
+            {/* Test Notification Row & Feedback */}
+            <div
+              style={{
+                marginTop: '16px',
+                paddingTop: '16px',
+                borderTop: '1px solid #ebdcd5',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+                <div>
+                  <h4 style={{ margin: 0, fontSize: '13px', fontWeight: 600, color: '#432821' }}>
+                    Verify Configuration
+                  </h4>
+                  <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#827470' }}>
+                    Send a test ping to confirm your bot has permission to message this Chat ID.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleSendTelegramTest}
+                  disabled={sendingTelegramTest || !form.telegram_chat_id?.trim()}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: form.telegram_chat_id?.trim() ? '#5c3e36' : '#d4c3bf',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    cursor: form.telegram_chat_id?.trim() && !sendingTelegramTest ? 'pointer' : 'default',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                    {sendingTelegramTest ? 'sync' : 'outgoing_mail'}
+                  </span>
+                  <span>{sendingTelegramTest ? 'Sending Test...' : 'Send Test Notification'}</span>
+                </button>
+              </div>
+
+              {/* Feedback Alert Box */}
+              {telegramFeedback && (
+                <div
+                  style={{
+                    padding: '10px 14px',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    backgroundColor: telegramFeedback.type === 'success' ? '#ecfdf5' : '#fef2f2',
+                    border: `1px solid ${telegramFeedback.type === 'success' ? '#a7f3d0' : '#fecaca'}`,
+                    color: telegramFeedback.type === 'success' ? '#065f46' : '#991b1b',
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                    {telegramFeedback.type === 'success' ? 'check_circle' : 'error'}
+                  </span>
+                  <span>{telegramFeedback.message}</span>
+                </div>
+              )}
+            </div>
           </div>
         </section>
 
