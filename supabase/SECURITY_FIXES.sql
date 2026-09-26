@@ -129,7 +129,7 @@ BEGIN
     VALUES (v_order_id, v_trx_id, v_sender_last4, v_reference_name, v_advance_amount);
 
     -- Log history
-    INSERT INTO order_status_history (order_id, status, notes, created_by)
+    INSERT INTO order_status_history (order_id, status, note, changed_by)
     VALUES (v_order_id, 'review_required', 'Order placed via Guest Checkout. TrxID: ' || v_trx_id, NULL);
 
     RETURN jsonb_build_object(

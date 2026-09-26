@@ -230,10 +230,12 @@ export const CheckoutPage: React.FC = () => {
         // Clear local shopping bag
         clearCart();
 
-        // 🚀 Asynchronously trigger Telegram notification (safe, never fails or blocks the customer)
-        telegramNotificationService.notifyNewGuestOrder(result, payload).catch((tgErr) => {
+        // 🚀 Trigger Telegram notification
+        try {
+          await telegramNotificationService.notifyNewGuestOrder(result, payload);
+        } catch (tgErr) {
           console.warn('[Checkout] Background Telegram notification error:', tgErr);
-        });
+        }
 
         // Navigate to Order Confirmed page
         navigate(`/order-confirmed/${encodeURIComponent(result.invoice_number)}`, {
