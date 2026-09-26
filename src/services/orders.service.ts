@@ -244,9 +244,7 @@ export const ordersService = {
             console.warn('Error checking cached guest orders:', cacheErr);
           }
 
-          if (remoteOrders.length > 0) {
-            return remoteOrders;
-          }
+          return remoteOrders;
         }
       } catch (err) {
         console.warn('Supabase query failed, falling back to cached/demo orders:', err);
