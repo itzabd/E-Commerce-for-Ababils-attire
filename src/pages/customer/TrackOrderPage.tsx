@@ -333,13 +333,8 @@ export const TrackOrderPage: React.FC = () => {
           </div>
 
           <form onSubmit={handleSubmit} style={styles.searchForm}>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-              gap: '16px',
-              alignItems: 'flex-end',
-            }}>
-              <div>
+            <div className="track-search-inputs-row">
+              <div className="track-input-col">
                 <label style={{
                   display: 'block',
                   fontSize: '11px',
@@ -381,7 +376,7 @@ export const TrackOrderPage: React.FC = () => {
                 </div>
               </div>
 
-              <div>
+              <div className="track-input-col">
                 <label style={{
                   display: 'block',
                   fontSize: '11px',
@@ -408,18 +403,18 @@ export const TrackOrderPage: React.FC = () => {
                 </div>
               </div>
 
-              <div>
-                <button type="submit" disabled={loading} style={styles.trackSubmitBtn}>
+              <div className="track-btn-col">
+                <button type="submit" disabled={loading} style={styles.trackSubmitBtn} className="track-action-btn">
                   {loading ? (
                     <>
-                      <span className="material-symbols-outlined spin" style={{ fontSize: '20px' }}>
+                      <span className="material-symbols-outlined spin" style={{ fontSize: '18px' }}>
                         progress_activity
                       </span>
                       <span>Looking up...</span>
                     </>
                   ) : (
                     <>
-                      <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
                         search
                       </span>
                       <span>Track Order</span>
@@ -1404,19 +1399,25 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'center',
   },
   trackSubmitBtn: {
-    height: '48px',
+    height: '50px',
+    minWidth: '140px',
+    padding: '0 20px',
     borderRadius: '10px',
     backgroundColor: '#5c3e36',
     color: '#ffffff',
     border: 'none',
-    fontSize: '15px',
+    fontSize: '14px',
     fontWeight: 600,
+    letterSpacing: '0.02em',
+    whiteSpace: 'nowrap',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     gap: '8px',
     cursor: 'pointer',
     transition: 'background-color 0.2s',
+    width: '100%',
+    boxSizing: 'border-box',
   },
   sampleHintRow: {
     marginTop: '14px',
