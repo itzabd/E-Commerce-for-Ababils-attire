@@ -22,6 +22,7 @@ export const AdminDashboard: React.FC = () => {
   });
 
   const [pendingDeposits, setPendingDeposits] = useState<AdminOrderSummary[]>([]);
+  const [productionOrders, setProductionOrders] = useState<AdminOrderSummary[]>([]);
 
   const loadStats = async () => {
     try {
@@ -38,11 +39,12 @@ export const AdminDashboard: React.FC = () => {
       const inProdOrders = activeOrders.filter((o) => o.status === 'in_production');
       const dispatchedOrders = activeOrders.filter((o) => o.status === 'dispatch_ready' || o.status === 'out_for_delivery');
 
-      // Calculate total revenue from active orders
+      // Calculate exact total revenue from active client orders
       const revenue = activeOrders.reduce((sum, o) => sum + (Number(o.total_amount) || 0), 0);
 
       // Pending deposits for priority verification table
       setPendingDeposits(pendingOrders.slice(0, 5));
+      setProductionOrders(inProdOrders);
 
       const dresses = prods.filter((p: any) => p.category === 'dress').length;
       const cakes = prods.filter((p: any) => p.category === 'cake').length;
@@ -123,7 +125,7 @@ export const AdminDashboard: React.FC = () => {
               <span className="stitch-dash-metric-label">TOTAL REVENUE</span>
               <span className="material-symbols-outlined stitch-dash-metric-icon">payments</span>
             </div>
-            <div className="stitch-dash-metric-value">৳ {stats.totalRevenue > 0 ? stats.totalRevenue.toLocaleString() : (stats.totalOrders > 0 ? (stats.totalOrders * 3200).toLocaleString() : '24,850')}</div>
+            <div className="stitch-dash-metric-value">৳ {stats.totalRevenue.toLocaleString()}</div>
             <div className="stitch-dash-metric-foot">
               <span className="stitch-dash-growth-positive">↗ Studio Ledger</span>
               <span className="stitch-dash-foot-text">from {stats.totalOrders} active client orders</span>
@@ -138,7 +140,7 @@ export const AdminDashboard: React.FC = () => {
             </div>
             <div className="stitch-dash-metric-value">{stats.pendingOrders} Orders</div>
             <div className="stitch-dash-metric-foot">
-              <span className="stitch-dash-dot-warn">●</span>
+              <span className={stats.pendingOrders > 0 ? "stitch-dash-dot-warn" : "stitch-dash-dot-live"}>●</span>
               <span className="stitch-dash-foot-text">{stats.pendingOrders > 0 ? 'Requires bKash TrxID check' : 'All deposits reconciled'}</span>
             </div>
           </Link>
@@ -149,9 +151,9 @@ export const AdminDashboard: React.FC = () => {
               <span className="stitch-dash-metric-label">IN PRODUCTION</span>
               <span className="material-symbols-outlined stitch-dash-metric-icon">accessibility_new</span>
             </div>
-            <div className="stitch-dash-metric-value">{stats.inProductionCount > 0 ? `${stats.inProductionCount} Dockets` : `${stats.dressCount + stats.cakeCount} Catalog Pieces`}</div>
+            <div className="stitch-dash-metric-value">{stats.inProductionCount} Dockets</div>
             <div className="stitch-dash-metric-foot">
-              <span className="stitch-dash-foot-text">{stats.dressCount} Dresses tailored • {stats.cakeCount} Confections</span>
+              <span className="stitch-dash-foot-text">{stats.dressCount} Catalog Dresses • {stats.cakeCount} Confections</span>
             </div>
           </Link>
 
@@ -161,10 +163,10 @@ export const AdminDashboard: React.FC = () => {
               <span className="stitch-dash-metric-label">DISPATCHES</span>
               <span className="material-symbols-outlined stitch-dash-metric-icon">local_shipping</span>
             </div>
-            <div className="stitch-dash-metric-value">{stats.dispatchedCount > 0 ? `${stats.dispatchedCount} Drops` : 'Chilled Fleet Active'}</div>
+            <div className="stitch-dash-metric-value">{stats.dispatchedCount} Active Routes</div>
             <div className="stitch-dash-metric-foot">
               <span className="stitch-dash-dot-live">●</span>
-              <span className="stitch-dash-foot-text">Active Courier Circuit</span>
+              <span className="stitch-dash-foot-text">{stats.dispatchedCount > 0 ? `${stats.dispatchedCount} couriers on transit` : 'Fleet on standby'}</span>
             </div>
           </Link>
         </div>
@@ -259,39 +261,14 @@ export const AdminDashboard: React.FC = () => {
                       })
                     ) : (
                       <tr>
-                        <td>
-                          <strong className="stitch-dash-ref">#AA-2409</strong>
-                          <div className="stitch-dash-patron">Inaya Rahman</div>
-                          <span className="stitch-dash-delivery-pill">DELIVERY</span>
-                        </td>
-                        <td>
-                          <div className="stitch-dash-mono-box">9K8A4M29PX</div>
-                          <div className="stitch-dash-phone">01711-XXXXXX</div>
-                        </td>
-                        <td>
-                          <div className="stitch-dash-item-line">
-                            <span className="material-symbols-outlined" style={{ fontSize: '15px', color: '#7e544f' }}>checkroom</span>
-                            <span>Aurelia Dress (1-2Y)</span>
+                        <td colSpan={5} style={{ padding: '36px 20px', textAlign: 'center', backgroundColor: '#fcfbf9' }}>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '42px', height: '42px', borderRadius: '50%', backgroundColor: '#ecfdf5', color: '#065f46', marginBottom: '8px' }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: '22px' }}>check_circle</span>
                           </div>
-                          <div className="stitch-dash-item-line">
-                            <span className="material-symbols-outlined" style={{ fontSize: '15px', color: '#7e544f' }}>cake</span>
-                            <span>Vintage Rose Cake (2 lb)</span>
-                          </div>
-                        </td>
-                        <td>
-                          <div className="stitch-dash-price">৳ 500</div>
-                          <div className="stitch-dash-sub">PARTIAL TOKEN</div>
-                        </td>
-                        <td>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <Link to="/admin/orders" className="stitch-dash-verify-btn">
-                              <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>check_circle</span>
-                              <span>Verify &amp; Tailor</span>
-                            </Link>
-                            <button type="button" className="stitch-dash-flag-btn" title="Flag Issue">
-                              <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>flag</span>
-                            </button>
-                          </div>
+                          <div style={{ fontSize: '13px', fontWeight: 600, color: '#2d2421' }}>All Customer Advances Reconciled</div>
+                          <p style={{ fontSize: '12px', color: '#7e726b', margin: '3px 0 0 0' }}>
+                            There are currently no unverified bKash transaction deposits awaiting review.
+                          </p>
                         </td>
                       </tr>
                     )}
@@ -330,44 +307,50 @@ export const AdminDashboard: React.FC = () => {
                       <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#7e544f' }}>cake</span>
                       <strong style={{ fontSize: '13px', color: '#432821' }}>Confections Schedule</strong>
                     </div>
-                    <span className="stitch-dash-badge-sm">2 Scheduled</span>
+                    {(() => {
+                      const cakeItems = productionOrders.flatMap(o => (o.items || []).filter(i => !!i.cake_weight || (i.product_name_snapshot?.toLowerCase().includes('cake') ?? false)));
+                      return <span className="stitch-dash-badge-sm">{cakeItems.length > 0 ? `${cakeItems.length} In Oven / Prep` : '0 Scheduled'}</span>;
+                    })()}
                   </div>
 
-                  <div className="stitch-dash-craft-card">
-                    <div className="stitch-dash-craft-card-top">
-                      <span className="stitch-dash-time-slot">MORNING SLOT • 10 AM – 1 PM</span>
-                      <span className="stitch-dash-weight-tag">2.0 lb</span>
-                    </div>
-                    <h4 className="stitch-dash-craft-item-title">Vintage Rose Confection</h4>
-                    <p className="stitch-dash-craft-desc">
-                      French vanilla bean sponge, organic rosewater petal infusion, delicate buttercream piping.
-                    </p>
-                    <div className="stitch-dash-craft-foot">
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#504441' }}>
-                        <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#7e544f' }}>location_on</span>
-                        <span>Dispatch to Courier</span>
-                      </div>
-                      <span className="stitch-dash-van-tag">Chilled Boxed</span>
-                    </div>
-                  </div>
+                  {(() => {
+                    const cakeItems = productionOrders.flatMap(o => 
+                      (o.items || [])
+                        .filter(i => !!i.cake_weight || (i.product_name_snapshot?.toLowerCase().includes('cake') ?? false))
+                        .map(i => ({ item: i, order: o }))
+                    );
 
-                  <div className="stitch-dash-craft-card">
-                    <div className="stitch-dash-craft-card-top">
-                      <span className="stitch-dash-time-slot">AFTERNOON • 2 PM – 6 PM</span>
-                      <span className="stitch-dash-weight-tag">3.5 lb Tiered</span>
-                    </div>
-                    <h4 className="stitch-dash-craft-item-title">Pistachio Rose Cake</h4>
-                    <p className="stitch-dash-craft-desc">
-                      Crushed Iranian pistachios, whipped white ganache crumb coat, edible 24k gold foil leafing.
-                    </p>
-                    <div className="stitch-dash-craft-foot">
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#504441' }}>
-                        <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#7e544f' }}>location_on</span>
-                        <span>Bespoke Delivery</span>
+                    if (cakeItems.length === 0) {
+                      return (
+                        <div style={{ padding: '28px 16px', textAlign: 'center', backgroundColor: '#fcfbf9', borderRadius: '10px', border: '1px dashed #ebdcd6' }}>
+                          <span className="material-symbols-outlined" style={{ fontSize: '24px', color: '#b5a8a4', marginBottom: '4px' }}>skillet</span>
+                          <div style={{ fontSize: '12.5px', fontWeight: 600, color: '#432821' }}>No Confection Bakes In Production</div>
+                          <p style={{ fontSize: '11px', color: '#7e726b', margin: '2px 0 0 0' }}>Baking prep cycle runs upon client deposit verification.</p>
+                        </div>
+                      );
+                    }
+
+                    return cakeItems.slice(0, 3).map(({ item, order }, idx) => (
+                      <div key={idx} className="stitch-dash-craft-card">
+                        <div className="stitch-dash-craft-card-top">
+                          <span className="stitch-dash-time-slot">#{order.invoice_number} • {order.delivery_time || 'MORNING SLOT'}</span>
+                          <span className="stitch-dash-weight-tag">{item.cake_weight || '2.0 lb'}</span>
+                        </div>
+                        <h4 className="stitch-dash-craft-item-title">{item.product_name_snapshot}</h4>
+                        <p className="stitch-dash-craft-desc">
+                          {item.cake_flavor ? `Flavor: ${item.cake_flavor}. ` : ''}
+                          {item.cake_message ? `Custom inscription: "${item.cake_message}". ` : 'Freshly baked upon confirmed slot.'}
+                        </p>
+                        <div className="stitch-dash-craft-foot">
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#504441' }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#7e544f' }}>location_on</span>
+                            <span>{order.delivery_address?.toLowerCase().includes('pickup') ? 'Studio Pickup' : 'Chilled Courier'}</span>
+                          </div>
+                          <span className="stitch-dash-van-tag">In Oven Batch</span>
+                        </div>
                       </div>
-                      <span className="stitch-dash-oven-tag">In Oven Cycle #2</span>
-                    </div>
-                  </div>
+                    ));
+                  })()}
                 </div>
 
                 {/* Tailoring Queue */}
@@ -377,40 +360,47 @@ export const AdminDashboard: React.FC = () => {
                       <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#7e544f' }}>checkroom</span>
                       <strong style={{ fontSize: '13px', color: '#432821' }}>Tailoring Queue</strong>
                     </div>
-                    <span className="stitch-dash-badge-sm">Active Smocking</span>
+                    {(() => {
+                      const dressItems = productionOrders.flatMap(o => (o.items || []).filter(i => !i.cake_weight && !(i.product_name_snapshot?.toLowerCase().includes('cake') ?? false)));
+                      return <span className="stitch-dash-badge-sm">{dressItems.length > 0 ? `${dressItems.length} On Atelier Floor` : '0 Active'}</span>;
+                    })()}
                   </div>
 
-                  <div className="stitch-dash-craft-card">
-                    <div className="stitch-dash-craft-card-top">
-                      <span className="stitch-dash-time-slot">DAY 4 OF 7 • HAND STITCHING</span>
-                      <span className="stitch-dash-weight-tag">Size 1-2Y</span>
-                    </div>
-                    <h4 className="stitch-dash-craft-item-title">Aurelia Floral Smocked Dress</h4>
-                    <div className="stitch-dash-progress-meta">
-                      <span>Artisan: <strong>Salma Akter</strong></span>
-                      <span style={{ color: '#065f46', fontWeight: 600 }}>60% Complete</span>
-                    </div>
-                    <div className="stitch-dash-craft-foot">
-                      <span style={{ fontSize: '11px', color: '#6f6764' }}>French Linen &amp; Silk Floss</span>
-                      <span className="stitch-dash-pleat-tag">Bodice Pleating</span>
-                    </div>
-                  </div>
+                  {(() => {
+                    const dressItems = productionOrders.flatMap(o => 
+                      (o.items || [])
+                        .filter(i => !i.cake_weight && !(i.product_name_snapshot?.toLowerCase().includes('cake') ?? false))
+                        .map(i => ({ item: i, order: o }))
+                    );
 
-                  <div className="stitch-dash-craft-card">
-                    <div className="stitch-dash-craft-card-top">
-                      <span className="stitch-dash-time-slot">DAY 1 OF 5 • PATTERN WORKSHOP</span>
-                      <span className="stitch-dash-weight-tag">Size 4-5Y</span>
-                    </div>
-                    <h4 className="stitch-dash-craft-item-title">Maryam Classic Collar Dress</h4>
-                    <div className="stitch-dash-progress-meta">
-                      <span>Artisan: <strong>Sanjida Bethi</strong></span>
-                      <span style={{ color: '#7e544f', fontWeight: 600 }}>Stage 1: Cut</span>
-                    </div>
-                    <div className="stitch-dash-craft-foot">
-                      <span style={{ fontSize: '11px', color: '#6f6764' }}>English Cotton &amp; Hand Hem</span>
-                      <span className="stitch-dash-pleat-tag">Pattern Cutting</span>
-                    </div>
-                  </div>
+                    if (dressItems.length === 0) {
+                      return (
+                        <div style={{ padding: '28px 16px', textAlign: 'center', backgroundColor: '#fcfbf9', borderRadius: '10px', border: '1px dashed #ebdcd6' }}>
+                          <span className="material-symbols-outlined" style={{ fontSize: '24px', color: '#b5a8a4', marginBottom: '4px' }}>straighten</span>
+                          <div style={{ fontSize: '12.5px', fontWeight: 600, color: '#432821' }}>Tailoring Queue Idle</div>
+                          <p style={{ fontSize: '11px', color: '#7e726b', margin: '2px 0 0 0' }}>Bespoke stitching starts once order measurements are approved.</p>
+                        </div>
+                      );
+                    }
+
+                    return dressItems.slice(0, 3).map(({ item, order }, idx) => (
+                      <div key={idx} className="stitch-dash-craft-card">
+                        <div className="stitch-dash-craft-card-top">
+                          <span className="stitch-dash-time-slot">#{order.invoice_number} • HAND STITCHING</span>
+                          <span className="stitch-dash-weight-tag">{item.selected_size ? `Size ${item.selected_size}` : 'Custom Fit'}</span>
+                        </div>
+                        <h4 className="stitch-dash-craft-item-title">{item.product_name_snapshot}</h4>
+                        <div className="stitch-dash-progress-meta">
+                          <span>Patron: <strong>{order.customer?.name || 'Client'}</strong></span>
+                          <span style={{ color: '#065f46', fontWeight: 600 }}>Active Smocking</span>
+                        </div>
+                        <div className="stitch-dash-craft-foot">
+                          <span style={{ fontSize: '11px', color: '#6f6764' }}>{order.delivery_date ? `Due: ${order.delivery_date}` : 'Studio Workshop'}</span>
+                          <span className="stitch-dash-pleat-tag">Needlework</span>
+                        </div>
+                      </div>
+                    ));
+                  })()}
                 </div>
               </div>
 

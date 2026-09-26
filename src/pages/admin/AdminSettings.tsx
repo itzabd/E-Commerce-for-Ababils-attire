@@ -19,6 +19,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { settingsService, DEFAULT_SIZE_CHART } from '../../services/settings.service';
 import { storageService } from '../../services/storage.service';
 import { reviewsService, type CustomerReview } from '../../services/reviews.service';
+import { telegramNotificationService } from '../../services/telegram.service';
 import type { StoreSettings, SizeChartEntry } from '../../types';
 import { convertToCSV, downloadFile } from '../../lib/csv';
 import { ImageCropper } from '../../components/admin/ImageCropper';
@@ -100,6 +101,48 @@ export const AdminSettings: React.FC = () => {
 
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const logoInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Telegram Test Notification State
+  const [sendingTelegramTest, setSendingTelegramTest] = useState(false);
+  const [telegramFeedback, setTelegramFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  const handleSendTelegramTest = async () => {
+    if (!form) return;
+    const chatId = (form.telegram_chat_id || '').trim();
+    if (!chatId) {
+      setTelegramFeedback({
+        type: 'error',
+        message: 'Please provide a Telegram Chat ID before sending a test notification.',
+      });
+      return;
+    }
+
+    setSendingTelegramTest(true);
+    setTelegramFeedback(null);
+
+    try {
+      const res = await telegramNotificationService.sendTestNotification(chatId);
+      if (res.success) {
+        setTelegramFeedback({
+          type: 'success',
+          message: res.message || 'Test notification delivered successfully to your Telegram!',
+        });
+        showToast('Test notification sent to Telegram!');
+      } else {
+        setTelegramFeedback({
+          type: 'error',
+          message: res.error || 'Failed to dispatch test notification.',
+        });
+      }
+    } catch (err: any) {
+      setTelegramFeedback({
+        type: 'error',
+        message: err.message || 'Error occurred while contacting Telegram.',
+      });
+    } finally {
+      setSendingTelegramTest(false);
+    }
+  };
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -772,6 +815,19 @@ export const AdminSettings: React.FC = () => {
             <span>Customer Reviews</span>
           </a>
           <a
+            href="#section-telegram"
+            onClick={() => setActiveSection('telegram')}
+            style={{
+              ...styles.tabLink,
+              ...(activeSection === 'telegram' ? styles.tabLinkActive : {}),
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>
+              send
+            </span>
+            <span>Telegram</span>
+          </a>
+          <a
             href="#section-account"
             onClick={() => setActiveSection('account')}
             style={{
@@ -1081,16 +1137,156 @@ export const AdminSettings: React.FC = () => {
               />
             </div>
 
-            {/* Story Photo URL */}
+            {/* Story Photo Upload & Preview */}
             <div>
-              <label style={styles.label}>Story Photograph URL</label>
-              <input
-                type="text"
-                placeholder="https://..."
-                value={form.about_story_image_url || ''}
-                onChange={(e) => setForm({ ...form, about_story_image_url: e.target.value })}
-                style={styles.input}
-              />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', marginBottom: '8px' }}>
+                <div>
+                  <label style={{ ...styles.label, marginBottom: '2px' }}>Story Photograph & Atelier Visual</label>
+                  <span style={styles.inputHint}>
+                    Featured 4:3 photograph showing Sanjida Bethi or the artisan atelier process on the About page.
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                  {form.about_story_image_url && (
+                    <button
+                      type="button"
+                      onClick={() => handleReCropBanner('about_story_image_url', 4 / 3, form.about_story_image_url)}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '6px 12px',
+                        minHeight: '34px',
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #d9cbbf',
+                        borderRadius: '6px',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        color: '#432821',
+                        cursor: 'pointer'
+                      }}
+                      title="Re-adjust framing or zoom on existing photo"
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>crop</span>
+                      Adjust / Crop
+                    </button>
+                  )}
+                  <label style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 14px',
+                    minHeight: '34px',
+                    backgroundColor: '#432821',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    color: '#ffffff',
+                    cursor: uploadingBannerField === 'about_story_image_url' ? 'not-allowed' : 'pointer',
+                    boxShadow: '0 2px 5px rgba(67, 40, 33, 0.2)'
+                  }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>upload</span>
+                    {form.about_story_image_url ? 'Upload New Photo' : 'Upload Story Photo'}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleBannerFileChange(e, 'about_story_image_url', 4 / 3)}
+                      style={{ display: 'none' }}
+                      disabled={uploadingBannerField === 'about_story_image_url'}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => handleResetBanner('about_story_image_url', 'https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?auto=format&fit=crop&w=1200&q=80', 'About Story Photo')}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '6px',
+                      minHeight: '34px',
+                      minWidth: '34px',
+                      backgroundColor: '#ffffff',
+                      border: '1px solid #ebdcd5',
+                      borderRadius: '6px',
+                      color: '#827470',
+                      cursor: 'pointer'
+                    }}
+                    title="Reset to default story photo"
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>restart_alt</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Story Photo Visual Preview */}
+              <div style={{
+                position: 'relative',
+                width: '100%',
+                maxWidth: '480px',
+                aspectRatio: '4 / 3',
+                borderRadius: '10px',
+                overflow: 'hidden',
+                backgroundColor: '#1b1c1a',
+                border: '1px solid #ebdcd5',
+                boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginTop: '8px',
+                marginBottom: '10px',
+              }}>
+                {uploadingBannerField === 'about_story_image_url' ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#ffffff', zIndex: 10 }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '32px', animation: 'spin 1s linear infinite' }}>sync</span>
+                    <span style={{ fontSize: '12px', fontWeight: 600 }}>Optimizing & Uploading Photo...</span>
+                  </div>
+                ) : (
+                  <>
+                    <img
+                      src={form.about_story_image_url || 'https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?auto=format&fit=crop&w=1200&q=80'}
+                      alt="About Story Preview"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => {
+                        const target = e.currentTarget as HTMLImageElement;
+                        const src = target.src;
+                        if (!target.dataset.retried && src.includes('supabase.co')) {
+                          target.dataset.retried = 'true';
+                          setTimeout(() => {
+                            target.src = `${src}${src.includes('?') ? '&' : '?'}retry=${Date.now()}`;
+                          }, 1200);
+                        }
+                      }}
+                    />
+                    <div style={{
+                      position: 'absolute',
+                      bottom: '8px',
+                      left: '8px',
+                      padding: '4px 10px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.92)',
+                      backdropFilter: 'blur(6px)',
+                      borderRadius: '20px',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      color: '#432821',
+                    }}>
+                      4:3 Atelier Framing
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Direct URL Fallback */}
+              <div style={{ maxWidth: '480px' }}>
+                <input
+                  type="text"
+                  placeholder="Or paste external image URL (https://...)"
+                  value={form.about_story_image_url || ''}
+                  onChange={(e) => setForm({ ...form, about_story_image_url: e.target.value })}
+                  style={{ ...styles.input, fontSize: '12px', padding: '6px 10px' }}
+                />
+              </div>
             </div>
 
             {/* Craft Disciplines Grid */}
@@ -2719,6 +2915,185 @@ export const AdminSettings: React.FC = () => {
                 ))}
               </div>
             )}
+          </div>
+        </section>
+
+        {/* =================================================================== */}
+        {/* SECTION: TELEGRAM NOTIFICATIONS                                     */}
+        {/* =================================================================== */}
+        <section id="section-telegram" style={styles.sectionCard}>
+          <div style={styles.sectionCardHeader}>
+            <div style={styles.sectionHeaderLeft}>
+              <span className="material-symbols-outlined" style={styles.sectionIcon}>
+                send
+              </span>
+              <h2 style={styles.sectionCardTitle}>Telegram Notifications</h2>
+            </div>
+            <span
+              style={{
+                ...styles.activeBdBadge,
+                backgroundColor: form.telegram_notifications_enabled ? '#d1fae5' : '#f3f4f6',
+                color: form.telegram_notifications_enabled ? '#065f46' : '#6b7280',
+              }}
+            >
+              {form.telegram_notifications_enabled ? 'Notifications Active' : 'Disabled'}
+            </span>
+          </div>
+
+          <div style={styles.sectionBody}>
+            {/* Operational Info Banner */}
+            <div style={styles.infoBanner}>
+              <span className="material-symbols-outlined" style={styles.infoIcon}>
+                notifications_active
+              </span>
+              <div>
+                <h4 style={styles.infoTitle}>Instant Order Alerts to Telegram</h4>
+                <p style={styles.infoDesc}>
+                  Receive real-time push notifications on your phone or desktop whenever a new customer order is confirmed or a manual order is booked.
+                </p>
+              </div>
+            </div>
+
+            {/* Notification Enable / Disable Toggle */}
+            <div style={{ ...styles.pickupCard, marginBottom: '16px' }}>
+              <div>
+                <p style={styles.pickupTitle}>Enable Order Notifications</p>
+                <p style={styles.pickupSubtitle}>
+                  When enabled, verified new orders automatically ping your Telegram channel or group.
+                </p>
+              </div>
+              <label style={styles.switchWrapper}>
+                <input
+                  type="checkbox"
+                  checked={Boolean(form.telegram_notifications_enabled)}
+                  onChange={(e) =>
+                    setForm({ ...form, telegram_notifications_enabled: e.target.checked })
+                  }
+                  style={styles.switchInput}
+                />
+                <span
+                  style={{
+                    ...styles.switchTrack,
+                    backgroundColor: form.telegram_notifications_enabled ? '#432821' : '#e4e2de',
+                  }}
+                >
+                  <span
+                    style={{
+                      ...styles.switchThumb,
+                      transform: form.telegram_notifications_enabled ? 'translateX(20px)' : 'translateX(0)',
+                    }}
+                  />
+                </span>
+              </label>
+            </div>
+
+            {/* Telegram Chat ID & Security Guard */}
+            <div style={styles.formGrid2}>
+              <div>
+                <label style={styles.label}>Telegram Chat ID *</label>
+                <input
+                  type="text"
+                  value={form.telegram_chat_id || ''}
+                  onChange={(e) => setForm({ ...form, telegram_chat_id: e.target.value })}
+                  placeholder="e.g. -1001234567890 or 987654321"
+                  style={styles.input}
+                />
+                <span style={styles.inputHint}>
+                  Recipient chat ID, private user ID, or channel/group ID (e.g. <code>-100...</code> for supergroups).
+                </span>
+              </div>
+
+              <div>
+                <label style={styles.label}>Bot Token Security</label>
+                <div
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: '4px',
+                    backgroundColor: '#faf8f5',
+                    border: '1px solid #ebdcd5',
+                    fontSize: '12px',
+                    color: '#6e5a54',
+                    lineHeight: 1.5,
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600, color: '#432821', marginBottom: '2px' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '15px', color: '#065f46' }}>
+                      verified_user
+                    </span>
+                    <span>Protected Server Secrets</span>
+                  </div>
+                  The bot token is securely kept in environment variables and never exposed in the browser.
+                </div>
+              </div>
+            </div>
+
+            {/* Test Notification Row & Feedback */}
+            <div
+              style={{
+                marginTop: '16px',
+                paddingTop: '16px',
+                borderTop: '1px solid #ebdcd5',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+                <div>
+                  <h4 style={{ margin: 0, fontSize: '13px', fontWeight: 600, color: '#432821' }}>
+                    Verify Configuration
+                  </h4>
+                  <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#827470' }}>
+                    Send a test ping to confirm your bot has permission to message this Chat ID.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleSendTelegramTest}
+                  disabled={sendingTelegramTest || !form.telegram_chat_id?.trim()}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: form.telegram_chat_id?.trim() ? '#5c3e36' : '#d4c3bf',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    cursor: form.telegram_chat_id?.trim() && !sendingTelegramTest ? 'pointer' : 'default',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                    {sendingTelegramTest ? 'sync' : 'outgoing_mail'}
+                  </span>
+                  <span>{sendingTelegramTest ? 'Sending Test...' : 'Send Test Notification'}</span>
+                </button>
+              </div>
+
+              {/* Feedback Alert Box */}
+              {telegramFeedback && (
+                <div
+                  style={{
+                    padding: '10px 14px',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    backgroundColor: telegramFeedback.type === 'success' ? '#ecfdf5' : '#fef2f2',
+                    border: `1px solid ${telegramFeedback.type === 'success' ? '#a7f3d0' : '#fecaca'}`,
+                    color: telegramFeedback.type === 'success' ? '#065f46' : '#991b1b',
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                    {telegramFeedback.type === 'success' ? 'check_circle' : 'error'}
+                  </span>
+                  <span>{telegramFeedback.message}</span>
+                </div>
+              )}
+            </div>
           </div>
         </section>
 

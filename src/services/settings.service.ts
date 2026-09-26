@@ -75,6 +75,8 @@ export const DEFAULT_STORE_SETTINGS: StoreSettings = {
     { id: 'sz_6', size: '4-5Y', chest: '23.5"', length: '23"', typical_age: '4–5 Years' },
   ],
   size_guide_intro: 'Measurements in inches. Handcrafted garments have a relaxed silhouette for ease and growing room.',
+  telegram_notifications_enabled: false,
+  telegram_chat_id: '',
 };
 
 export const DEFAULT_SIZE_CHART = DEFAULT_STORE_SETTINGS.size_chart!;
@@ -126,6 +128,8 @@ export const settingsService = {
             delivery_cake_van: Number(data.delivery_cake_van ?? 250),
             cake_minimum_notice_hours: Number(data.cake_minimum_notice_hours ?? 48),
             dress_lead_time_days: Number(data.dress_lead_time_days ?? 7),
+            telegram_notifications_enabled: Boolean(data.telegram_notifications_enabled ?? false),
+            telegram_chat_id: String(data.telegram_chat_id ?? ''),
           };
           saveLocalSettings(remoteSettings);
           return remoteSettings;
@@ -190,6 +194,8 @@ export const settingsService = {
             delivery_inside_dhaka: Number(data.delivery_inside_dhaka ?? merged.delivery_inside_dhaka),
             delivery_outside_dhaka: Number(data.delivery_outside_dhaka ?? merged.delivery_outside_dhaka),
             delivery_cake_van: Number(data.delivery_cake_van ?? merged.delivery_cake_van),
+            telegram_notifications_enabled: Boolean(data.telegram_notifications_enabled ?? merged.telegram_notifications_enabled ?? false),
+            telegram_chat_id: String(data.telegram_chat_id ?? merged.telegram_chat_id ?? ''),
           };
           saveLocalSettings(updated);
           if (typeof window !== 'undefined') {

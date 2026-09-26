@@ -281,6 +281,10 @@ export interface StoreSettings {
   about_craft_cakes_desc?: string;
   about_story_image_url?: string;
 
+  // Telegram Notifications Configuration
+  telegram_notifications_enabled?: boolean;
+  telegram_chat_id?: string;
+
   created_at?: string;
   updated_at?: string;
 }

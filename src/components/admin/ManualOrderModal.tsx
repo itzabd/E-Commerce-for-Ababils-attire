@@ -9,6 +9,7 @@ import { ordersService } from '../../services/orders.service';
 import { productsService } from '../../services/products.service';
 import { settingsService } from '../../services/settings.service';
 import { adminService, type CustomerDirectoryEntry } from '../../services/admin.service';
+import { telegramNotificationService } from '../../services/telegram.service';
 import type { ProductWithDetails, ManualOrderItemInput, CreateManualOrderPayload, ManualOrderResult } from '../../types';
 
 interface ManualOrderModalProps {
@@ -355,6 +356,11 @@ export const ManualOrderModal: React.FC<ManualOrderModalProps> = ({
       };
 
       const result = await ordersService.createManualOrder(payload);
+
+      // 🚀 Asynchronously trigger Telegram notification for manual order (non-blocking)
+      telegramNotificationService.notifyNewManualOrder(result, payload).catch((tgErr) => {
+        console.warn('[ManualOrder] Background Telegram notification error:', tgErr);
+      });
 
       setCreatedOrderSuccess(result);
       if (onOrderCreated) {
