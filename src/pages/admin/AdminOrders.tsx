@@ -16,6 +16,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ordersService, type AdminOrderSummary } from '../../services/orders.service';
 import type { OrderStatus, TrxMatchingPreview } from '../../types';
 import { ManualOrderModal } from '../../components/admin/ManualOrderModal';
+import { supabase } from '../../lib/supabase';
 
 type MatchingState =
   | 'idle'
@@ -75,6 +76,20 @@ export const AdminOrders: React.FC = () => {
 
   useEffect(() => {
     loadOrders();
+
+    const channel = supabase
+      .channel('admin-orders-live')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
+        loadOrders();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'payments' }, () => {
+        loadOrders();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [loadOrders]);
 
   // Handle escape key to close drawer or modals

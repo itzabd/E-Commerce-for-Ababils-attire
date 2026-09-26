@@ -93,8 +93,8 @@ BEGIN
         v_product_id := CASE WHEN (v_item->>'product_id') IS NOT NULL AND (v_item->>'product_id') <> '' THEN (v_item->>'product_id')::UUID ELSE NULL END;
         
         IF v_product_id IS NOT NULL THEN
-            SELECT base_price INTO v_real_price FROM products WHERE id = v_product_id;
-            v_real_price := COALESCE(v_real_price, 0.00);
+            SELECT price INTO v_real_price FROM products WHERE id = v_product_id;
+            v_real_price := COALESCE(v_real_price, (v_item->>'unit_price')::NUMERIC, 0.00);
         ELSE
             -- Custom untracked product, we have to trust the provided price or default to 0
             v_real_price := COALESCE((v_item->>'unit_price')::NUMERIC, 0.00);
