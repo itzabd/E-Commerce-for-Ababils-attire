@@ -136,6 +136,8 @@ export const AdminOrders: React.FC = () => {
         setMatchedData(result);
         if (result.payment_status === 'matched' || result.advance_status === 'verified') {
           setMatchingState('already_confirmed');
+        } else if (result.payment_status === 'mismatched' || result.advance_status === 'rejected' || result.payment_status === 'rejected') {
+          setMatchingState('trx_mismatch');
         } else if (result.expected_advance && result.payment_amount && result.expected_advance !== result.payment_amount) {
           setMatchingState('amount_mismatch');
         } else {
@@ -498,26 +500,28 @@ export const AdminOrders: React.FC = () => {
                 </div>
 
                 {/* Confirm / Flag Actions */}
-                <div style={styles.matchingActionsRow}>
-                  <button
-                    type="button"
-                    onClick={() => handleConfirmAdvance(matchedData.trx_id!, matchedData.invoice_number)}
-                    style={styles.confirmAdvanceBtn}
-                  >
-                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-                      verified
-                    </span>
-                    <span>Confirm Advance Payment</span>
-                  </button>
+                {matchingState !== 'already_confirmed' && matchingState !== 'trx_mismatch' && (
+                  <div style={styles.matchingActionsRow}>
+                    <button
+                      type="button"
+                      onClick={() => handleConfirmAdvance(matchedData.trx_id!, matchedData.invoice_number)}
+                      style={styles.confirmAdvanceBtn}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                        verified
+                      </span>
+                      <span>Confirm Advance Payment</span>
+                    </button>
 
-                  <button
-                    type="button"
-                    onClick={() => handleFlagMismatch(matchedData.trx_id!)}
-                    style={styles.flagMismatchBtn}
-                  >
-                    Flag Mismatch
-                  </button>
-                </div>
+                    <button
+                      type="button"
+                      onClick={() => handleFlagMismatch(matchedData.trx_id!)}
+                      style={styles.flagMismatchBtn}
+                    >
+                      Flag Mismatch
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
